@@ -1,0 +1,24 @@
+{
+  "id" : "30243419-e533-43dd-b2b9-a553266d39a4",
+  "name" : "pet_findbystatus",
+  "request" : {
+    "url" : "/pet/findByStatus?status=pending",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[{\"id\":549,\"name\":\"solid state array\",\"photoUrls\":[\"https://cdn.fakercloud.com/avatars/dhoot_amit_128.jpg\"],\"tags\":[],\"status\":\"pending\"},{\"id\":800,\"name\":\"}B6QWtf\",\"photoUrls\":[\"https://cdn.fakercloud.com/avatars/meelford_128.jpg\"],\"tags\":[],\"status\":\"pending\"},{\"id\":148687645503214480,\"category\":{\"id\":8017968131027134597,\"name\":\"o;v5;msV1qlbd%dQ<a1vt*{\"},\"name\":\"d:Nx|]:HF7Z}e%wAn/pZM.4XkL3NuXthJe%nR:U<:[\",\"photoUrls\":[\"?<PP6RN!9NVe=R]E.UX9K8oBLqq'#/21sf#f>e?}SH{rGj}Z::&3mkakF\"],\"tags\":[{\"id\":8211098168514964654,\"name\":\"}B6QWtf\"},{\"id\":6072529946391433122,\"name\":\"2yp3!.fmb.]Vcn9i3rr7%z*9_.C1i9HkfZlbylgv>cljb7v8JlXK!Nk4*N\"},{\"id\":1507475216966752161,\"name\":\"bKs{P`bH3Z??.]&}P&WPJzt\"},{\"id\":5878192541600435668,\"name\":\"t#Rv>w~!+!?W:1yJ,Y/W)l\"}],\"status\":\"pending\"},{\"id\":478,\"name\":\"}B6QWtf\",\"photoUrls\":[\"https://cdn.fakercloud.com/avatars/geshan_128.jpg\"],\"tags\":[],\"status\":\"pending\"},{\"id\":365,\"name\":\"digital pixel\",\"photoUrls\":[\"https://cdn.fakercloud.com/avatars/salvafc_128.jpg\"],\"tags\":[],\"status\":\"pending\"},{\"id\":899,\"name\":\"open-source transmitter\",\"photoUrls\":[\"https://cdn.fakercloud.com/avatars/illyzoren_128.jpg\"],\"tags\":[],\"status\":\"pending\"},{\"id\":3075056722496097434,\"category\":{\"id\":8017968131027134597,\"name\":\"o;v5;msV1qlbd%dQ<a1vt*{\"},\"name\":\"d:Nx|]:HF7Z}e%wAn/pZM.4XkL3NuXthJe%nR:U<:[\",\"photoUrls\":[\"?<PP6RN!9NVe=R]E.UX9K8oBLqq'#/21sf#f>e?}SH{rGj}Z::&3mkakF\"],\"tags\":[{\"id\":8211098168514964654,\"name\":\"}B6QWtf\"},{\"id\":6072529946391433122,\"name\":\"2yp3!.fmb.]Vcn9i3rr7%z*9_.C1i9HkfZlbylgv>cljb7v8JlXK!Nk4*N\"},{\"id\":1507475216966752161,\"name\":\"bKs{P`bH3Z??.]&}P&WPJzt\"},{\"id\":5878192541600435668,\"name\":\"t#Rv>w~!+!?W:1yJ,Y/W)l\"}],\"status\":\"pending\"},{\"id\":123123,\"name\":\"chenhao\",\"photoUrls\":[],\"tags\":[{\"id\":23,\"name\":\"chihuahua\"},{\"id\":56,\"name\":\"Tamaño pequeño\"}],\"status\":\"pending\"},{\"id\":23,\"name\":\"vango \",\"photoUrls\":[],\"tags\":[{\"id\":1,\"name\":\"Pastor Alemán\"},{\"id\":2,\"name\":\"tamaño enano\"}],\"status\":\"pending\"},{\"id\":7101336050363251880,\"category\":{\"id\":6625485176502584875,\"name\":\"o;v5;msV1qlbd%dQ<a1vt*{\"},\"name\":\"d:Nx|]:HF7Z}e%wAn/pZM.4XkL3NuXthJe%nR:U<:[\",\"photoUrls\":[\"?<PP6RN!9NVe=R]E.UX9K8oBLqq'#/21sf#f>e?}SH{rGj}Z::&3mkakF\"],\"tags\":[{\"id\":8211098168514964654,\"name\":\"}B6QWtf\"},{\"id\":6072529946391433122,\"name\":\"2yp3!.fmb.]Vcn9i3rr7%z*9_.C1i9HkfZlbylgv>cljb7v8JlXK!Nk4*N\"},{\"id\":1507475216966752161,\"name\":\"bKs{P`bH3Z??.]&}P&WPJzt\"},{\"id\":5878192541600435668,\"name\":\"t#Rv>w~!+!?W:1yJ,Y/W)l\"}],\"status\":\"pending\"},{\"id\":98,\"name\":\"Pastor Alemán\",\"photoUrls\":[],\"tags\":[{\"id\":1,\"name\":\"Pastor Alemán\"},{\"id\":2,\"name\":\"Tamaño mediano\"}],\"status\":\"pending\"},{\"id\":870,\"name\":\"')}}:3nT_GB.!hbg#2`cUsrJAzrhIa2=e.SKH$h\",\"photoUrls\":[\"https://cdn.fakercloud.com/avatars/solid_color_128.jpg\"],\"tags\":[],\"status\":\"pending\"}]",
+    "headers" : {
+      "Access-Control-Expose-Headers" : "Content-Disposition",
+      "Server" : "Jetty(9.4.53.v20231009)",
+      "Access-Control-Allow-Origin" : "*",
+      "Access-Control-Allow-Methods" : "GET, POST, DELETE, PUT",
+      "Access-Control-Allow-Headers" : "Content-Type, api_key, Authorization",
+      "Date" : "Thu, 21 Nov 2024 09:17:17 GMT",
+      "Content-Type" : "application/json"
+    }
+  },
+  "uuid" : "30243419-e533-43dd-b2b9-a553266d39a4",
+  "persistent" : true,
+  "insertionIndex" : 5
+}
