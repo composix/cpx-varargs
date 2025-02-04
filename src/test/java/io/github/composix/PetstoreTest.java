@@ -32,25 +32,30 @@ import org.junit.jupiter.api.Test;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 
+import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
+import io.github.composix.testing.TestData;
 
 @WireMockTest
 class PetstoreTest extends TestCase {
     static final String PETSTORE_API = "https://petstore3.swagger.io/api/v3/openapi.json";
 
-    Pet[] pets;
+    TestData testData;
 
     @BeforeEach
     void beforeEach(WireMockRuntimeInfo wm) throws IOException {
-        pets = testData(wm, PETSTORE_API)
+        testData = testData(wm, PETSTORE_API)
             .select("~","pet","findByStatus","?status","=available")
-            .refresh(Pet.class)
-        .collect().toArray(Pet[]::new);
+            .refresh(Pet.class);
+
+        testData
+            .select("~","store","order",":orderId","=10")
+            .refresh(Order.class);
     }
 
     @Test
     void testPetstore() {
-
+        
     }
 }

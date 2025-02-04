@@ -49,7 +49,7 @@ class TestDataRoot extends CharSequenceNode implements TestData {
     }
 
     TestDataRoot(WireMockRuntimeInfo wm, String baseUrl) {
-        super(".");
+        super("~");
         this.wm = wm;
         base = URI.create(baseUrl);
         mapper = new ObjectMapper();

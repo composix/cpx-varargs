@@ -45,12 +45,27 @@ class TestDataNode extends CharSequenceNode implements TestData {
 
     @Override
     public <R extends Record> TestData refresh(Class<R> type) throws IOException {
-        final URI uri = URI.create(pathToUrl((byte) (range >> SHIFT), root.paths.get(range & MASK)));
+        final CharSequence[] path = root.paths.get(range & MASK);
+        boolean multi = true;
+        if (path[path.length - 1].charAt(0) == '=' && path[path.length - 2].charAt(0) == ':') {
+            multi = false;
+        }
+        final URI uri = URI.create(pathToUrl((byte) (range >> SHIFT), path));
         try {
-            data = root.mapper.readValue(root.base.resolve(uri).toURL(), Object[].class);
+            if (multi) {
+                data = root.mapper.readValue(root.base.resolve(uri).toURL(), Object[].class);
+            } else {
+                data = new Object[1];
+                data[0] = root.mapper.readValue(root.base.resolve(uri).toURL(), Object.class);
+            }
         } catch(IOException e) {
             final URI base = URI.create(root.wm.getHttpBaseUrl());
-            data = (Object[]) root.mapper.readValue(base.resolve(uri).toURL(), type.arrayType());
+            if (multi) {
+                data = (Object[]) root.mapper.readValue(base.resolve(uri).toURL(), type.arrayType());
+            } else {
+                data = new Object[1];
+                data[0] = root.mapper.readValue(root.base.resolve(uri).toURL(), Object.class);
+            }
         }
         return this;
     }
@@ -58,7 +73,7 @@ class TestDataNode extends CharSequenceNode implements TestData {
     @Override
     public TestData select(CharSequence... path) {
         if ("~".equals(path[0].toString())) {
-            root.select(path);
+            return root.select(path);
         }
         throw new UnsupportedOperationException("not yet implemented");
     }
@@ -71,7 +86,8 @@ class TestDataNode extends CharSequenceNode implements TestData {
     private String pathToUrl(final byte size, final CharSequence... path) {
         final StringWriter writer = new StringWriter();
         boolean flag = false;
-        for (int i = 1; i < size; ++i) {
+        boolean query = true;
+        for (int i = 0; i < size; ++i) {
             final CharSequence part = path[i];
             switch(part.charAt(0)) {
                 case '?':
@@ -79,7 +95,18 @@ class TestDataNode extends CharSequenceNode implements TestData {
                         writer.append('&');
                     }
                 case '=':
-                    writer.append(part);
+                    if (query) {
+                        writer.append(part);
+                    } else {
+                        writer.append('/');
+                        writer.append(part.subSequence(1, part.length()));
+                    }
+                    break;
+                case '~':
+                    writer.append('.');
+                    break;
+                case ':':
+                    query = false;
                     break;
                 default:
                     writer.append('/');
