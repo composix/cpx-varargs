@@ -22,32 +22,40 @@
  * SOFTWARE.
  */
 
-package io.github.composix.testing;
+package io.github.composix.math;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import java.util.ListIterator;
+import java.util.function.Consumer;
 
-import io.github.composix.math.ArgsOrdinal;
-import io.github.composix.math.Order;
-
-public class TestCase implements ArgsOrdinal{
-    private static final TestCase DEFAULT = new DefaultTestCase();
-
-    private TestCase instance;
-
-    protected TestCase() {
-        instance = DEFAULT;
+public interface Ordinal extends Cloneable, ArgsOrdinal, ListIterator<Ordinal>, Comparable<Ordinal> {
+    static Ordinal of(int index) {
+        return null;
     }
 
-    public void register(TestCase factory) {
-        instance = factory;
+    Order clone() throws CloneNotSupportedException;
+
+    default Order order() {
+        try {
+            return clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public TestData testData(WireMockRuntimeInfo wm, String baseUrl) {
-        return instance.testData(wm, baseUrl);
-    }
+    int intValue();
 
-    @Override
-    public Order order() {
-        throw new UnsupportedOperationException();
-    };
+    int index(Ordinal row);
+
+    boolean isOrdinal();
+
+    boolean contains(Ordinal ordinal);
+
+    void forEach(Consumer<? super Ordinal> consumer);
+
+    // methods for array manipulation
+    Object newInstance(final Class<?> type);
+
+    Object[] copyOf(Object[] array);
+
+    Object copyOf(Object array);
 }

@@ -22,32 +22,35 @@
  * SOFTWARE.
  */
 
-package io.github.composix.testing;
+package io.github.composix.varargs;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import java.util.Comparator;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import io.github.composix.math.ArgsOrdinal;
 import io.github.composix.math.Order;
+import io.github.composix.math.Ordinal;
+import io.github.composix.math.Fn;
 
-public class TestCase implements ArgsOrdinal{
-    private static final TestCase DEFAULT = new DefaultTestCase();
+public interface Args extends Cloneable, ArgsOrdinal {
+    Args clone();
 
-    private TestCase instance;
+    Object[] export();
+    
+    Ordinal ordinalAt(Ordinal ordinal, Object value);
 
-    protected TestCase() {
-        instance = DEFAULT;
+    <T> T getValue(int index);
+
+    long getLongValue(int index);
+    
+    <T> Stream<T> stream(Ordinal ordinal);
+
+    LongStream longStream(Ordinal ordinal);
+
+    Args select(Order order);
+
+    default Comparator<Ordinal> comparator(Ordinal ordinal) {
+        return Comparator.comparing(Fn.of(ordinal::index).intAndThen(this::getValue));
     }
-
-    public void register(TestCase factory) {
-        instance = factory;
-    }
-
-    public TestData testData(WireMockRuntimeInfo wm, String baseUrl) {
-        return instance.testData(wm, baseUrl);
-    }
-
-    @Override
-    public Order order() {
-        throw new UnsupportedOperationException();
-    };
 }

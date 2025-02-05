@@ -22,32 +22,32 @@
  * SOFTWARE.
  */
 
-package io.github.composix.testing;
+package io.github.composix.math;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import java.util.Comparator;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
-import io.github.composix.math.ArgsOrdinal;
-import io.github.composix.math.Order;
+public interface Order extends OrdinalIterable {
+    void resize(int ordinal);
+    
+    Ordinal ordinal();
 
-public class TestCase implements ArgsOrdinal{
-    private static final TestCase DEFAULT = new DefaultTestCase();
+    boolean isOrdinal();
 
-    private TestCase instance;
+    void order(Comparator<Ordinal> comparator);
 
-    protected TestCase() {
-        instance = DEFAULT;
-    }
+    void order(Ordinal a, Ordinal b);
 
-    public void register(TestCase factory) {
-        instance = factory;
-    }
+    int rank(int index);
 
-    public TestData testData(WireMockRuntimeInfo wm, String baseUrl) {
-        return instance.testData(wm, baseUrl);
-    }
+    Ordinal rank(Ordinal index);
 
-    @Override
-    public Order order() {
-        throw new UnsupportedOperationException();
-    };
+    <T> Stream<T> stream(T[] array);
+
+    LongStream stream(long[] array);
+
+    Stream<Object[]> streamArgv(int size, Object[] argv);
+
+    Object[] select(Object... items);
 }

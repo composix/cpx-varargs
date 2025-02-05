@@ -22,32 +22,15 @@
  * SOFTWARE.
  */
 
-package io.github.composix.testing;
+package io.github.composix.varargs;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import java.util.function.ToLongFunction;
 
-import io.github.composix.math.ArgsOrdinal;
-import io.github.composix.math.Order;
+public interface JoinA2<A,B> extends JoinA<A> {
 
-public class TestCase implements ArgsOrdinal{
-    private static final TestCase DEFAULT = new DefaultTestCase();
+    ArgsIII<A,B,long[]> selectLongC(ToLongFunction<A> accessor);
 
-    private TestCase instance;
+    <N> ArgsIII<A,B,N> joinII(ArgsII<B,N> rhs);
 
-    protected TestCase() {
-        instance = DEFAULT;
-    }
-
-    public void register(TestCase factory) {
-        instance = factory;
-    }
-
-    public TestData testData(WireMockRuntimeInfo wm, String baseUrl) {
-        return instance.testData(wm, baseUrl);
-    }
-
-    @Override
-    public Order order() {
-        throw new UnsupportedOperationException();
-    };
+    ArgsI<B> shiftLeft();
 }

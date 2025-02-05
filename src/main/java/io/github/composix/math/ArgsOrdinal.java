@@ -22,32 +22,34 @@
  * SOFTWARE.
  */
 
-package io.github.composix.testing;
+package io.github.composix.math;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import java.math.BigInteger;
 
-import io.github.composix.math.ArgsOrdinal;
-import io.github.composix.math.Order;
+import io.github.composix.varargs.Args;
+import io.github.composix.varargs.ArgsI;
 
-public class TestCase implements ArgsOrdinal{
-    private static final TestCase DEFAULT = new DefaultTestCase();
+public interface ArgsOrdinal {
+    static final Ordinal OMEGA = null;
+    static final Ordinal A = null;
+    static final Ordinal B = null;
+    static final Ordinal C = null;
 
-    private TestCase instance;
+    static Object[] OBJECTS = new Object[0];
+    static String[] STRINGS = new String[0];
+    static long[] LONGS = new long[0];
+    static BigInteger[] INTEGERS = new BigInteger[0];
 
-    protected TestCase() {
-        instance = DEFAULT;
-    }
-
-    public void register(TestCase factory) {
-        instance = factory;
-    }
-
-    public TestData testData(WireMockRuntimeInfo wm, String baseUrl) {
-        return instance.testData(wm, baseUrl);
-    }
-
+    Order order();
+    
     @Override
-    public Order order() {
-        throw new UnsupportedOperationException();
-    };
+    String toString();
+
+    default Args extend(Ordinal col, Object... arrays) {
+        return null;
+    }
+
+    default <T> ArgsI<T> extendA(T... array) {
+        return (ArgsI<T>) extend(A, new Object[] {array});
+    }
 }

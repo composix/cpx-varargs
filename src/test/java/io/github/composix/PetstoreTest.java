@@ -24,6 +24,8 @@
 
 package io.github.composix;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,10 +34,13 @@ import org.junit.jupiter.api.Test;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 
+import io.github.composix.math.Ordinal;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.TestData;
+import io.github.composix.varargs.ArgsII;
+import io.github.composix.varargs.ArgsIII;
 
 @WireMockTest
 class PetstoreTest extends TestCase {
@@ -56,6 +61,31 @@ class PetstoreTest extends TestCase {
 
     @Test
     void testPetstore() {
-        
+        final ArgsII<String,long[]> pets = Ordinal
+            .OMEGA.extendA(
+                testData
+                    .select("~","pet")
+                    .collect()
+                .toArray(Pet[]::new))
+                    .selectB(Pet::name)
+                    .selectLongC(Pet::id)
+                .shiftLeft();
+
+        final ArgsII<long[],long[]> orders = Ordinal
+            .OMEGA.extendA(
+                testData
+                    .select("~","store","order")
+                    .collect()
+                .toArray(Order[]::new))
+                    .selectLongB(Order::petId)
+                    .selectLongC(Order::quantity)
+                .shiftLeft();
+
+        ArgsIII<String,long[],long[]> orderAmounts = pets.joinII(orders);
+
+        final Ordinal A = Ordinal.A, B = Ordinal.B, C = Ordinal.C;
+        assertEquals("Dog_Pluto", orderAmounts.getValue(A.index(A)));
+        assertEquals(101L, orderAmounts.getLongValue(B.index(A)));
+        assertEquals(7L, orderAmounts.getLongValue(C.index(A)));        
     }
 }

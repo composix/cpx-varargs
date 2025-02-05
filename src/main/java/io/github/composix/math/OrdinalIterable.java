@@ -22,32 +22,9 @@
  * SOFTWARE.
  */
 
-package io.github.composix.testing;
+package io.github.composix.math;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
-
-import io.github.composix.math.ArgsOrdinal;
-import io.github.composix.math.Order;
-
-public class TestCase implements ArgsOrdinal{
-    private static final TestCase DEFAULT = new DefaultTestCase();
-
-    private TestCase instance;
-
-    protected TestCase() {
-        instance = DEFAULT;
-    }
-
-    public void register(TestCase factory) {
-        instance = factory;
-    }
-
-    public TestData testData(WireMockRuntimeInfo wm, String baseUrl) {
-        return instance.testData(wm, baseUrl);
-    }
-
+public interface OrdinalIterable extends Iterable<Ordinal> {
     @Override
-    public Order order() {
-        throw new UnsupportedOperationException();
-    };
+    Ordinal iterator();
 }

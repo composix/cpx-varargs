@@ -22,32 +22,32 @@
  * SOFTWARE.
  */
 
-package io.github.composix.testing;
+package io.github.composix.math;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.ToIntFunction;
 
-import io.github.composix.math.ArgsOrdinal;
-import io.github.composix.math.Order;
+@FunctionalInterface
+public interface Fn<A,B> extends Function<A,B> {
+    static <A> Fn<A,Integer> of(FnObjInt<A> fn) {
+        return fn;
+    } 
 
-public class TestCase implements ArgsOrdinal{
-    private static final TestCase DEFAULT = new DefaultTestCase();
+    @FunctionalInterface
+    public interface FnObjInt<A> extends ToIntFunction<A>, Fn<A,Integer> {
+        @Override
+        default Integer apply(A t) {
+            return applyAsInt(t);
+        }
 
-    private TestCase instance;
-
-    protected TestCase() {
-        instance = DEFAULT;
+        @Override
+        default <R> Function<A,R> intAndThen(IntFunction<R> after) {
+            return (A a) -> after.apply(applyAsInt(a));
+        }    
     }
 
-    public void register(TestCase factory) {
-        instance = factory;
-    }
-
-    public TestData testData(WireMockRuntimeInfo wm, String baseUrl) {
-        return instance.testData(wm, baseUrl);
-    }
-
-    @Override
-    public Order order() {
+    default <R> Function<A,R> intAndThen(IntFunction<R> after) {
         throw new UnsupportedOperationException();
-    };
+    }
 }
