@@ -26,14 +26,13 @@ package io.github.composix.math;
 
 import java.math.BigInteger;
 
-import io.github.composix.varargs.Args;
 import io.github.composix.varargs.ArgsI;
 
 public interface ArgsOrdinal {
-    static final Ordinal OMEGA = null;
-    static final Ordinal A = null;
-    static final Ordinal B = null;
-    static final Ordinal C = null;
+    static final Ordinal OMEGA = Constants.getInstance().omega();
+    static final Ordinal A = Constants.getInstance().ordinal(0);
+    static final Ordinal B = Constants.getInstance().ordinal(1);
+    static final Ordinal C = Constants.getInstance().ordinal(2);
 
     static Object[] OBJECTS = new Object[0];
     static String[] STRINGS = new String[0];
@@ -46,10 +45,14 @@ public interface ArgsOrdinal {
     String toString();
 
     default Args extend(Ordinal col, Object... arrays) {
-        return null;
+        return Args.EMPTY.clone().extend(col, arrays);
     }
 
     default <T> ArgsI<T> extendA(T... array) {
         return (ArgsI<T>) extend(A, new Object[] {array});
+    }
+
+    default ArgsI<long[]> extendA(long... array) {
+        return (ArgsI<long[]>) extend(A, new Object[] {array});
     }
 }

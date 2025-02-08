@@ -24,20 +24,13 @@
 
 package io.github.composix.math;
 
-import java.util.Comparator;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public interface Order extends OrdinalIterable {
-    void resize(int ordinal);
-    
     Ordinal ordinal();
 
     boolean isOrdinal();
-
-    void order(Comparator<Ordinal> comparator);
-
-    void order(Ordinal a, Ordinal b);
 
     int rank(int index);
 
@@ -46,8 +39,4 @@ public interface Order extends OrdinalIterable {
     <T> Stream<T> stream(T[] array);
 
     LongStream stream(long[] array);
-
-    Stream<Object[]> streamArgv(int size, Object[] argv);
-
-    Object[] select(Object... items);
 }

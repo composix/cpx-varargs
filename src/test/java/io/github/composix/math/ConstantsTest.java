@@ -22,35 +22,26 @@
  * SOFTWARE.
  */
 
-package io.github.composix.varargs;
+package io.github.composix.math;
 
-import java.util.Comparator;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-import io.github.composix.math.ArgsOrdinal;
-import io.github.composix.math.Order;
-import io.github.composix.math.Ordinal;
-import io.github.composix.math.Fn;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public interface Args extends Cloneable, ArgsOrdinal {
-    Args clone();
+class ConstantsTest {
+    @BeforeAll
+    static void beforeAll() {
+        final Constants constants = Constants.getInstance();
+        assertSame(Ordinal.OMEGA, constants.omega());
+        assertSame(OrdinalNumber.ORDINALS, constants.ordinals);
+        assertSame(ArgsOrdinal.A, constants.ordinals[0]);
+        assertSame(ArgsOrdinal.B, constants.ordinals[1]);
+        assertSame(ArgsOrdinal.C, constants.ordinals[2]);
+    }
 
-    Object[] export();
-    
-    Ordinal ordinalAt(Ordinal ordinal, Object value);
-
-    <T> T getValue(int index);
-
-    long getLongValue(int index);
-    
-    <T> Stream<T> stream(Ordinal ordinal);
-
-    LongStream longStream(Ordinal ordinal);
-
-    Args select(Order order);
-
-    default Comparator<Ordinal> comparator(Ordinal ordinal) {
-        return Comparator.comparing(Fn.of(ordinal::index).intAndThen(this::getValue));
+    @Test
+    void testConstants() {
+        beforeAll();
     }
 }

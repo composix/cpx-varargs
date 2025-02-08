@@ -25,8 +25,10 @@
 package io.github.composix.varargs;
 
 import java.util.Comparator;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import io.github.composix.math.Args;
 import io.github.composix.math.Ordinal;
 
 public interface ArgsI<A> extends Args, JoinA<A> {
@@ -41,6 +43,10 @@ public interface ArgsI<A> extends Args, JoinA<A> {
 
     default Stream<A> streamA() {
         return stream(A);
+    }
+
+    default LongStream longStreamA() {
+        return longStream(A);
     }
 
     default Comparator<Ordinal> comparatorA() {

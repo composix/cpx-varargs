@@ -24,42 +24,41 @@
 
 package io.github.composix.math;
 
-import java.util.ListIterator;
-import java.util.function.Consumer;
 
-public interface Ordinal extends Cloneable, ArgsOrdinal, ListIterator<Ordinal>, Comparable<Ordinal> {
-    static Ordinal of(int index) {
-        return null;
-    }
-
-    Order clone() throws CloneNotSupportedException;
-
-    default MutableOrder order() {
-        try {
-            return (MutableOrder) clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
+class Constants {
+    private static Constants INSTANCE; 
+    
+    static Constants getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new Constants();
+            for (int i = 0; i <= Short.MAX_VALUE; ++i) {
+                INSTANCE.ordinal(i);
+            }
+            INSTANCE.omega();
         }
+        return INSTANCE;
     }
 
-    int intValue();
+    final Ordinal[] ordinals;
 
-    int index(Ordinal row);
+    private Constants() {
+        ordinals = new Ordinal[Short.MAX_VALUE - Short.MIN_VALUE];
+    }
 
-    boolean isOrdinal();
+    Ordinal ordinal(int index) {
+        Ordinal ordinal = ordinals[index];
+        if (ordinal == null) {
+            ordinal = new OrdinalInt(index);
+            if (ordinals[index] == null) {
+                ordinals[index] = ordinal;  
+            } else {
+                ordinal = ordinals[index];
+            }
+        }
+        return ordinal;
+    }
 
-    boolean contains(Ordinal ordinal);
-
-    void forEach(Consumer<? super Ordinal> consumer);
-
-    // methods for array manipulation
-    <T> T getValue(Object[] array, int index);
-
-    long getLongValue(Object[] array, int index);
-
-    Object newInstance(final Class<?> type);
-
-    Object[] copyOf(Object[] array);
-
-    Object copyOf(Object array);
+    Ordinal omega() {
+        return ordinal(-Short.MIN_VALUE);
+    }
 }

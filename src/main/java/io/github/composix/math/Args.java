@@ -24,42 +24,37 @@
 
 package io.github.composix.math;
 
-import java.util.ListIterator;
-import java.util.function.Consumer;
+import java.util.Comparator;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
-public interface Ordinal extends Cloneable, ArgsOrdinal, ListIterator<Ordinal>, Comparable<Ordinal> {
-    static Ordinal of(int index) {
-        return null;
+public interface Args extends Cloneable, ArgsOrdinal, Order {
+    static Args EMPTY = new Matrix<>();
+    
+    static Args of(Object... array) {
+        Matrix.OBJECT[0] = array;
+        return OMEGA.extend(A, Matrix.OBJECT);
     }
 
-    Order clone() throws CloneNotSupportedException;
-
-    default MutableOrder order() {
-        try {
-            return (MutableOrder) clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+    static Args ofLongs(long... array) {
+        return OMEGA.extend(A, array);
     }
 
-    int intValue();
+    Args clone();
 
-    int index(Ordinal row);
+    <T> T getValue(int index);
 
-    boolean isOrdinal();
+    long getLongValue(int index);
+    
+    <T> Stream<T> stream(Ordinal ordinal);
 
-    boolean contains(Ordinal ordinal);
+    LongStream longStream(Ordinal ordinal);
 
-    void forEach(Consumer<? super Ordinal> consumer);
+    Ordinal ordinalAt(Ordinal ordinal, Object value);
 
-    // methods for array manipulation
-    <T> T getValue(Object[] array, int index);
+    Args select(Order order);
 
-    long getLongValue(Object[] array, int index);
-
-    Object newInstance(final Class<?> type);
-
-    Object[] copyOf(Object[] array);
-
-    Object copyOf(Object array);
+    default Comparator<Ordinal> comparator(Ordinal ordinal) {
+        return Comparator.comparing(Fn.of(ordinal::index).intAndThen(this::getValue));
+    }
 }

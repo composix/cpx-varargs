@@ -24,42 +24,17 @@
 
 package io.github.composix.math;
 
-import java.util.ListIterator;
-import java.util.function.Consumer;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
-public interface Ordinal extends Cloneable, ArgsOrdinal, ListIterator<Ordinal>, Comparable<Ordinal> {
-    static Ordinal of(int index) {
-        return null;
-    }
+public interface MutableOrder extends Order {
+    void resize(int ordinal);
+    
+    void reorder(Comparator<Ordinal> comparator);
 
-    Order clone() throws CloneNotSupportedException;
+    void reorder(Ordinal... ordinals);
 
-    default MutableOrder order() {
-        try {
-            return (MutableOrder) clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    Stream<Object[]> streamArgv(int size, Object[] argv);
 
-    int intValue();
-
-    int index(Ordinal row);
-
-    boolean isOrdinal();
-
-    boolean contains(Ordinal ordinal);
-
-    void forEach(Consumer<? super Ordinal> consumer);
-
-    // methods for array manipulation
-    <T> T getValue(Object[] array, int index);
-
-    long getLongValue(Object[] array, int index);
-
-    Object newInstance(final Class<?> type);
-
-    Object[] copyOf(Object[] array);
-
-    Object copyOf(Object array);
+    Object[] select(Object... items); 
 }

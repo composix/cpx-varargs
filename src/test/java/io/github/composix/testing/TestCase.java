@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 
 import io.github.composix.math.ArgsOrdinal;
 import io.github.composix.math.Order;
+import io.github.composix.math.Ordinal;
 
 public class TestCase implements ArgsOrdinal{
     private static final TestCase DEFAULT = new DefaultTestCase();
@@ -48,6 +49,6 @@ public class TestCase implements ArgsOrdinal{
 
     @Override
     public Order order() {
-        throw new UnsupportedOperationException();
+        return Ordinal.OMEGA.order();
     };
 }
