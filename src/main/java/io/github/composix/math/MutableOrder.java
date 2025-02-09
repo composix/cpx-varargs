@@ -36,5 +36,5 @@ public interface MutableOrder extends Order {
 
     Stream<Object[]> streamArgv(int size, Object[] argv);
 
-    Object[] select(Object... items); 
+    Object[] permute(Object... items); 
 }

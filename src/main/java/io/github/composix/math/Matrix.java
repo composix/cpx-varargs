@@ -27,14 +27,19 @@ package io.github.composix.math;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrdinalInt implements Args {
+class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrderInt implements Args {
     static Object[] OBJECT = new Object[1];
     
     private Object[] argv;
     private Order order;
 
     Matrix() {
-        super(0);
+        this(0);
+    }
+
+    Matrix(int ordinal) {
+        super(ordinal);
+        ordinals = ORDINALS;
         argv = ArgsOrdinal.OBJECTS;
         order = (Order) A;
     }
@@ -72,12 +77,12 @@ class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrdinalInt implements Args {
 
     @Override
     public <T> T getValue(int index) {
-        return OMEGA.getValue(argv, index);
+        return OMEGA.getValue(argv, index, ordinals);
     }
 
     @Override
     public long getLongValue(int index) {
-        return OMEGA.getLongValue(argv, index);
+        return OMEGA.getLongValue(argv, index, ordinals);
     }
 
     @Override
@@ -92,8 +97,14 @@ class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrdinalInt implements Args {
 
     @Override
     public Args select(Order order) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'select'");
+        if (order instanceof Matrix) {
+            ((Matrix) order).argv = argv;
+            return (Args) order;
+        }
+        Matrix result = new Matrix<>(order.ordinal().intValue());
+        result.argv = argv;
+        result.ordinals = ((OrderInt) order).ordinals;
+        return result;
     }
 
     @Override

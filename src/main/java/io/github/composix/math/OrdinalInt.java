@@ -29,7 +29,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 class OrdinalInt extends OrdinalNumber implements Order {
-    private final int ordinal;
+    final int ordinal;
 
     OrdinalInt(int ordinal) {
         this.ordinal = ordinal;
@@ -65,13 +65,17 @@ class OrdinalInt extends OrdinalNumber implements Order {
     }
 
     @Override
-    public <T> T getValue(Object[] array, int index) {
-        return (T) Array.get(array[index / ordinal], index % ordinal);
+    public <T> T getValue(Object[] array, int index, Ordinal... ordinals) {
+        if (ordinals == ORDINALS) {
+            return (T) Array.get(array[index / ordinal], index % ordinal);
+        }
+        return (T) Array.get(array[ordinals[index / ordinal].intValue()], index % ordinal);
     }
 
     @Override
-    public long getLongValue(Object[] array, int index) {
-        return ((Long) getValue(array, index)).longValue();
+    public long getLongValue(Object[] array, int index, Ordinal... ordinals) {
+        // TODO: avoid boxing
+        return ((Long) getValue(array, index, ordinals)).longValue();
     }
 
     @Override

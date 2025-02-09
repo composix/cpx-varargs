@@ -24,10 +24,13 @@
 
 package io.github.composix.math;
 
+import java.util.Comparator;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public interface Order extends OrdinalIterable {
+    static Comparator<Ordinal> NATURAL_ORDER = Comparator.naturalOrder();
+
     Ordinal ordinal();
 
     boolean isOrdinal();

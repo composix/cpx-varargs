@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -35,6 +36,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import io.github.composix.math.Args;
+import io.github.composix.math.MutableOrder;
 import io.github.composix.testing.TestCase;
 
 class IntroductionTest extends TestCase {
@@ -102,5 +104,14 @@ class IntroductionTest extends TestCase {
             idArray,
             matrix.longStream(A).toArray()
         );
+    }
+
+    @Test
+    void testSelect() {
+        MutableOrder order = C.order();
+        order.reorder(Comparator.reverseOrder());
+        Args reversed = matrix.select(order);
+        assertSame("aap", reversed.getValue(A.index(A)));
+        assertEquals(1L, reversed.getLongValue(B.index(A)));
     }
 }

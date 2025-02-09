@@ -53,13 +53,13 @@ public interface Ordinal extends Cloneable, ArgsOrdinal, ListIterator<Ordinal>, 
     void forEach(Consumer<? super Ordinal> consumer);
 
     // methods for array manipulation
-    <T> T getValue(Object[] array, int index);
+    <T> T getValue(Object[] array, int index, Ordinal... ordinals);
 
-    long getLongValue(Object[] array, int index);
+    long getLongValue(Object[] array, int index, Ordinal... ordinals);
 
     Object newInstance(final Class<?> type);
 
-    Object[] copyOf(Object[] array);
+    <T> T[] copyOf(T[] array);
 
     Object copyOf(Object array);
 }

@@ -38,6 +38,9 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     // inherited from Object
     @Override
     public Order clone() throws CloneNotSupportedException {
+        if (isOrdinal()) {
+            return new Matrix<>(intValue());
+        }
         try {
             return (Order) super.clone();
         } catch(Throwable e) {
@@ -172,7 +175,7 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     }
 
     @Override
-    public final Object[] copyOf(Object[] array) {
+    public final <T> T[] copyOf(T[] array) {
         return Arrays.copyOf(array, intValue());
     }
 
