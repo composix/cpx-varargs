@@ -54,12 +54,17 @@ class IntroductionTest extends TestCase {
     // VarArgs
     Args idArgs = Args.ofLongs(1L, 2L, 3L);
     Args args = Args.of("aap", "noot", "mies");
+    Args matrix = Args.of(idArray, array);
 
     @Test
     void testGetValue() {
         assertSame("aap", args.getValue(0));
         assertSame("noot", args.getValue(1));
         assertSame("mies", args.getValue(2));
+
+        assertSame("aap", matrix.getValue(B.index(A)));
+        assertSame("noot", matrix.getValue(B.index(B)));
+        assertSame("mies", matrix.getValue(B.index(C)));
     }
 
     @Test
@@ -67,6 +72,10 @@ class IntroductionTest extends TestCase {
         assertEquals(1L, idArgs.getLongValue(0));
         assertEquals(2L, idArgs.getLongValue(1));
         assertEquals(3L, idArgs.getLongValue(2));
+
+        assertEquals(1L, matrix.getLongValue(A.index(A)));
+        assertEquals(2L, matrix.getLongValue(A.index(B)));
+        assertEquals(3L, matrix.getLongValue(A.index(C)));
     }
 
     @Test
@@ -75,6 +84,11 @@ class IntroductionTest extends TestCase {
             array,
             args.stream(A).toArray()
         );
+
+        assertArrayEquals(
+            array,
+            matrix.stream(B).toArray()
+        );
     }
 
     @Test
@@ -82,6 +96,11 @@ class IntroductionTest extends TestCase {
         assertArrayEquals(
             idArray,
             idArgs.longStream(A).toArray()
+        );
+
+        assertArrayEquals(
+            idArray,
+            matrix.longStream(A).toArray()
         );
     }
 }

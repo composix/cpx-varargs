@@ -91,14 +91,14 @@ class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrdinalInt implements Args {
     }
 
     @Override
-    public Ordinal ordinalAt(Ordinal ordinal, Object value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'ordinalAt'");
-    }
-
-    @Override
     public Args select(Order order) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'select'");
+    }
+
+    @Override
+    public Ordinal ordinalAt(Ordinal ordinal, Object value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'ordinalAt'");
     }
 }

@@ -32,6 +32,9 @@ public interface Args extends Cloneable, ArgsOrdinal, Order {
     static Args EMPTY = new Matrix<>();
     
     static Args of(Object... array) {
+        if (array[0].getClass().isArray()) {
+            return OMEGA.extend(A, array);            
+        }
         Matrix.OBJECT[0] = array;
         return OMEGA.extend(A, Matrix.OBJECT);
     }
@@ -50,9 +53,9 @@ public interface Args extends Cloneable, ArgsOrdinal, Order {
 
     LongStream longStream(Ordinal ordinal);
 
-    Ordinal ordinalAt(Ordinal ordinal, Object value);
-
     Args select(Order order);
+
+    Ordinal ordinalAt(Ordinal ordinal, Object value);
 
     default Comparator<Ordinal> comparator(Ordinal ordinal) {
         return Comparator.comparing(Fn.of(ordinal::index).intAndThen(this::getValue));
