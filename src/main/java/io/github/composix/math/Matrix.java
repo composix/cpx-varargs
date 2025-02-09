@@ -24,6 +24,7 @@
 
 package io.github.composix.math;
 
+import java.lang.reflect.Array;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -41,7 +42,7 @@ class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrderInt implements Args {
         super(ordinal);
         ordinals = ORDINALS;
         argv = ArgsOrdinal.OBJECTS;
-        order = (Order) A;
+        order = (Order) ORDINALS[ordinal];
     }
 
     @Override
@@ -51,6 +52,11 @@ class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrderInt implements Args {
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException();
         }
+    }
+
+    @Override
+    public Order order() {
+        return order;
     }
 
     @Override
@@ -65,13 +71,20 @@ class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrderInt implements Args {
             }
             argv = col.copyOf(argv);
         }
+        ordinal = col.intValue();
+        if (order.ordinal() != order) {
+            throw new IllegalStateException("cannot extend matrix after sorting");
+        }
+        int amount = ((OrdinalInt) order).ordinal;
         for (int i = 0; i < length; ++i) {
+            amount = Math.max(amount, Array.getLength(arrays[i]));
             if (argv[index + i] == null) {
                 argv[index +i] = arrays[i];
             } else {
                 throw new UnsupportedOperationException("not yet implemented");
             }
         }
+        order = (Order) ORDINALS[amount];
         return this;
     }
 

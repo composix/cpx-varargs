@@ -34,7 +34,7 @@ public interface Ordinal extends Cloneable, ArgsOrdinal, ListIterator<Ordinal>, 
 
     Order clone() throws CloneNotSupportedException;
 
-    default MutableOrder order() {
+    default Order order() {
         try {
             return (MutableOrder) clone();
         } catch (CloneNotSupportedException e) {

@@ -29,7 +29,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 class OrdinalInt extends OrdinalNumber implements Order {
-    final int ordinal;
+    int ordinal;
 
     OrdinalInt(int ordinal) {
         this.ordinal = ordinal;
@@ -48,8 +48,7 @@ class OrdinalInt extends OrdinalNumber implements Order {
 
     @Override
     public Ordinal ordinal() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'ordinal'");        
+        return ORDINALS[ordinal];       
     }
 
     @Override

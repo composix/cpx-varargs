@@ -33,6 +33,7 @@ public interface ArgsOrdinal {
     static final Ordinal A = Constants.getInstance().ordinal(0);
     static final Ordinal B = Constants.getInstance().ordinal(1);
     static final Ordinal C = Constants.getInstance().ordinal(2);
+    static final Ordinal D = Constants.getInstance().ordinal(3);
 
     static Object[] OBJECTS = new Object[0];
     static String[] STRINGS = new String[0];

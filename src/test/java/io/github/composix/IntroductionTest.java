@@ -26,6 +26,7 @@ package io.github.composix;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.Comparator;
@@ -108,10 +109,29 @@ class IntroductionTest extends TestCase {
 
     @Test
     void testSelect() {
-        MutableOrder order = C.order();
+        MutableOrder order = (MutableOrder) C.order();
         order.reorder(Comparator.reverseOrder());
         Args reversed = matrix.select(order);
         assertSame("aap", reversed.getValue(A.index(A)));
         assertEquals(1L, reversed.getLongValue(B.index(A)));
+    }
+
+    // tests on the Order interface
+
+    @Test
+    void testOrdinal() {
+        assertSame(B, idArgs.ordinal());
+        assertSame(D, idArgs.order().ordinal());
+
+        assertSame(B, args.ordinal());
+        assertSame(D, args.order().ordinal());
+
+        assertSame(C, matrix.ordinal());
+        assertSame(D, matrix.order().ordinal());
+    }
+
+    @Test
+    void testIsOrdinal() {
+        assertFalse(idArgs.isOrdinal());
     }
 }
