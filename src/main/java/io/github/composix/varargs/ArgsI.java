@@ -35,7 +35,9 @@ public interface ArgsI<A> extends Args, JoinA<A> {
     @Override
     ArgsI<A> clone();
 
-    ArgsI<A> orderByA();
+    default ArgsI<A> orderByA() {
+        return (ArgsI<A>) orderBy(A);
+    }
 
     default Ordinal ordinalA(A value) {
         return ordinalAt(A, value);

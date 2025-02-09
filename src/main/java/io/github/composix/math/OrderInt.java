@@ -71,6 +71,12 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     }
 
     @Override
+    public Ordinal ordinalAt(Object key, Comparator<Object> comparator) {
+        final int index = Arrays.binarySearch((Object[]) ordinals, key, comparator);
+        return index < 0 ? Ordinal.OMEGA : ORDINALS[index];
+    }
+
+    @Override
     public Stream<Object[]> streamArgv(int size, Object[] argv) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'streamArgv'");

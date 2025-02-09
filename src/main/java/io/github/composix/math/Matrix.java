@@ -121,8 +121,28 @@ class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrderInt implements Args {
     }
 
     @Override
-    public Ordinal ordinalAt(Ordinal ordinal, Object value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'ordinalAt'");
+    public Args orderBy(Ordinal ordinal) {
+        MutableOrder result;
+        if (order instanceof MutableOrder) {
+            result = (MutableOrder) order;
+        } else {
+            try {
+                result = (MutableOrder) (order = order.ordinal().clone());
+            } catch (CloneNotSupportedException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        result.reorder(comparator(ordinal));
+        return this;
+    }
+
+    @Override
+    public Ordinal ordinalAt(final Ordinal col, Object value) {
+        return ((MutableOrder) order).ordinalAt(value, (row, key) -> 
+            ((Comparable<Object>) Array.get(
+                argv[col.intValue()],
+                ((OrdinalInt) row).ordinal)
+            ).compareTo(key)
+        );
     }
 }

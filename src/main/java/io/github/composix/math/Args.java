@@ -55,6 +55,8 @@ public interface Args extends Cloneable, ArgsOrdinal, Order {
 
     Args select(Order order);
 
+    Args orderBy(Ordinal ordinal);
+    
     Ordinal ordinalAt(Ordinal ordinal, Object value);
 
     default Comparator<Ordinal> comparator(Ordinal ordinal) {

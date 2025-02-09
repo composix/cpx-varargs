@@ -39,7 +39,7 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     @Override
     public Order clone() throws CloneNotSupportedException {
         if (isOrdinal()) {
-            return new Matrix<>(intValue());
+            return new OrderInt(intValue());
         }
         try {
             return (Order) super.clone();
