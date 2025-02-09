@@ -37,6 +37,11 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     }
 
     @Override
+    public boolean isOrdinal() {
+        return ordinals == ORDINALS;
+    }
+    
+    @Override
     public void resize(int ordinal) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'resize'");
@@ -73,7 +78,7 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     @Override
     public Ordinal ordinalAt(Object key, Comparator<Object> comparator) {
         final int index = Arrays.binarySearch((Object[]) ordinals, key, comparator);
-        return index < 0 ? Ordinal.OMEGA : ORDINALS[index];
+        return index < 0 ? OMEGA : ORDINALS[index];
     }
 
     @Override

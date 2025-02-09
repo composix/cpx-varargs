@@ -25,6 +25,7 @@
 package io.github.composix.math;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -138,6 +139,14 @@ class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrderInt implements Args {
 
     @Override
     public Ordinal ordinalAt(final Ordinal col, Object value) {
+        if (order.isOrdinal()) {
+            if (value.getClass() == Long.class) {
+                final int index = Arrays.binarySearch((long[]) argv[col.intValue()], ((Long) value).longValue());
+                return index < 0 ? OMEGA : ORDINALS[index];    
+            }
+            final int index = Arrays.binarySearch((Object[]) argv[col.intValue()], value);
+            return index < 0 ? OMEGA : ORDINALS[index];
+        }
         return ((MutableOrder) order).ordinalAt(value, (row, key) -> 
             ((Comparable<Object>) Array.get(
                 argv[col.intValue()],

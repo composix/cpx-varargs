@@ -31,21 +31,16 @@ import java.util.function.Consumer;
 
 abstract class OrdinalNumber extends Number implements Ordinal {
     static Ordinal[] ORDINALS = Constants.getInstance().ordinals;
-    private static Ordinal OMEGA = Constants.getInstance().omega();
 
     private static final NoSuchElementException NO_SUCH_ELEMENT_EXCEPTION = new NoSuchElementException("Ordinal 0 has no predecessor");
 
     // inherited from Object
     @Override
     public Order clone() throws CloneNotSupportedException {
-        if (isOrdinal()) {
-            return new OrderInt(intValue());
-        }
-        try {
+        if (this instanceof MutableOrder) {
             return (Order) super.clone();
-        } catch(Throwable e) {
-            throw new CloneNotSupportedException(e.getMessage());
         }
+        return new OrderInt(intValue());
     }
 
     @Override
@@ -132,7 +127,7 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     @Override
     public boolean isOrdinal() {
-        return this == ORDINALS[intValue()];
+        return true;
     }
     
     @Override
