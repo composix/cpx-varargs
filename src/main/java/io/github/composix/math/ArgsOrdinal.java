@@ -28,7 +28,7 @@ import java.math.BigInteger;
 
 import io.github.composix.varargs.ArgsI;
 
-public interface ArgsOrdinal {
+public interface ArgsOrdinal extends Cloneable {
     static final Ordinal OMEGA = Constants.getInstance().omega();
     static final Ordinal A = Constants.getInstance().ordinal(0);
     static final Ordinal B = Constants.getInstance().ordinal(1);

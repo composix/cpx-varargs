@@ -28,7 +28,7 @@ import java.util.Comparator;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-public interface Args extends Cloneable, ArgsOrdinal, Order {
+public interface Args extends ArgsOrdinal, Order {
     static Args EMPTY = new Matrix();
     
     static Args of(Object... array) {

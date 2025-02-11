@@ -27,13 +27,14 @@ package io.github.composix.math;
 import java.util.ListIterator;
 import java.util.function.Consumer;
 
-public interface Ordinal extends Cloneable, ArgsOrdinal, ListIterator<Ordinal>, Comparable<Ordinal> {
+public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<Ordinal> {
     static Ordinal of(int index) {
         return null;
     }
 
     Order clone() throws CloneNotSupportedException;
 
+    @Override
     default Order order() {
         try {
             return (MutableOrder) clone();
