@@ -60,7 +60,9 @@ class TestDataRoot extends CharSequenceNode implements TestData {
     @Override
     public TestData select(CharSequence... path) {
         final int length = path.length;
+        final int lastIndex = length - 1;
         int index = Collections.binarySearch(paths, path, TestDataRoot::compare);
+        CharSequence[] rhs;
         if (index < 0) {
             index = -index - 1;
             if (index == paths.size()) {
@@ -69,23 +71,25 @@ class TestDataRoot extends CharSequenceNode implements TestData {
                 }    
                 paths.add(path);
             }
-            CharSequence[] rhs = paths.get(index);
+            rhs = paths.get(index);
             for (int i = 0; i < length; ++i) {
                 if (!path[i].equals(rhs[i])) {
                     if (!"~".equals(path[0])) {
                         throw new IllegalArgumentException();
                     }    
                     paths.add(index, path);
+                    rhs = path;
                     break;
                 }
             }
+        } else {
+            rhs = paths.get(index);
         }
-        short range = (short) (path.length << TestDataNode.SHIFT);
+        short range = (short) (length << TestDataNode.SHIFT);
         range |= index;
-        final int lastIndex = path.length - 1;
-        CharSequence result = path[lastIndex];
+        CharSequence result = rhs[lastIndex];
         if (!(result instanceof TestData)) {
-            result = path[lastIndex] = new TestDataNode(path[lastIndex], this, range);
+            result = rhs[lastIndex] = new TestDataNode(result, this, range);
         }
         return (TestData) result;
     }

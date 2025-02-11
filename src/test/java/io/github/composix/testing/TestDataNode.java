@@ -27,6 +27,7 @@ package io.github.composix.testing;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.List;
 import java.util.stream.Stream;
 
 class TestDataNode extends CharSequenceNode implements TestData {
@@ -53,7 +54,7 @@ class TestDataNode extends CharSequenceNode implements TestData {
         final URI uri = URI.create(pathToUrl((byte) (range >> SHIFT), path));
         try {
             if (multi) {
-                data = root.mapper.readValue(root.base.resolve(uri).toURL(), Object[].class);
+                data = (Object[]) root.mapper.readValue(root.base.resolve(uri).toURL(), type.arrayType());
             } else {
                 data = new Object[1];
                 data[0] = root.mapper.readValue(root.base.resolve(uri).toURL(), Object.class);
@@ -80,8 +81,22 @@ class TestDataNode extends CharSequenceNode implements TestData {
 
     @Override
     public <T> Stream<T> collect() {
-        return (Stream<T>) Stream.of(data);
+        CharSequence[] path = myFirstPath();
+        return (Stream<T>) Stream.of(((TestDataNode) path[path.length - 1]).data);
     }    
+
+    private CharSequence[] myFirstPath() {
+        final List<CharSequence[]> paths = root.paths;
+        for (int i = 0; i < paths.size(); ++i) {
+            final CharSequence[] path = paths.get(i);
+            for (int j = 0; j < path.length; ++j) {
+                if (path[j] == this) {
+                    return path;
+                }
+            }
+        }
+        throw new IllegalStateException();
+    }
 
     private String pathToUrl(final byte size, final CharSequence... path) {
         final StringWriter writer = new StringWriter();
