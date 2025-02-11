@@ -25,7 +25,10 @@
 package io.github.composix;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -82,6 +85,17 @@ class OrderTest extends TestCase {
     }
 
     @Test
+    void testIsOrdinal() {
+        assertTrue(idArgs.isOrdinal());
+        assertTrue(args.isOrdinal());
+        assertTrue(matrix.isOrdinal());
+
+        assertTrue(idArgs.order().isOrdinal());
+        assertFalse(args.order().isOrdinal());
+        assertFalse(matrix.order().isOrdinal());
+    }
+
+    @Test
     void testOrdinalOf() {
         assertSame(A, idArgs.ordinalAt(A, 1L));
         assertSame(B, idArgs.ordinalAt(A, 2L));
@@ -94,5 +108,53 @@ class OrderTest extends TestCase {
         assertSame(A, matrix.ordinalAt(B, "aap"));
         assertSame(C, matrix.ordinalAt(B, "noot"));
         assertSame(B, matrix.ordinalAt(B, "mies"));
+    }
+
+    @Test
+    void testGetValues() {
+        // idArgs
+        assertEquals(1L, idArgs.getLongValue(0));
+        assertEquals(2L, idArgs.getLongValue(1));
+        assertEquals(3L, idArgs.getLongValue(2));
+        
+        // args
+        assertSame("aap", args.getValue(0));
+        assertSame("mies", args.getValue(1));
+        assertSame("noot", args.getValue(2));
+
+        // matrix
+        assertEquals(1L, matrix.getLongValue(0));
+        assertEquals(3L, matrix.getLongValue(1));
+        assertEquals(2L, matrix.getLongValue(2));
+        
+        assertSame("aap", matrix.getValue(B.index(A)));
+        assertSame("mies", matrix.getValue(B.index(B)));
+        assertSame("noot", matrix.getValue(B.index(C)));
+    }
+
+    @Test
+    void testStream() {
+        // idArgs
+        assertArrayEquals(
+            idArray,
+            idArgs.longStream(A).toArray()
+        );
+
+        // args
+        assertArrayEquals(
+            array,
+            args.stream(A).toArray()
+        );
+
+        // matrix
+        assertArrayEquals(
+            new long[] {1L, 3L, 2L}, 
+            matrix.longStream(A).toArray()
+        );
+
+        assertArrayEquals(
+            array,
+            matrix.stream(B).toArray()
+        );
     }
 }
