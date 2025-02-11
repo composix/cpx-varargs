@@ -29,7 +29,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public interface Args extends Cloneable, ArgsOrdinal, Order {
-    static Args EMPTY = new Matrix<>();
+    static Args EMPTY = new Matrix();
     
     static Args of(Object... array) {
         if (array[0].getClass().isArray()) {

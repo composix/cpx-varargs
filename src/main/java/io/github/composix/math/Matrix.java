@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrderInt implements Args {
+class Matrix extends OrderInt implements Args {
     static Object[] OBJECT = new Object[1];
     
     private Object[] argv;
@@ -115,7 +115,7 @@ class Matrix<A,B,C,D,E,F,G,H,Ii,J,K,L,M> extends OrderInt implements Args {
             ((Matrix) order).argv = argv;
             return (Args) order;
         }
-        Matrix result = new Matrix<>(order.ordinal().intValue());
+        Matrix result = new Matrix(order.ordinal().intValue());
         result.argv = argv;
         result.ordinals = ((OrderInt) order).ordinals;
         return result;
