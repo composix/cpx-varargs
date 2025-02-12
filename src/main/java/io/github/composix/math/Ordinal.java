@@ -52,9 +52,9 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
     void forEach(Consumer<? super Ordinal> consumer);
 
     // methods for array manipulation
-    <T> T getValue(Object[] array, int index, Ordinal... ordinals);
+    <T> T getValue(Object[] array, int offset, int index, Ordinal... ordinals);
 
-    long getLongValue(Object[] array, int index, Ordinal... ordinals);
+    long getLongValue(Object[] array, int offset, int index, Ordinal... ordinals);
 
     Object newInstance(final Class<?> type);
 

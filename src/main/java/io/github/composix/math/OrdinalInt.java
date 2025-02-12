@@ -64,17 +64,17 @@ class OrdinalInt extends OrdinalNumber implements Order {
     }
 
     @Override
-    public <T> T getValue(Object[] array, int index, Ordinal... ordinals) {
+    public <T> T getValue(Object[] array, int offset, int index, Ordinal... ordinals) {
         if (ordinals == ORDINALS) {
-            return (T) Array.get(array[index / ordinal], index % ordinal);
+            return (T) Array.get(array[offset + index / ordinal], index % ordinal);
         }
-        return (T) Array.get(array[ordinals[index / ordinal].intValue()], index % ordinal);
+        return (T) Array.get(array[offset + ordinals[index / ordinal].intValue()], index % ordinal);
     }
 
     @Override
-    public long getLongValue(Object[] array, int index, Ordinal... ordinals) {
+    public long getLongValue(Object[] array, int offset, int index, Ordinal... ordinals) {
         // TODO: avoid boxing
-        return ((Long) getValue(array, index, ordinals)).longValue();
+        return ((Long) getValue(array, offset, index, ordinals)).longValue();
     }
 
     @Override

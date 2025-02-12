@@ -93,12 +93,12 @@ public class Matrix extends OrderInt implements Args {
 
     @Override
     public <T> T getValue(int index) {
-        return OMEGA.getValue(argv, index, ordinals);
+        return OMEGA.getValue(argv, 0, index, ordinals);
     }
 
     @Override
     public long getLongValue(int index) {
-        return OMEGA.getLongValue(argv, index, ordinals);
+        return OMEGA.getLongValue(argv, 0, index, ordinals);
     }
 
     @Override
