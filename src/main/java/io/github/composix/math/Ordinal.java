@@ -32,17 +32,6 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
         return null;
     }
 
-    Order clone() throws CloneNotSupportedException;
-
-    @Override
-    default Order order() {
-        try {
-            return (MutableOrder) clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     int intValue();
 
     int index(Ordinal row);

@@ -33,7 +33,7 @@ class Matrix extends OrderInt implements Args {
     static Object[] OBJECT = new Object[1];
     
     private Object[] argv;
-    private Order order;
+    private MutableOrder order;
 
     Matrix() {
         this(0);
@@ -43,20 +43,25 @@ class Matrix extends OrderInt implements Args {
         super(ordinal);
         ordinals = ORDINALS;
         argv = ArgsOrdinal.OBJECTS;
-        order = (Order) ORDINALS[ordinal];
-    }
-
-    @Override
-    public Args clone() {
         try {
-            return (Args) super.clone();
+            order = (MutableOrder) ORDINALS[ordinal].clone();
         } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(e);
         }
     }
 
     @Override
-    public Order order() {
+    public Args clone() throws CloneNotSupportedException {
+        if (!order.isOrdinal()) {
+            throw new CloneNotSupportedException("reordered varargs cannot be cloned");
+        }
+        final Matrix result = (Matrix) super.clone();
+        result.order = (MutableOrder) order.ordinal().clone();
+        return result;
+    }
+
+    @Override
+    public MutableOrder order() {
         return order;
     }
 
@@ -73,9 +78,6 @@ class Matrix extends OrderInt implements Args {
             argv = col.copyOf(argv);
         }
         ordinal = col.intValue();
-        if (order.ordinal() != order) {
-            throw new IllegalStateException("cannot extend matrix after sorting");
-        }
         int amount = ((OrdinalInt) order).ordinal;
         for (int i = 0; i < length; ++i) {
             amount = Math.max(amount, Array.getLength(arrays[i]));
@@ -85,7 +87,7 @@ class Matrix extends OrderInt implements Args {
                 throw new UnsupportedOperationException("not yet implemented");
             }
         }
-        order = (Order) ORDINALS[amount];
+        order.resize(amount);
         return this;
     }
 
@@ -123,17 +125,7 @@ class Matrix extends OrderInt implements Args {
 
     @Override
     public Args orderBy(Ordinal ordinal) {
-        MutableOrder result;
-        if (order instanceof MutableOrder) {
-            result = (MutableOrder) order;
-        } else {
-            try {
-                result = (MutableOrder) (order = order.ordinal().clone());
-            } catch (CloneNotSupportedException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-        result.reorder(comparator(ordinal));
+        order.reorder(comparator(ordinal));
         return this;
     }
 

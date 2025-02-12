@@ -40,13 +40,25 @@ public interface ArgsOrdinal extends Cloneable {
     static long[] LONGS = new long[0];
     static BigInteger[] INTEGERS = new BigInteger[0];
 
-    Order order();
+    Order clone() throws CloneNotSupportedException;
+
+    default MutableOrder order() {
+        try {
+            return (MutableOrder) clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
     @Override
     String toString();
 
     default Args extend(Ordinal col, Object... arrays) {
-        return Args.EMPTY.clone().extend(col, arrays);
+        try {
+            return Args.EMPTY.clone().extend(col, arrays);
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     default <T> ArgsI<T> extendA(T... array) {

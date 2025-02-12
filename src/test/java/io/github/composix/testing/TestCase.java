@@ -27,17 +27,27 @@ package io.github.composix.testing;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 
 import io.github.composix.math.ArgsOrdinal;
-import io.github.composix.math.Order;
-import io.github.composix.math.Ordinal;
+import io.github.composix.math.MutableOrder;
 
 public class TestCase implements ArgsOrdinal{
     private static final TestCase DEFAULT = new DefaultTestCase();
+    private static final MutableOrder ORDER = OMEGA.order();
 
     private TestCase instance;
 
     protected TestCase() {
         instance = DEFAULT;
     }
+
+    @Override
+    public MutableOrder clone() throws CloneNotSupportedException {
+        return (MutableOrder) OMEGA.clone();
+    }
+
+    @Override
+    public MutableOrder order() {
+        return ORDER;
+    };
 
     public void register(TestCase factory) {
         instance = factory;
@@ -47,8 +57,6 @@ public class TestCase implements ArgsOrdinal{
         return instance.testData(wm, baseUrl);
     }
 
-    @Override
-    public Order order() {
-        return Ordinal.OMEGA.order();
-    };
+
+
 }

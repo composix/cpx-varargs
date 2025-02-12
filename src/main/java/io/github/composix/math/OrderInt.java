@@ -43,8 +43,11 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     
     @Override
     public void resize(int ordinal) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'resize'");
+        if (isOrdinal()) {
+            this.ordinal = ordinal;
+        } else {
+            throw new IllegalStateException("cannot resize a non-ordinal order");
+        }
     }
 
     @Override

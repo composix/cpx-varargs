@@ -43,7 +43,8 @@ public interface Args extends ArgsOrdinal, Order {
         return OMEGA.extend(A, array);
     }
 
-    Args clone();
+    @Override
+    Args clone() throws CloneNotSupportedException;
 
     <T> T getValue(int index);
 
