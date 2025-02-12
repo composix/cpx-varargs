@@ -26,8 +26,10 @@ package io.github.composix.testing;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 
+import io.github.composix.math.Args;
 import io.github.composix.math.ArgsOrdinal;
 import io.github.composix.math.MutableOrder;
+import io.github.composix.math.Ordinal;
 
 public class TestCase implements ArgsOrdinal{
     private static final TestCase DEFAULT = new DefaultTestCase();
@@ -55,6 +57,12 @@ public class TestCase implements ArgsOrdinal{
 
     public TestData testData(WireMockRuntimeInfo wm, String baseUrl) {
         return instance.testData(wm, baseUrl);
+    }
+
+    @Override
+    public Args extend(Ordinal col, Object... arrays) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'extend'");
     }
 
 

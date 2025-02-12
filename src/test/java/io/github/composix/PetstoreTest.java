@@ -39,6 +39,7 @@ import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.TestData;
+import io.github.composix.varargs.ArgsI;
 import io.github.composix.varargs.ArgsII;
 import io.github.composix.varargs.ArgsIII;
 
@@ -61,8 +62,8 @@ class PetstoreTest extends TestCase {
 
     @Test
     void testPetstore() {
-        final ArgsII<String,long[]> pets = Ordinal
-            .OMEGA.extendA(
+        final ArgsII<String,long[]> pets =
+            ArgsI.of(
                 testData
                     .select("~","pet")
                     .collect()

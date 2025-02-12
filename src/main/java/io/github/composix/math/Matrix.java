@@ -29,13 +29,13 @@ import java.util.Arrays;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-class Matrix extends OrderInt implements Args {
+public class Matrix extends OrderInt implements Args {
     static Object[] OBJECT = new Object[1];
     
     private Object[] argv;
     private MutableOrder order;
 
-    Matrix() {
+    protected Matrix() {
         this(0);
     }
 

@@ -53,13 +53,7 @@ public interface ArgsOrdinal extends Cloneable {
     @Override
     String toString();
 
-    default Args extend(Ordinal col, Object... arrays) {
-        try {
-            return Args.EMPTY.clone().extend(col, arrays);
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException(e);
-        }
-    }
+    Args extend(Ordinal col, Object... arrays);
 
     default <T> ArgsI<T> extendA(T... array) {
         return (ArgsI<T>) extend(A, new Object[] {array});
