@@ -45,7 +45,7 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     @Override
     public String toString() {
-        return super.toString();
+        return Long.toString(longValue());
     }
 
     // inherited from Number

@@ -41,7 +41,13 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
         }
     }
 
+    byte byteValue();
+    
+    short shortValue();
+
     int intValue();
+
+    long longValue();
 
     int index(Ordinal row);
 
