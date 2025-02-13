@@ -24,43 +24,30 @@
 
 package io.github.composix.math;
 
-import java.util.Comparator;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
+public class SafeMatrix extends Matrix {
+    private static int MASK = 15;
 
-public interface Args extends ArgsOrdinal, Order {
-    static Args EMPTY = new SafeMatrix();
-    
-    static Args of(Object... array) {
-        if (array[0].getClass().isArray()) {
-            return OMEGA.extend(A, array);            
-        }
-        Matrix.OBJECT[0] = array;
-        return OMEGA.extend(A, Matrix.OBJECT);
-    }
+    private Object[] argv = new Object[MASK + 1];
 
-    static Args ofLongs(long... array) {
-        return OMEGA.extend(A, array);
+    @Override
+    public Args clone() throws CloneNotSupportedException {
+        final SafeMatrix result = (SafeMatrix) super.clone();
+        result.argv = argv.clone();
+        return result;
     }
 
     @Override
-    Args clone() throws CloneNotSupportedException;
+    public int hashCode() {
+        return 0;
+    }
 
-    <T> T getValue(int index);
+    @Override
+    protected Object[] argv() {
+        return argv;
+    }
 
-    long getLongValue(int index);
-    
-    <T> Stream<T> stream(Ordinal ordinal);
-
-    LongStream longStream(Ordinal ordinal);
-
-    Args select(Order order);
-
-    Args orderBy(Ordinal ordinal);
-    
-    Ordinal ordinalAt(Ordinal ordinal, Object value);
-
-    default Comparator<Ordinal> comparator(Ordinal ordinal) {
-        return Comparator.comparing(Fn.of(ordinal::index).intAndThen(this::getValue));
+    @Override
+    protected int mask(int index) {
+        return index & MASK;
     }
 }

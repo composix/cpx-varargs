@@ -42,6 +42,16 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     }
     
     @Override
+    public int rank(int index) {
+        return ordinals[index].intValue();
+    }
+
+    @Override
+    public Ordinal rank(Ordinal index) {
+        return ordinals[index.intValue()];
+    }
+
+    @Override
     public void resize(int ordinal) {
         if (isOrdinal()) {
             this.ordinal = ordinal;

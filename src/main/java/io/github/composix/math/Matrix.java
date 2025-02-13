@@ -31,24 +31,11 @@ import java.util.stream.Stream;
 
 public class Matrix extends OrderInt implements Args {
     static Object[] OBJECT = new Object[1];
-    
-    private Object[] argv;
+
+    private static Object[] ARGV = new Object[-Short.MIN_VALUE];
+    private static int MASK = Short.MAX_VALUE;
+
     private MutableOrder order;
-
-    protected Matrix() {
-        this(0);
-    }
-
-    Matrix(int ordinal) {
-        super(ordinal);
-        ordinals = ORDINALS;
-        argv = ArgsOrdinal.OBJECTS;
-        try {
-            order = (MutableOrder) ORDINALS[ordinal].clone();
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException(e);
-        }
-    }
 
     @Override
     public Args clone() throws CloneNotSupportedException {
@@ -70,57 +57,73 @@ public class Matrix extends OrderInt implements Args {
         if (!OMEGA.contains(col)) {
             throw new IndexOutOfBoundsException();
         }
-        final int length = arrays.length, index = col.intValue();
-        if (index + length > argv.length) {
-            for (int i = 0; i < length; ++i) {
-                col = col.next();
+        final int index = col.intValue();
+        final int length = arrays.length;
+        ordinal = index + length; // TODO: keep only the row ordinal
+
+        final Object[] argv = argv();
+        int target = hashCode() + index;
+        for (int i = 0; i < length; ++i) {
+            if (argv[mask(target)] == null) {
+                argv[mask(target++)] = arrays[i];
+            } else {
+                throw new IllegalStateException("hash collision");
             }
-            argv = col.copyOf(argv);
         }
-        ordinal = col.intValue();
         int amount = ((OrdinalInt) order).ordinal;
         for (int i = 0; i < length; ++i) {
             amount = Math.max(amount, Array.getLength(arrays[i]));
-            if (argv[index + i] == null) {
-                argv[index +i] = arrays[i];
-            } else {
-                throw new UnsupportedOperationException("not yet implemented");
-            }
         }
-        order.resize(amount);
+        order.resize(amount); // TODO: move this order to superclass
         return this;
     }
 
     @Override
     public <T> T getValue(int index) {
-        return OMEGA.getValue(argv, 0, index, ordinals);
+        return OMEGA.getValue(argv(), hashCode() & MASK, index, ordinals);
     }
 
     @Override
     public long getLongValue(int index) {
-        return OMEGA.getLongValue(argv, 0, index, ordinals);
+        return OMEGA.getLongValue(argv(), hashCode() & MASK, index, ordinals);
     }
 
     @Override
     public <T> Stream<T> stream(Ordinal ordinal) {
-        return (Stream<T>) order.stream((Object[]) argv[ordinal.intValue()]);
+        if (contains(ordinal)) {
+            return (Stream<T>) order.stream((Object[]) argv(ordinal.intValue()));
+        }
+        throw new IndexOutOfBoundsException();
     }
 
     @Override
     public LongStream longStream(Ordinal ordinal) {
-        return order.stream((long[]) argv[ordinal.intValue()]);
+        if (contains(ordinal)) {
+            return order.stream((long[]) argv(ordinal.intValue()));
+        }
+        throw new IndexOutOfBoundsException();
     }
 
     @Override
     public Args select(Order order) {
-        if (order instanceof Matrix) {
-            ((Matrix) order).argv = argv;
-            return (Args) order;
+        try {
+            final int size = order.ordinal().intValue();
+            final Matrix result = (Matrix) ((Matrix) this).clone();
+            int source = hashCode(), target = result.hashCode();
+            final Object[] argv = result.argv(), args = argv();
+            for (int i = 0; i < size; ++i) {
+                if (argv[mask(target)] == null) {
+                    argv[mask(target++)] = args[mask(source + order.rank(i))];
+                } else {
+                    throw new IndexOutOfBoundsException();
+                }
+            }
+            result.ordinal = size; //TODO: special ordinal for Matrix
+            result.ordinals = ORDINALS;
+            return result;    
+        } catch(CloneNotSupportedException e) {
+            throw new IllegalStateException(e);
         }
-        Matrix result = new Matrix(order.ordinal().intValue());
-        result.argv = argv;
-        result.ordinals = ((OrderInt) order).ordinals;
-        return result;
     }
 
     @Override
@@ -133,17 +136,36 @@ public class Matrix extends OrderInt implements Args {
     public Ordinal ordinalAt(final Ordinal col, Object value) {
         if (order.isOrdinal()) {
             if (value.getClass() == Long.class) {
-                final int index = Arrays.binarySearch((long[]) argv[col.intValue()], ((Long) value).longValue());
-                return index < 0 ? OMEGA : ORDINALS[index];    
+                final int index = Arrays.binarySearch((long[]) argv(col.intValue()),
+                        ((Long) value).longValue());
+                return index < 0 ? OMEGA : ORDINALS[index];
             }
-            final int index = Arrays.binarySearch((Object[]) argv[col.intValue()], value);
+            final int index = Arrays.binarySearch((Object[]) argv(col.intValue()), value);
             return index < 0 ? OMEGA : ORDINALS[index];
         }
-        return ((MutableOrder) order).ordinalAt(value, (row, key) -> 
-            ((Comparable<Object>) Array.get(
-                argv[col.intValue()],
-                ((OrdinalInt) row).ordinal)
-            ).compareTo(key)
-        );
+        return ((MutableOrder) order).ordinalAt(value, (row, key) -> ((Comparable<Object>) Array.get(
+                argv(col.intValue()),
+                ((OrdinalInt) row).ordinal)).compareTo(key));
+    }
+
+    protected Matrix() {
+        super(0);
+        try {
+            order = (MutableOrder) ORDINALS[ordinal].clone();
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected Object[] argv() {
+        return ARGV;
+    }
+
+    protected int mask(int index) {
+        return index & MASK;
+    }
+
+    private Object argv(int index) {
+        return argv()[mask(hashCode() + index)]; 
     }
 }

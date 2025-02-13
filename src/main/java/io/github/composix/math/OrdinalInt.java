@@ -53,14 +53,12 @@ class OrdinalInt extends OrdinalNumber implements Order {
 
     @Override
     public int rank(int index) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'rank'");
+        return index;
     }
 
     @Override
     public Ordinal rank(Ordinal index) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'rank'");
+        return index;
     }
 
     @Override
