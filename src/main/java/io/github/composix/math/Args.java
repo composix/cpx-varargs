@@ -25,6 +25,7 @@
 package io.github.composix.math;
 
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -50,6 +51,15 @@ public interface Args extends ArgsOrdinal, Order {
 
     long getLongValue(int index);
     
+    default <T> Iterable<T> column(Ordinal ordinal) {
+        return new Iterable<>() {
+            @Override
+            public Iterator<T> iterator() {
+                return (Iterator<T>) stream(ordinal).iterator();
+            }
+        };
+    }
+
     <T> Stream<T> stream(Ordinal ordinal);
 
     LongStream longStream(Ordinal ordinal);

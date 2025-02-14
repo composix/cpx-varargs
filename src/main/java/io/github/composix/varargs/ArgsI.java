@@ -53,6 +53,10 @@ public interface ArgsI<A> extends Args, JoinA<A> {
         return ordinalAt(A, value);
     }
 
+    default Iterable<A> columnA() {
+        return column(A);
+    }
+
     default Stream<A> streamA() {
         return stream(A);
     }
