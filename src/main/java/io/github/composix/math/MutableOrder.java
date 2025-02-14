@@ -37,6 +37,4 @@ public interface MutableOrder extends Order {
     Ordinal ordinalAt(Object key, Comparator<Object> comparator);
 
     Stream<Object[]> streamArgv(int size, Object[] argv);
-
-    Object[] permute(Object... items); 
 }

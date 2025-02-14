@@ -76,18 +76,17 @@ class OrdinalInt extends OrdinalNumber implements Order {
     }
 
     @Override
+    public void permute(int target, Object[] array) {
+        return; // standard order, so nothing to permute
+    }
+
+    @Override
     public <T> Stream<T> stream(T[] array) {
-        if (isOrdinal()) {
-            return Stream.of(array);
-        }
-        throw new UnsupportedOperationException("not yet implemented");
+        return Stream.of(array);
     }
 
     @Override
     public LongStream stream(long[] array) {
-        if (isOrdinal()) {
-            return LongStream.of(array);
-        }
-        throw new UnsupportedOperationException("not yet implemented");
+        return LongStream.of(array);
     }
 }

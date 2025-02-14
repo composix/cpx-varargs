@@ -26,6 +26,7 @@ package io.github.composix.math;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 class OrderInt extends OrdinalInt implements MutableOrder {
@@ -36,6 +37,11 @@ class OrderInt extends OrdinalInt implements MutableOrder {
         ordinals = ORDINALS;
     }
 
+    @Override
+    public MutableOrder order() {
+        return this;
+    }
+    
     @Override
     public boolean isOrdinal() {
         return ordinals == ORDINALS;
@@ -49,6 +55,30 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     @Override
     public Ordinal rank(Ordinal index) {
         return ordinals[index.intValue()];
+    }
+
+    @Override
+    public void permute(int target, Object[] array) {
+        if (isOrdinal()) {
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> Stream<T> stream(T[] array) {
+        if (isOrdinal()) {
+            return Stream.of(array);
+        }
+        throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public LongStream stream(long[] array) {
+        if (isOrdinal()) {
+            return LongStream.of(array);
+        }
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override
@@ -98,11 +128,5 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     public Stream<Object[]> streamArgv(int size, Object[] argv) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'streamArgv'");
-    }
-
-    @Override
-    public Object[] permute(Object... items) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'permute'");
     }
 }
