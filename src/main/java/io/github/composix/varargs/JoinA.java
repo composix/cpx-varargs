@@ -35,7 +35,11 @@ public interface JoinA<A> extends ArgsOrdinal {
 
     ArgsI<A> selectLong(Ordinal ordinal, ToLongFunction<A> accessor);
 
-    <T> ArgsII<A,T> selectB(Function<A,T> accessor);
+    default <T> ArgsII<A,T> selectB(Function<A,T> accessor) {
+        return (ArgsII<A, T>) select(B, accessor);
+    }
 
-    ArgsII<A,long[]> selectLongB(ToLongFunction<A> accessor);
+    default ArgsII<A,long[]> selectLongB(ToLongFunction<A> accessor) {
+        return (ArgsII<A, long[]>) selectLong(B, accessor);
+    }
 }

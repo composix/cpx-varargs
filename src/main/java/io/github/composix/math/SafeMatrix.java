@@ -24,13 +24,18 @@
 
 package io.github.composix.math;
 
-public class SafeMatrix extends Matrix {
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
+
+import io.github.composix.varargs.ArgsI;
+
+public class SafeMatrix<A> extends Matrix implements ArgsI<A> {
     private static int MASK = 15;
 
     private Object[] argv = new Object[MASK + 1];
 
     @Override
-    public Args clone() throws CloneNotSupportedException {
+    public ArgsI<A> clone() throws CloneNotSupportedException {
         final SafeMatrix result = (SafeMatrix) super.clone();
         result.argv = argv.clone();
         return result;
@@ -49,5 +54,17 @@ public class SafeMatrix extends Matrix {
     @Override
     protected int mask(int index) {
         return index & MASK;
+    }
+
+    @Override
+    public ArgsI<A> select(Ordinal ordinal, Function<A, ?> accessor) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'select'");
+    }
+
+    @Override
+    public ArgsI<A> selectLong(Ordinal ordinal, ToLongFunction<A> accessor) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'selectLong'");
     }
 }
