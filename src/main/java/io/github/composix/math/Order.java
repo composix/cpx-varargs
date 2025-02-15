@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 
 public interface Order extends OrdinalIterable {
     static Comparator<Ordinal> NATURAL_ORDER = Comparator.naturalOrder();
+    static Comparator<Ordinal> REVERSE_ORDER = Comparator.reverseOrder();
 
     Ordinal ordinal();
 
