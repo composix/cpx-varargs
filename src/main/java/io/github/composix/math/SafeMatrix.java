@@ -52,6 +52,11 @@ public class SafeMatrix<A> extends Matrix implements ArgsI<A> {
     }
 
     @Override
+    protected int mask() {
+        return MASK;
+    }
+    
+    @Override
     protected int mask(int index) {
         return index & MASK;
     }

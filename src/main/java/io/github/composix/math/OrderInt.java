@@ -25,11 +25,14 @@
 package io.github.composix.math;
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Comparator;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 class OrderInt extends OrdinalInt implements MutableOrder {
+    private static final BitSet MARKED = new BitSet();
+ 
     Ordinal[] ordinals;
 
     OrderInt(int ordinal) {
@@ -49,20 +52,30 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     
     @Override
     public int rank(int index) {
-        return ordinals[index].intValue();
+        try {
+            return ordinals[index].intValue();
+        } catch(ArrayIndexOutOfBoundsException e) {
+            return index;
+        }
     }
 
     @Override
     public Ordinal rank(Ordinal index) {
-        return ordinals[index.intValue()];
+        try {
+            return ordinals[index.intValue()];
+        } catch(ArrayIndexOutOfBoundsException e) {
+            return index;
+        }
     }
 
     @Override
-    public void permute(int target, Object[] array) {
+    public void permute(final int target, final int mask, final Object[] array) {
         if (isOrdinal()) {
             return;
         }
-        throw new UnsupportedOperationException();
+        int index = 0;
+        MARKED.clear();
+        while ((index = cycle(target, mask, index, array)) < ordinal);
     }
 
     @Override
@@ -128,5 +141,23 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     public Stream<Object[]> streamArgv(int size, Object[] argv) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'streamArgv'");
+    }
+
+    private int cycle(final int target, final int mask, final int index, Object[] array) {
+        final Object value = array[(target + index) & mask];
+        int current = index, rank, next = MARKED.nextClearBit(index) + 1;
+        while(index != (rank = rank(current))) {
+            if (rank == next) {
+                next = MARKED.nextClearBit(++next);
+            } else {
+                MARKED.set(rank);
+            }
+            array[(target + current) & mask] = array[(target + rank) & mask];
+            current = rank;
+        }
+        if (current != index) {
+            array[(target + current) & mask] = value;
+        }
+        return next;
     }
 }

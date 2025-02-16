@@ -40,7 +40,7 @@ public interface Order extends OrdinalIterable {
 
     Ordinal rank(Ordinal index);
 
-    void permute(int target, Object[] array); 
+    void permute(int target, int mask, Object[] array); 
 
     <T> Stream<T> stream(T[] array);
 

@@ -42,8 +42,23 @@ class OrdinalInt extends OrdinalNumber implements Order {
 
     @Override
     public Ordinal iterator() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'iterator'");
+        final int limit = ordinal;
+        return new OrdinalInt(-1) {
+            @Override
+            public boolean hasNext() {
+                return ordinal < limit;
+            }
+
+            @Override
+            public int nextIndex() {
+                return ++ordinal;
+            }
+        
+            @Override
+            public int previousIndex() {
+                return --ordinal;
+            }                    
+        };
     }
 
     @Override
@@ -76,7 +91,7 @@ class OrdinalInt extends OrdinalNumber implements Order {
     }
 
     @Override
-    public void permute(int target, Object[] array) {
+    public void permute(int target, int mask, Object[] array) {
         return; // standard order, so nothing to permute
     }
 

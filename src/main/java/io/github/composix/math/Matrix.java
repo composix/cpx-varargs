@@ -32,8 +32,8 @@ import java.util.stream.Stream;
 public class Matrix extends OrderInt implements Args {
     static Object[] OBJECT = new Object[1];
 
-    private static Object[] ARGV = new Object[-Short.MIN_VALUE];
-    private static int MASK = Short.MAX_VALUE;
+    private static final Object[] ARGV = new Object[-Short.MIN_VALUE];
+    private static final int MASK = Short.MAX_VALUE;
 
     private MutableOrder order;
 
@@ -106,24 +106,8 @@ public class Matrix extends OrderInt implements Args {
 
     @Override
     public Args select(Order order) {
-        try {
-            final int size = order.ordinal().intValue();
-            final Matrix result = (Matrix) ((Matrix) this).clone();
-            int source = hashCode(), target = result.hashCode();
-            final Object[] argv = result.argv(), args = argv();
-            for (int i = 0; i < size; ++i) {
-                if (argv[mask(target)] == null) {
-                    argv[mask(target++)] = args[mask(source + order.rank(i))];
-                } else {
-                    throw new IndexOutOfBoundsException();
-                }
-            }
-            result.ordinal = size; //TODO: special ordinal for Matrix
-            result.ordinals = ORDINALS;
-            return result;    
-        } catch(CloneNotSupportedException e) {
-            throw new IllegalStateException(e);
-        }
+        order.permute(hashCode(), mask(), argv());
+        return this;
     }
 
     @Override
@@ -159,6 +143,10 @@ public class Matrix extends OrderInt implements Args {
 
     protected Object[] argv() {
         return ARGV;
+    }
+
+    protected int mask() {
+        return MASK;
     }
 
     protected int mask(int index) {
