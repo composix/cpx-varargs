@@ -63,8 +63,14 @@ public class SafeMatrix<A> extends Matrix implements ArgsI<A> {
 
     @Override
     public ArgsI<A> select(Ordinal ordinal, Function<A, ?> accessor) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'select'");
+        final int amount = order().ordinal().intValue();
+        A[] source = (A[]) argv[0];
+        Object[] target = new Object[amount];
+        argv[ordinal.intValue()] = target;
+        for (int i = 0; i < amount; ++i) {
+            target[i] = accessor.apply(source[i]);   
+        }
+        return this;
     }
 
     @Override

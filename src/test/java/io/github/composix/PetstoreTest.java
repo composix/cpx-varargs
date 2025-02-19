@@ -34,14 +34,14 @@ import org.junit.jupiter.api.Test;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 
+import io.github.composix.math.Args;
+import io.github.composix.math.MutableOrder;
 import io.github.composix.math.Ordinal;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.TestData;
 import io.github.composix.varargs.ArgsI;
-import io.github.composix.varargs.ArgsII;
-import io.github.composix.varargs.ArgsIII;
 
 @WireMockTest
 class PetstoreTest extends TestCase {
@@ -62,17 +62,19 @@ class PetstoreTest extends TestCase {
 
     @Test
     void testPetstore() {
-        final ArgsII<String,long[]> pets =
+        final MutableOrder order = Ordinal.D.order();
+        order.reorder(B, C);
+        final Args pets =
             ArgsI.of(
                 testData
                     .select("~","pet")
                     .collect()
                 .toArray(Pet[]::new))
-                    .selectB(Pet::name)
-                    .selectLongC(Pet::id)
-                .shiftLeft();
+                    .select(B, Pet::name)
+                    .selectLong(C, Pet::id)
+                .select(order);
 
-        final ArgsII<long[],long[]> orders = Ordinal
+        final Args orders = Ordinal
             .OMEGA.extendA(
                 testData
                     .select("~","store","order")
@@ -80,9 +82,9 @@ class PetstoreTest extends TestCase {
                 .toArray(Order[]::new))
                     .selectLongB(Order::petId)
                     .selectLongC(Order::quantity)
-                .shiftLeft();
+                .select(order);
 
-        ArgsIII<String,long[],long[]> orderAmounts = pets.joinII(orders);
+        Args orderAmounts = pets.join(orders);
 
         final Ordinal A = Ordinal.A, B = Ordinal.B, C = Ordinal.C;
         assertEquals("Dog_Pluto", orderAmounts.getValue(A.index(A)));

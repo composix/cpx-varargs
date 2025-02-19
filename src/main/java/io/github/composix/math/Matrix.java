@@ -57,6 +57,10 @@ public class Matrix extends OrderInt implements Args {
         if (!OMEGA.contains(col)) {
             throw new IndexOutOfBoundsException();
         }
+        if (!arrays[0].getClass().isArray()) {
+            OBJECT[0] = arrays;
+            arrays = OBJECT;            
+        }
         final int index = col.intValue();
         final int length = arrays.length;
         ordinal = index + length; // TODO: keep only the row ordinal
@@ -155,5 +159,10 @@ public class Matrix extends OrderInt implements Args {
 
     private Object argv(int index) {
         return argv()[mask(hashCode() + index)]; 
+    }
+
+    @Override
+    public Args join(Args rhs) {
+        throw new UnsupportedOperationException();
     }
 }

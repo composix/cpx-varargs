@@ -30,14 +30,10 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public interface Args extends ArgsOrdinal, Order {
-    static Args EMPTY = new SafeMatrix();
+    static Args EMPTY = new SafeMatrix<>();
     
-    static Args of(Object... array) {
-        if (array[0].getClass().isArray()) {
-            return OMEGA.extend(A, array);            
-        }
-        Matrix.OBJECT[0] = array;
-        return OMEGA.extend(A, Matrix.OBJECT);
+    static Args of(Object... arrays) {
+        return OMEGA.extend(A, arrays);
     }
 
     static Args ofLongs(long... array) {
@@ -69,6 +65,8 @@ public interface Args extends ArgsOrdinal, Order {
     Args orderBy(Ordinal ordinal);
     
     Ordinal ordinalAt(Ordinal ordinal, Object value);
+
+    Args join(Args rhs);
 
     default Comparator<Ordinal> comparator(Ordinal ordinal) {
         return Comparator.comparing(Fn.of(ordinal::index).intAndThen(this::getValue));

@@ -32,14 +32,8 @@ import io.github.composix.math.Args;
 import io.github.composix.math.Ordinal;
 
 public interface ArgsI<A> extends Args, JoinA<A> {
-    static Args EMPTY = new MatrixI<>();
-
     static <R extends Record> ArgsI<R> of(R... records) {
-        try {
-            return (ArgsI<R>) EMPTY.clone().extend(A, records);
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException(e);
-        }
+        return (ArgsI<R>) Args.of((Object[]) records);
     }
     
     @Override
