@@ -145,7 +145,7 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     @Override
     public final Object newInstance(final Class<?> type) {
-        final int length = intValue();
+        final int length = intValue() % OMEGA.intValue();
         final Class<?> componentType = type.getComponentType();
         if (componentType != null) {
             Class<?> leafType = componentType.getComponentType();
@@ -171,12 +171,12 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     @Override
     public final <T> T[] copyOf(T[] array) {
-        return Arrays.copyOf(array, intValue());
+        return Arrays.copyOf(array, intValue() % OMEGA.intValue());
     }
 
     @Override
     public final Object copyOf(Object array) {
-        Object result = Array.newInstance(array.getClass().getComponentType(), intValue());
+        Object result = Array.newInstance(array.getClass().getComponentType(), intValue() % OMEGA.intValue());
         System.arraycopy(array, 0, result, 0, Array.getLength(array));
         return result;
     }

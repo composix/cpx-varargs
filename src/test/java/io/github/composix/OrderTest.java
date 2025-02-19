@@ -43,7 +43,6 @@ import io.github.composix.math.Args;
 import io.github.composix.testing.TestCase;
 
 class OrderTest extends TestCase {
-
     // Arrays
     long[] idArray = {1, 2, 3};
     String[] array = {"aap", "noot", "mies" };
@@ -87,8 +86,8 @@ class OrderTest extends TestCase {
     @Test
     void testIsOrdinal() {
         assertTrue(idArgs.isOrdinal());
-        assertTrue(args.isOrdinal());
-        assertTrue(matrix.isOrdinal());
+        assertFalse(args.isOrdinal());
+        assertFalse(matrix.isOrdinal());
 
         assertTrue(idArgs.order().isOrdinal());
         assertFalse(args.order().isOrdinal());

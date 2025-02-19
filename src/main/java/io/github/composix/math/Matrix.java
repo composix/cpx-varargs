@@ -35,21 +35,22 @@ public class Matrix extends OrderInt implements Args {
     private static final Object[] ARGV = new Object[-Short.MIN_VALUE];
     private static final int MASK = Short.MAX_VALUE;
 
-    private MutableOrder order;
+    @Override
+    public Ordinal ordinal() {
+        return this;      
+    }
 
     @Override
     public Args clone() throws CloneNotSupportedException {
-        if (!order.isOrdinal()) {
+        if (!isOrdinal()) {
             throw new CloneNotSupportedException("reordered varargs cannot be cloned");
         }
-        final Matrix result = (Matrix) super.clone();
-        result.order = (MutableOrder) order.ordinal().clone();
-        return result;
+        return (Args) super.clone();
     }
 
     @Override
     public MutableOrder order() {
-        return order;
+        return this;
     }
 
     @Override
@@ -61,9 +62,10 @@ public class Matrix extends OrderInt implements Args {
             OBJECT[0] = arrays;
             arrays = OBJECT;            
         }
+        final int omega = OMEGA.intValue();
         final int index = col.intValue();
         final int length = arrays.length;
-        ordinal = index + length; // TODO: keep only the row ordinal
+        ordinal += omega * (index + length);
 
         final Object[] argv = argv();
         int target = hashCode() + index;
@@ -74,11 +76,11 @@ public class Matrix extends OrderInt implements Args {
                 throw new IllegalStateException("hash collision");
             }
         }
-        int amount = ((OrdinalInt) order).ordinal;
+        int amount = ordinal % omega;
         for (int i = 0; i < length; ++i) {
             amount = Math.max(amount, Array.getLength(arrays[i]));
         }
-        order.resize(amount); // TODO: move this order to superclass
+        resize(amount);
         return this;
     }
 
@@ -95,7 +97,7 @@ public class Matrix extends OrderInt implements Args {
     @Override
     public <T> Stream<T> stream(Ordinal ordinal) {
         if (contains(ordinal)) {
-            return (Stream<T>) order.stream((Object[]) argv(ordinal.intValue()));
+            return (Stream<T>) stream((Object[]) argv(ordinal.intValue()));
         }
         throw new IndexOutOfBoundsException();
     }
@@ -103,7 +105,7 @@ public class Matrix extends OrderInt implements Args {
     @Override
     public LongStream longStream(Ordinal ordinal) {
         if (contains(ordinal)) {
-            return order.stream((long[]) argv(ordinal.intValue()));
+            return stream((long[]) argv(ordinal.intValue()));
         }
         throw new IndexOutOfBoundsException();
     }
@@ -116,13 +118,13 @@ public class Matrix extends OrderInt implements Args {
 
     @Override
     public Args orderBy(Ordinal ordinal) {
-        order.reorder(comparator(ordinal));
+        reorder(comparator(ordinal));
         return this;
     }
 
     @Override
     public Ordinal ordinalAt(final Ordinal col, Object value) {
-        if (order.isOrdinal()) {
+        if (isOrdinal()) {
             if (value.getClass() == Long.class) {
                 final int index = Arrays.binarySearch((long[]) argv(col.intValue()),
                         ((Long) value).longValue());
@@ -131,18 +133,13 @@ public class Matrix extends OrderInt implements Args {
             final int index = Arrays.binarySearch((Object[]) argv(col.intValue()), value);
             return index < 0 ? OMEGA : ORDINALS[index];
         }
-        return ((MutableOrder) order).ordinalAt(value, (row, key) -> ((Comparable<Object>) Array.get(
+        return ordinalAt(value, (row, key) -> ((Comparable<Object>) Array.get(
                 argv(col.intValue()),
                 ((OrdinalInt) row).ordinal)).compareTo(key));
     }
 
     protected Matrix() {
         super(0);
-        try {
-            order = (MutableOrder) ORDINALS[ordinal].clone();
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     protected Object[] argv() {

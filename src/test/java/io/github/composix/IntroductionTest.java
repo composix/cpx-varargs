@@ -42,7 +42,6 @@ import io.github.composix.math.MutableOrder;
 import io.github.composix.testing.TestCase;
 
 class IntroductionTest extends TestCase {
-
     // Arrays
     long[] idArray = {1, 2, 3};
     String[] array = {"aap", "noot", "mies" };
@@ -113,6 +112,8 @@ class IntroductionTest extends TestCase {
         MutableOrder order = (MutableOrder) C.order();
         order.reorder(Comparator.reverseOrder());
         Args reversed = matrix.select(order);
+        //assertEquals(1L, matrix.getLongValue(A.index(A)));
+        //assertSame("aap", matrix.getValue(B.index(A)));
         assertSame("aap", reversed.getValue(A.index(A)));
         assertEquals(1L, reversed.getLongValue(B.index(A)));
         assertFalse(reversed.isOrdinal());
@@ -121,15 +122,17 @@ class IntroductionTest extends TestCase {
     // tests on the Order interface
 
     @Test
+    void testOrder() {
+        assertSame(idArgs, idArgs.order());
+        assertSame(args, args.order());
+        assertSame(matrix, matrix.order());
+    }
+
+    @Test
     void testOrdinal() {
-        assertSame(B, idArgs.ordinal());
-        assertSame(D, idArgs.order().ordinal());
-
-        assertSame(B, args.ordinal());
-        assertSame(D, args.order().ordinal());
-
-        assertSame(C, matrix.ordinal());
-        assertSame(D, matrix.order().ordinal());
+        assertSame(idArgs, idArgs.ordinal());
+        assertSame(args, args.ordinal());
+        assertSame(matrix, matrix.ordinal());
     }
 
     @Test
@@ -137,9 +140,13 @@ class IntroductionTest extends TestCase {
         assertTrue(idArgs.isOrdinal());
         assertTrue(args.isOrdinal());
         assertTrue(matrix.isOrdinal());
+    }
 
-        assertTrue(idArgs.order().isOrdinal());
-        assertTrue(args.order().isOrdinal());
-        assertTrue(matrix.order().isOrdinal());
+    @Test
+    void testIntValue() {
+        final int omega = OMEGA.intValue();
+        assertEquals(omega + 3, idArgs.ordinal().intValue());
+        assertEquals(omega + 3, args.ordinal().intValue());
+        assertEquals(2 * omega + 3, matrix.ordinal().intValue());
     }
 }

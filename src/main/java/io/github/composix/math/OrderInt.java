@@ -97,7 +97,8 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     @Override
     public void resize(int ordinal) {
         if (isOrdinal()) {
-            this.ordinal = ordinal;
+            final int omega = OMEGA.intValue();
+            this.ordinal = (this.ordinal / omega) * omega + ordinal;
         } else {
             throw new IllegalStateException("cannot resize a non-ordinal order");
         }
@@ -105,13 +106,14 @@ class OrderInt extends OrdinalInt implements MutableOrder {
 
     @Override
     public void reorder(Comparator<Ordinal> comparator) {
-        if (ordinal > 1) {
+        int amount = ordinal % OMEGA.intValue();
+        if (amount-- > 1) {
             final Ordinal[] omega = ORDINALS;
             if (comparator == NATURAL_ORDER) {
                 ordinals = omega;
             } else {
-                int i = 0, n = ordinal - 1;
-                while(i < n) {
+                int i = 0;
+                while(i < amount) {
                     if (comparator.compare(omega[i], omega[++i]) > 0) {
                         if (ordinals == omega) {
                             ordinals = copyOf(omega);
