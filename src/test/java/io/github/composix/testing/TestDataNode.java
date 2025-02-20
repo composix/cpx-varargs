@@ -57,7 +57,7 @@ class TestDataNode extends CharSequenceNode implements TestData {
                 data = (Object[]) root.mapper.readValue(root.base.resolve(uri).toURL(), type.arrayType());
             } else {
                 data = new Object[1];
-                data[0] = root.mapper.readValue(root.base.resolve(uri).toURL(), Object.class);
+                data[0] = root.mapper.readValue(root.base.resolve(uri).toURL(), type);
             }
         } catch(IOException e) {
             final URI base = URI.create(root.wm.getHttpBaseUrl());
@@ -65,7 +65,7 @@ class TestDataNode extends CharSequenceNode implements TestData {
                 data = (Object[]) root.mapper.readValue(base.resolve(uri).toURL(), type.arrayType());
             } else {
                 data = new Object[1];
-                data[0] = root.mapper.readValue(root.base.resolve(uri).toURL(), Object.class);
+                data[0] = root.mapper.readValue(root.base.resolve(uri).toURL(), type);
             }
         }
         return this;

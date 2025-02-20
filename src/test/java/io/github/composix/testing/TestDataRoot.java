@@ -33,6 +33,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
@@ -54,6 +55,7 @@ class TestDataRoot extends CharSequenceNode implements TestData {
         base = URI.create(baseUrl);
         mapper = new ObjectMapper();
         mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         paths = new ArrayList<>();
     }
 
