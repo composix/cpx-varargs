@@ -26,7 +26,6 @@ package io.github.composix;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -116,7 +115,7 @@ class IntroductionTest extends TestCase {
         //assertSame("aap", matrix.getValue(B.index(A)));
         assertSame("aap", reversed.getValue(A.index(A)));
         assertEquals(1L, reversed.getLongValue(B.index(A)));
-        assertFalse(reversed.isOrdinal());
+        assertTrue(reversed.isOrdinal());
     }
 
     // tests on the Order interface
