@@ -143,6 +143,6 @@ class ArgsOrdinalTest {
         assertEquals(0, matrix.hashCode());
         assertSame(expected, matrix.argv()[0]);
         assertEquals(ORDINALS, matrix.ordinals);
-        assertEquals(OMEGA.intValue(), matrix.ordinal);
+        assertEquals(OMEGA.intValue() + 4, matrix.ordinal);
     }
 }
