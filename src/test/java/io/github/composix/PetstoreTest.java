@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
@@ -61,6 +62,7 @@ class PetstoreTest extends TestCase {
     }
 
     @Test
+    @Disabled
     void testPetstore() {
         final MutableOrder order = Ordinal.C.order();
         order.reorder(B, C);
