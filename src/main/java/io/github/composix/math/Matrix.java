@@ -112,7 +112,20 @@ public class Matrix extends OrderInt implements Args {
 
     @Override
     public Args select(Order order) {
-        order.permute(hashCode(), mask(), argv());
+        final int omega = OMEGA.intValue(),
+            oldSize = ordinal / omega,
+            newSize = order.ordinal().intValue();
+        if (oldSize < newSize) {
+            throw new IndexOutOfBoundsException();
+        }
+        final Object[] argv = argv();
+        final int hashCode = hashCode(),
+            mask = mask();
+        order.permute(hashCode, mask, argv);
+        for (int i = newSize; i < oldSize; ++i) {
+            argv[(hashCode + i) & mask] = null;
+        }
+        ordinal = newSize * omega + ordinal % omega;
         return this;
     }
 

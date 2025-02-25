@@ -62,7 +62,7 @@ class PetstoreTest extends TestCase {
 
     @Test
     void testPetstore() {
-        final MutableOrder order = Ordinal.D.order();
+        final MutableOrder order = Ordinal.C.order();
         order.reorder(B, C);
         final Args pets =
             ArgsI.of(
@@ -80,8 +80,8 @@ class PetstoreTest extends TestCase {
                     .select("~","store","order")
                     .collect()
                 .toArray(Order[]::new))
-                    .selectLongB(Order::petId)
-                    .selectLongC(Order::quantity)
+                    .selectLong(B, Order::petId)
+                    .selectLong(C, Order::quantity)
                 .select(order);
 
         Args orderAmounts = pets.join(orders);
