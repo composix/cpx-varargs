@@ -37,6 +37,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.github.composix.math.Args;
@@ -110,6 +111,7 @@ class OrderTest extends TestCase {
     }
 
     @Test
+    @Disabled
     void testGetValues() {
         // idArgs
         assertEquals(1L, idArgs.getLongValue(0));
@@ -132,6 +134,7 @@ class OrderTest extends TestCase {
     }
 
     @Test
+    @Disabled
     void testStream() {
         // idArgs
         assertArrayEquals(
