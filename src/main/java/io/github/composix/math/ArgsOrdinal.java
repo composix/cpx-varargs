@@ -30,10 +30,32 @@ import io.github.composix.varargs.ArgsI;
 
 public interface ArgsOrdinal extends Cloneable {
     static final Ordinal OMEGA = Constants.getInstance().omega();
-    static final Ordinal A = Constants.getInstance().ordinal(0);
-    static final Ordinal B = Constants.getInstance().ordinal(1);
-    static final Ordinal C = Constants.getInstance().ordinal(2);
-    static final Ordinal D = Constants.getInstance().ordinal(3);
+    static final Ordinal A = Constants.getInstance().ordinal(0),
+            B = Constants.getInstance().ordinal(1),
+            C = Constants.getInstance().ordinal(2),
+            D = Constants.getInstance().ordinal(3),
+            E = Constants.getInstance().ordinal(4),
+            F = Constants.getInstance().ordinal(5),
+            G = Constants.getInstance().ordinal(6),
+            H = Constants.getInstance().ordinal(7),
+            I = Constants.getInstance().ordinal(8),
+            J = Constants.getInstance().ordinal(9),
+            K = Constants.getInstance().ordinal(10),
+            L = Constants.getInstance().ordinal(11),
+            M = Constants.getInstance().ordinal(12),
+            N = Constants.getInstance().ordinal(13),
+            O = Constants.getInstance().ordinal(14),
+            P = Constants.getInstance().ordinal(15),
+            Q = Constants.getInstance().ordinal(16),
+            R = Constants.getInstance().ordinal(17),
+            S = Constants.getInstance().ordinal(18),
+            T = Constants.getInstance().ordinal(19),
+            U = Constants.getInstance().ordinal(20),
+            V = Constants.getInstance().ordinal(21),
+            W = Constants.getInstance().ordinal(22),
+            X = Constants.getInstance().ordinal(23),
+            Y = Constants.getInstance().ordinal(24),
+            Z = Constants.getInstance().ordinal(25);
 
     static Object[] OBJECTS = new Object[0];
     static String[] STRINGS = new String[0];
@@ -49,17 +71,17 @@ public interface ArgsOrdinal extends Cloneable {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Override
     String toString();
 
     Args extend(Ordinal col, Object... arrays);
 
     default <T> ArgsI<T> extendA(T... array) {
-        return (ArgsI<T>) extend(A, new Object[] {array});
+        return (ArgsI<T>) extend(A, new Object[] { array });
     }
 
     default ArgsI<long[]> extendA(long... array) {
-        return (ArgsI<long[]>) extend(A, new Object[] {array});
+        return (ArgsI<long[]>) extend(A, new Object[] { array });
     }
 }
