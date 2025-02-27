@@ -24,15 +24,13 @@
 
 package io.github.composix.math;
 
-import io.github.composix.varargs.ArgsI;
-
-public class SafeMatrix<A> extends Matrix implements ArgsI<A> {
+public class SafeMatrix extends Matrix {
     private static int MASK = 15;
 
     private Object[] argv = new Object[MASK + 1];
 
     @Override
-    public ArgsI<A> clone() throws CloneNotSupportedException {
+    public Args clone() throws CloneNotSupportedException {
         final SafeMatrix result = (SafeMatrix) super.clone();
         result.argv = argv.clone();
         return result;
@@ -52,7 +50,7 @@ public class SafeMatrix<A> extends Matrix implements ArgsI<A> {
     protected int mask() {
         return MASK;
     }
-    
+
     @Override
     protected int mask(int index) {
         return index & MASK;

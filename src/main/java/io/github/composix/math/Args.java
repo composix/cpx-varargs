@@ -30,7 +30,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public interface Args extends ArgsOrdinal, Order {
-    static Args EMPTY = new SafeMatrix<>();
+    static Args EMPTY = new SafeMatrix();
     
     static Args of(Object... arrays) {
         return OMEGA.extend(A, arrays);
