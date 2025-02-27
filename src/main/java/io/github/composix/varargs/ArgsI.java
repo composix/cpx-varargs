@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 import io.github.composix.math.Args;
 import io.github.composix.math.Ordinal;
 
-public interface ArgsI<A> extends Args, JoinA<A> {
+public interface ArgsI<A> extends Args {
     static <R extends Record> ArgsI<R> of(R... records) {
         return (ArgsI<R>) Args.of((Object[]) records);
     }

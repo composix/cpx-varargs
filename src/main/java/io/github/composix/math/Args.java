@@ -66,8 +66,6 @@ public interface Args extends ArgsOrdinal, Order {
     
     Ordinal ordinalAt(Ordinal ordinal, Object value);
 
-    Args join(Args rhs);
-
     default Comparator<Ordinal> comparator(Ordinal ordinal) {
         return Comparator.comparing(Fn.of(ordinal::index).intAndThen(this::getValue));
     }

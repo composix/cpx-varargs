@@ -24,9 +24,6 @@
 
 package io.github.composix.math;
 
-import java.util.function.Function;
-import java.util.function.ToLongFunction;
-
 import io.github.composix.varargs.ArgsI;
 
 public class SafeMatrix<A> extends Matrix implements ArgsI<A> {
@@ -59,50 +56,5 @@ public class SafeMatrix<A> extends Matrix implements ArgsI<A> {
     @Override
     protected int mask(int index) {
         return index & MASK;
-    }
-
-    @Override
-    public ArgsI<A> select(Ordinal ordinal, Function<A, ?> accessor) {
-        final Object[] target = createTarget(ordinal);
-        final A[] source = (A[]) argv[0];
-        for (int i = 0; i < target.length; ++i) {
-            target[i] = accessor.apply(source[i]);
-        }
-        return this;
-    }
-
-    @Override
-    public ArgsI<A> selectLong(Ordinal ordinal, ToLongFunction<A> accessor) {
-        long[] target = createLongTarget(ordinal);
-        A[] source = (A[]) argv[0];
-        for (int i = 0; i < target.length; ++i) {
-            target[i] = accessor.applyAsLong(source[i]);   
-        }
-        return this;
-    }
-
-    private Object[] createTarget(Ordinal ordinal) {
-        final int index = ordinal.intValue();
-        final Object[] target = new Object[amount(index)];
-        argv[index] = target;
-        return target;
-    }
-
-    private long[] createLongTarget(Ordinal ordinal) {
-        final int index = ordinal.intValue();
-        final long[] target = new long[amount(index)];
-        argv[index] = target;
-        return target;
-    }
-
-    private int amount(int index) {
-        final int omega = OMEGA.intValue(),
-            size = this.ordinal / omega,
-            amount = this.ordinal % omega;
-        if (index != size) {
-            throw new UnsupportedOperationException();
-        }
-        this.ordinal = ++index * omega + amount;
-        return amount;
     }
 }

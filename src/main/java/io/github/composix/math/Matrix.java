@@ -170,9 +170,4 @@ public class Matrix extends OrderInt implements Args {
     private Object argv(int index) {
         return argv()[mask(hashCode() + index)]; 
     }
-
-    @Override
-    public Args join(Args rhs) {
-        throw new UnsupportedOperationException();
-    }
 }
