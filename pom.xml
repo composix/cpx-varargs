@@ -23,7 +23,7 @@
         <dependency>
             <groupId>io.github.composix</groupId>
             <artifactId>cpx-testutil</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
