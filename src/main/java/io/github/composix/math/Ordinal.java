@@ -32,15 +32,6 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
         return null;
     }
 
-    @Override
-    default Args extend(Ordinal col, Object... arrays) {
-        try {
-            return Args.EMPTY.clone().extend(col, arrays);
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     byte byteValue();
     
     short shortValue();

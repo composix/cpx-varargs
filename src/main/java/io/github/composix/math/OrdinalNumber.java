@@ -121,6 +121,15 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     // general methods on Ordinal
     @Override
+    public Args extend(Ordinal col, Object... arrays) {
+        try {
+            return Args.EMPTY.clone().extend(col, arrays);
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
     public boolean contains(Ordinal ordinal) {
         return ordinal.intValue() < intValue();
     }
