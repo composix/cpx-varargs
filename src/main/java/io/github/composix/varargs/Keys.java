@@ -24,44 +24,16 @@
 
 package io.github.composix.varargs;
 
-import java.util.Comparator;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
+import java.util.stream.Collector;
 
-import io.github.composix.math.Args;
-import io.github.composix.math.Ordinal;
+public interface Keys<A> {
+    <K> Keys<A> thenBy(Function<A,K> accessor);
 
-public interface ArgsI<A> extends Args {
-    @Override
-    ArgsI<A> clone() throws CloneNotSupportedException;
+    Keys<A> thenBy(ToLongFunction<A> accessor);
 
-    <K> Keys<A> groupBy(Function<A,K> accessor);
+    <R> ArgsI<R> collect(Collector<A,?,R> collector);
 
-    Keys<A> groupBy(ToLongFunction<A> accessor);
-
-    default ArgsI<A> orderByA() {
-        return (ArgsI<A>) orderBy(A);
-    }
-
-    default Ordinal ordinalA(A value) {
-        return ordinalAt(A, value);
-    }
-
-    default Iterable<A> columnA() {
-        return column(A);
-    }
-
-    default Stream<A> streamA() {
-        return stream(A);
-    }
-
-    default LongStream longStreamA() {
-        return longStream(A);
-    }
-
-    default Comparator<Ordinal> comparatorA() {
-        return comparator(A);
-    }
+    <B> ArgsII<A,B> join(Keys<B> rhs);
 }

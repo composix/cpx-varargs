@@ -24,6 +24,9 @@
 
 package io.github.composix.varargs;
 
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
+
 import io.github.composix.math.Matrix;
 
 class MatrixI<A> extends Matrix implements ArgsI<A> {
@@ -34,5 +37,17 @@ class MatrixI<A> extends Matrix implements ArgsI<A> {
 
     public ArgsI<A> clone() throws CloneNotSupportedException {
         return (ArgsI<A>) super.clone();
+    }
+
+    @Override
+    public <K> Keys<A> groupBy(Function<A, K> accessor) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
+    }
+
+    @Override
+    public Keys<A> groupBy(ToLongFunction<A> accessor) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
     }
 }
