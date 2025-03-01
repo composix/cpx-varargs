@@ -30,16 +30,6 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public interface Args extends ArgsOrdinal, Order {
-    static Args EMPTY = new SafeMatrix();
-    
-    static Args of(Object... arrays) {
-        return OMEGA.extend(A, arrays);
-    }
-
-    static Args ofLongs(long... array) {
-        return OMEGA.extend(A, array);
-    }
-
     @Override
     Args clone() throws CloneNotSupportedException;
 

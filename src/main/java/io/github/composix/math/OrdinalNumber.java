@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 abstract class OrdinalNumber extends Number implements Ordinal {
     static Ordinal[] ORDINALS = Constants.getInstance().ordinals;
 
+    private static final Args EMPTY = new SafeMatrix();
     private static final NoSuchElementException NO_SUCH_ELEMENT_EXCEPTION = new NoSuchElementException("Ordinal 0 has no predecessor");
 
     // inherited from Object
@@ -123,7 +124,7 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     @Override
     public Args extend(Ordinal col, Object... arrays) {
         try {
-            return Args.EMPTY.clone().extend(col, arrays);
+            return EMPTY.clone().extend(col, arrays);
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException(e);
         }
