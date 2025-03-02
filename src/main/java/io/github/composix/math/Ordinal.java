@@ -53,7 +53,7 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
 
     long getLongValue(Object[] array, int offset, int index, Ordinal... ordinals);
 
-    Object newInstance(final Class<?> type);
+    <T> T[] newInstance(final Class<T> type);
 
     <T> T[] copyOf(T[] array);
 

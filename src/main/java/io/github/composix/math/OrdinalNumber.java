@@ -162,7 +162,7 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     }
 
     @Override
-    public final Object newInstance(final Class<?> type) {
+    public final <T> T[] newInstance(final Class<T> type) {
         final int length = intValue() % OMEGA.intValue();
         final Class<?> componentType = type.getComponentType();
         if (componentType != null) {
@@ -181,10 +181,10 @@ abstract class OrdinalNumber extends Number implements Ordinal {
                 }    
             }
             if (leafType.isPrimitive()) {
-                return Array.newInstance(componentType, length);
+                return (T[]) Array.newInstance(componentType, length);
             }    
         }
-        return Array.newInstance(type, length);
+        return (T[]) Array.newInstance(type, length);
     }
 
     @Override
