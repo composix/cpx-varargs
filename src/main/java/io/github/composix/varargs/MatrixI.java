@@ -28,6 +28,7 @@ import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
 import io.github.composix.math.Matrix;
+import io.github.composix.math.Ordinal;
 
 class MatrixI<A> extends Matrix implements ArgsI<A> {
 
@@ -40,13 +41,13 @@ class MatrixI<A> extends Matrix implements ArgsI<A> {
     }
 
     @Override
-    public <K> Keys<A> groupBy(Function<A, K> accessor) {
+    public <T, K> Keys groupBy(Ordinal col, Function<T, K> accessor) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
     }
 
     @Override
-    public Keys<A> groupBy(ToLongFunction<A> accessor) {
+    public <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
     }

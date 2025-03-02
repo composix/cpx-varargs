@@ -37,9 +37,9 @@ public interface ArgsI<A> extends Args {
     @Override
     ArgsI<A> clone() throws CloneNotSupportedException;
 
-    <K> Keys<A> groupBy(Function<A,K> accessor);
+    <T,K> Keys groupBy(Ordinal col, Function<T,K> accessor);
 
-    Keys<A> groupBy(ToLongFunction<A> accessor);
+    <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor);
 
     default ArgsI<A> orderByA() {
         return (ArgsI<A>) orderBy(A);

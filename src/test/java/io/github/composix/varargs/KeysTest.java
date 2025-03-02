@@ -34,6 +34,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.github.composix.math.Args;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
@@ -77,9 +78,9 @@ class KeysTest extends TestCase {
     assertArrayEquals(
       expected,
       pets
-        .groupBy(Pet::category)
+        .groupBy(A, Pet::category)
         .collect(Collectors.summingLong(Pet::id))
-        .longStreamA()
+        .longStream(A)
         .toArray()
     );
   }
@@ -90,19 +91,19 @@ class KeysTest extends TestCase {
     assertArrayEquals(
       expected,
       pets
-        .groupBy(Pet::category)
-        .thenBy(Pet::status)
+        .groupBy(A, Pet::category)
+        .thenBy(A, Pet::status)
         .collect(Collectors.summingLong(Pet::id))
-        .longStreamA()
+        .longStream(A)
         .toArray()
     );
   }
 
   @Test
   void testJoin() {
-    ArgsII<Pet, Order> result = pets
-      .groupBy(Pet::id)
-      .join(orders.groupBy(Order::petId));
+    Args result = pets
+      .groupBy(A, Pet::id)
+      .join(orders.groupBy(A, Order::petId));
 
     assertSame(THOMAS, result.getValue(A.index(A)));
     assertNull(result.getValue(B.index(A)));

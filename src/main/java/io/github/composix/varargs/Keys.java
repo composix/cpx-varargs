@@ -28,12 +28,15 @@ import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collector;
 
-public interface Keys<A> {
-    <K> Keys<A> thenBy(Function<A,K> accessor);
+import io.github.composix.math.Args;
+import io.github.composix.math.Ordinal;
 
-    Keys<A> thenBy(ToLongFunction<A> accessor);
+public interface Keys {
+    <T, K> Keys thenBy(Ordinal col, Function<T,K> accessor);
 
-    <R> ArgsI<R> collect(Collector<A,?,R> collector);
+    <T> Keys thenBy(Ordinal col, ToLongFunction<T> accessor);
 
-    <B> ArgsII<A,B> join(Keys<B> rhs);
+    Args collect(Collector<?,?,?> collector);
+
+    Args join(Keys rhs);
 }
