@@ -67,8 +67,8 @@ class KeysTest extends TestCase {
 
   @BeforeEach
   void setUp() {
-    pets = I.extendA(THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY);
-    orders = G.extendA(O, P, Q, R, S, T);
+    pets = I.extend(A, THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY);
+    orders = G.extend(A, O, P, Q, R, S, T);
   }
 
   @Test

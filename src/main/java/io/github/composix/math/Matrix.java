@@ -32,8 +32,6 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public class Matrix extends OrderInt implements Args {
-    static Object[] OBJECT = new Object[1];
-
     private static final Object[] ARGV = new Object[-Short.MIN_VALUE];
     private static final int MASK = Short.MAX_VALUE;
 

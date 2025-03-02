@@ -30,6 +30,8 @@ import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 abstract class OrdinalNumber extends Number implements Ordinal {
+    protected static Object[] OBJECT = new Object[1];
+
     static Ordinal[] ORDINALS = Constants.getInstance().ordinals;
 
     private static final Args EMPTY = new SafeMatrix();
@@ -128,6 +130,12 @@ abstract class OrdinalNumber extends Number implements Ordinal {
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public Args extend(Ordinal col, long...array) {
+        OBJECT[0] = array;
+        return extend(col, OBJECT);
     }
 
     @Override
