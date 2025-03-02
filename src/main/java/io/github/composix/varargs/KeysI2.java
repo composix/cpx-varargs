@@ -24,19 +24,6 @@
 
 package io.github.composix.varargs;
 
-import java.util.function.Function;
-import java.util.function.ToLongFunction;
-import java.util.stream.Collector;
-
-import io.github.composix.math.Args;
-import io.github.composix.math.Ordinal;
-
-public interface Keys {
-    <T, K> Keys thenBy(Ordinal col, Function<T,K> accessor);
-
-    <T> Keys thenBy(Ordinal col, ToLongFunction<T> accessor);
-
-    Args collect(Collector<?,?,?> collector);
-
-    Args join(Keys rhs);
+public interface KeysI2<K,KK,A> extends KeysI<K,A> {
+    
 }

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package io.github.composix.varargs;
+package io.github.composix.math;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -34,7 +34,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.github.composix.math.Args;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
@@ -44,8 +43,8 @@ import io.github.composix.testing.TestCase;
 class KeysTest extends TestCase {
   static Pet THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY;
   static Order O, P, Q, R, S, T;
-  ArgsI<Pet> pets;
-  ArgsI<Order> orders;
+  Args pets;
+  Args orders;
 
   @BeforeAll
   static void beforeAll() {

@@ -26,6 +26,8 @@ package io.github.composix.math;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -59,4 +61,8 @@ public interface Args extends ArgsOrdinal, Order {
     default Comparator<Ordinal> comparator(Ordinal ordinal) {
         return Comparator.comparing(Fn.of(ordinal::index).intAndThen(this::getValue));
     }
+
+    <T,K> Keys groupBy(Ordinal col, Function<T,K> accessor);
+
+    <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor);
 }

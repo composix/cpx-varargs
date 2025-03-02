@@ -41,13 +41,13 @@ class MatrixI<A> extends Matrix implements ArgsI<A> {
     }
 
     @Override
-    public <T, K> Keys groupBy(Ordinal col, Function<T, K> accessor) {
+    public <T, K> KeysI<K,A> groupBy(Ordinal col, Function<T, K> accessor) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
     }
 
     @Override
-    public <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
+    public <T> KeysI<long[],A> groupBy(Ordinal col, ToLongFunction<T> accessor) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
     }

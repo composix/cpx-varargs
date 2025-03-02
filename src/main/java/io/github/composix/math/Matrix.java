@@ -26,6 +26,8 @@ package io.github.composix.math;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -169,5 +171,17 @@ public class Matrix extends OrderInt implements Args {
 
     private Object argv(int index) {
         return argv()[mask(hashCode() + index)]; 
+    }
+
+    @Override
+    public <T, K> Keys groupBy(Ordinal col, Function<T, K> accessor) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
+    }
+
+    @Override
+    public <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
     }
 }
