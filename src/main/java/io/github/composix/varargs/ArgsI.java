@@ -38,7 +38,7 @@ public interface ArgsI<A> extends Args {
     ArgsI<A> clone() throws CloneNotSupportedException;
 
     @Override
-    <T,K> KeysI<K,A> groupBy(Ordinal col, Function<T,K> accessor);
+    <T,K extends Comparable<K>> KeysI<K,A> groupBy(Ordinal col, Function<T,K> accessor);
 
     @Override
     <T> KeysI<long[],A> groupBy(Ordinal col, ToLongFunction<T> accessor);
