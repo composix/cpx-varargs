@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,15 +28,14 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class KeysTest extends TestCase implements TestData {
   static Pet THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY;
@@ -62,7 +61,7 @@ class KeysTest extends TestCase implements TestData {
     R = ORDERS.getValue(3);
     S = ORDERS.getValue(4);
     T = ORDERS.getValue(5);
-  } 
+  }
 
   @BeforeEach
   void setUp() {
@@ -72,27 +71,42 @@ class KeysTest extends TestCase implements TestData {
 
   @Test
   void testGroupBy() {
-    long[] expected = {1, 12, 15};
+    long[] expected = { 1, 12, 15 };
+
+    // using VarArgs
     assertArrayEquals(
       expected,
       pets
         .groupBy(A, Pet::category)
-        .collect(Collectors.summingLong(Pet::id))
-        .longStream(A)
+        .collect(A, Pet::id, Long::sum)
+        .longStream(B)
+        .toArray()
+    );
+
+    // using Streams
+    assertArrayEquals(
+      expected,
+      Stream.of(THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY)
+        .collect(
+          Collectors.groupingBy(Pet::category, Collectors.summingLong(Pet::id))
+        )
+        .values()
+        .stream()
+        .mapToLong(Long::longValue)
         .toArray()
     );
   }
 
   @Test
   void testThenBy() {
-    long[] expected = {1, 9, 3, 11, 4};
+    long[] expected = { 1, 9, 3, 11, 4 };
     assertArrayEquals(
       expected,
       pets
         .groupBy(A, Pet::category)
         .thenBy(A, Pet::status)
-        .collect(Collectors.summingLong(Pet::id))
-        .longStream(A)
+        .collect(A, Pet::id, Long::sum)
+        .longStream(B)
         .toArray()
     );
   }

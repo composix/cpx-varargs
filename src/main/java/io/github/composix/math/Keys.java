@@ -25,15 +25,15 @@
 package io.github.composix.math;
 
 import java.util.function.Function;
+import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
-import java.util.stream.Collector;
 
 public interface Keys {
     <T, K> Keys thenBy(Ordinal col, Function<T,K> accessor);
 
     <T> Keys thenBy(Ordinal col, ToLongFunction<T> accessor);
 
-    Args collect(Collector<?,?,?> collector);
+    <T> Args collect(Ordinal col, ToLongFunction<T> accessor, LongBinaryOperator reducer);
 
     Args join(Keys rhs);
 }

@@ -27,9 +27,11 @@ package io.github.composix.math;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Spliterator;
 import java.util.function.Function;
+import java.util.function.LongBinaryOperator;
+import java.util.function.LongConsumer;
 import java.util.function.ToLongFunction;
-import java.util.stream.Collector;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -37,6 +39,7 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   private static final Object[] ARGV = new Object[-Short.MIN_VALUE];
   private static final int MASK = Short.MAX_VALUE;
+  private static final Ordinal[] ALL = new Ordinal[] { A };
 
   @Override
   public Ordinal ordinal() {
@@ -229,9 +232,9 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public Args collect(Collector<?, ?, ?> collector) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'collect'");
+  public <T> Args collect(Ordinal col, ToLongFunction<T> accessor, LongBinaryOperator reducer) {
+    argv(size(), target(ofLong(col, accessor), reducer, indices(col)));
+    return this;
   }
 
   @Override
@@ -278,5 +281,39 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
     }
     return count;
+  }
+
+  private Ordinal[] indices(Ordinal col) {
+    int index = 0;
+    if (argv(--index) == null) {
+      return ALL;
+    } else {
+      while (argv(--index) != null);
+      return argv(++index);
+    }
+  } 
+
+  private <T> Spliterator.OfLong ofLong(Ordinal col, ToLongFunction<T> accessor) {
+    final Stream<T> stream = stream(col);
+    return stream.mapToLong(accessor).spliterator();
+  }
+
+  private Object target(Spliterator.OfLong spliterator, LongBinaryOperator reducer, Ordinal... indices) {
+    final int length = indices.length;
+    long[] target = new long[length];
+    
+    int j = 0;
+    for (int i = 0; i < length; ++i) {
+      while (j++ < indices[i].intValue()) {
+        spliterator.tryAdvance(consumer(target, i, reducer));
+      }
+    }
+    return target;
+  }
+
+  private LongConsumer consumer(final long[] target, final int index, final LongBinaryOperator reducer) {
+    return value -> {
+      target[index] = reducer.applyAsLong(target[index], value);
+    };
   }
 }
