@@ -34,40 +34,39 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
-import io.github.composix.models.examples.Tag;
 import io.github.composix.testing.TestCase;
 
-class KeysTest extends TestCase {
+class KeysTest extends TestCase implements TestData {
   static Pet THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY;
   static Order O, P, Q, R, S, T;
+
   Args pets;
   Args orders;
 
   @BeforeAll
   static void beforeAll() {
-    THOMAS = new Pet(0, "Thomas", SOLD, CATS, EMPTY, IMG_THOMAS);
-    DUCHESS = new Pet(1, "Duchess", SOLD, CATS, EMPTY, IMG_DUCHESS);
-    PLUTO = new Pet(2, "Pluto", AVAILABLE, DOGS, EMPTY, IMG_PLUTO);
-    FRANK = new Pet(3, "Frank", PENDING, DOGS, EMPTY, IMG_FRANK);
-    FREY = new Pet(4, "Frey", PENDING, OTHER, MISC, IMG_FREY);
-    MICKEY = new Pet(5, "Mickey", AVAILABLE, OTHER, MICE, IMG_MICKEY);
-    DONALD = new Pet(6, "Donald", AVAILABLE, OTHER, DUCKS, IMG_DONALD);
-    GOOFY = new Pet(7, "Goofy", AVAILABLE, DOGS, MISC, IMG_GOOFY);
+    THOMAS = PETS.getValue(0);
+    DUCHESS = PETS.getValue(1);
+    PLUTO = PETS.getValue(2);
+    FRANK = PETS.getValue(3);
+    FREY = PETS.getValue(4);
+    MICKEY = PETS.getValue(5);
+    DONALD = PETS.getValue(6);
+    GOOFY = PETS.getValue(7);
 
-    O = new Order(0, 5, 3);
-    P = new Order(1, 1, 1);
-    Q = new Order(2, 6, 2);
-    R = new Order(3, 2, 3);
-    S = new Order(4, 4, 4);
-    T = new Order(5, 5, 5);
-  }
+    O = ORDERS.getValue(0);
+    P = ORDERS.getValue(1);
+    Q = ORDERS.getValue(2);
+    R = ORDERS.getValue(3);
+    S = ORDERS.getValue(4);
+    T = ORDERS.getValue(5);
+  } 
 
   @BeforeEach
   void setUp() {
-    pets = I.extend(A, THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY);
+    pets = PETS;
     orders = G.extend(A, O, P, Q, R, S, T);
   }
 
@@ -130,41 +129,5 @@ class KeysTest extends TestCase {
 
     assertSame(GOOFY, result.getValue(A.index(I)));
     assertNull(result.getValue(B.index(I)));
-  }
-
-  static final Tag[] EMPTY = new Tag[0];
-
-  static final String[] IMG_THOMAS = new String[0], IMG_DUCHESS =
-    new String[0], IMG_PLUTO = new String[1], IMG_FRANK =
-    new String[1], IMG_FREY = new String[1], IMG_MICKEY =
-    new String[1], IMG_DONALD = new String[1], IMG_GOOFY = new String[0];
-
-  static final Category CATS, DOGS, OTHER;
-  static final Tag[] MICE = new Tag[1], DUCKS = new Tag[1], MISC = new Tag[2];
-  static final Pet.Status AVAILABLE, PENDING, SOLD;
-
-  static {
-    CATS = new Category(0, "cats");
-    DOGS = new Category(1, "cats");
-    OTHER = new Category(2, "other");
-
-    MICE[0] = new Tag(0, "mice");
-    DUCKS[0] = new Tag(1, "ducks");
-    MISC[0] = new Tag(2, "misc");
-
-    AVAILABLE = Pet.Status.AVAILABLE;
-    PENDING = Pet.Status.PENDING;
-    SOLD = Pet.Status.SOLD;
-
-    IMG_PLUTO[0] =
-      "https://purepng.com/public/uploads/large/purepng.com-mickey-plutomickey-mousemickeymouseanimal-cartooncharacterwalt-disneyub-iwerksstudioslarge-yellow-shoered-shortswhite-glovesnetflix-1701528649869in1cb.png";
-    IMG_FRANK[0] =
-      "https://i.pinimg.com/736x/26/58/36/2658362ba9e3d4fb6c76cb25d5cf1cc8.jpg";
-    IMG_FREY[0] =
-      "https://i.pinimg.com/736x/27/5e/98/275e9850f2cc228c4b847d32b33371c2.jpg";
-    IMG_MICKEY[0] =
-      "https://purepng.com/public/uploads/large/purepng.com-mickey-mousemickey-mousemickeymouseanimal-cartooncharacterwalt-disneyub-iwerksstudioslarge-yellow-shoered-shortswhite-gloves-1701528648356hyh0y.png";
-    IMG_DONALD[0] =
-      "https://purepng.com/public/uploads/large/purepng.com-donald-duckdonald-duckdonaldduckcartoon-character1934walt-disneywhite-duck-1701528532131iamxo.png";
   }
 }
