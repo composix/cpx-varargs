@@ -77,7 +77,9 @@ public interface ArgsOrdinal extends Cloneable {
 
     <T> Args extend(Ordinal col, T... arrays);
 
-    Args extend(Ordinal col, long... array);
+    default Args extend(Ordinal col, long... array) {
+        return extend(col, (Object) array);
+    }
 
     default <T> ArgsI<T> extendA(T... arrays) {
         return (ArgsI<T>) extend(A, arrays);
