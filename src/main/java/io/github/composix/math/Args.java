@@ -35,10 +35,28 @@ public interface Args extends ArgsOrdinal, Order {
     @Override
     Args clone() throws CloneNotSupportedException;
 
+    Args select(Order order);
+
     <T> T getValue(int index);
 
     long getLongValue(int index);
     
+    Comparator<Ordinal> comparator(Ordinal ordinal);
+
+    <T,K extends Comparable<K>> Comparator<Ordinal> comparator(Ordinal ordinal, Function<T,K> accessor);
+
+    <T> Comparator<Ordinal> comparator(Ordinal ordinal, ToLongFunction<T> accessor);
+
+    <T> Stream<T> stream(Ordinal ordinal);
+
+    LongStream longStream(Ordinal ordinal);
+
+    Ordinal ordinalAt(Ordinal ordinal, Object value);
+
+    <T,K extends Comparable<K>> Keys groupBy(Ordinal col, Function<T,K> accessor);
+
+    <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor);
+
     default <T> Iterable<T> column(Ordinal ordinal) {
         return new Iterable<>() {
             @Override
@@ -48,21 +66,13 @@ public interface Args extends ArgsOrdinal, Order {
         };
     }
 
-    <T> Stream<T> stream(Ordinal ordinal);
-
-    LongStream longStream(Ordinal ordinal);
-
-    Args select(Order order);
-
-    Args orderBy(Ordinal ordinal);
-    
-    Ordinal ordinalAt(Ordinal ordinal, Object value);
-
-    default Comparator<Ordinal> comparator(Ordinal ordinal) {
-        return Comparator.comparing(Fn.of(ordinal::index).intAndThen(this::getValue));
+    default Args orderBy(Ordinal col) {
+        order().reorder(comparator(col));
+        return this;
     }
 
-    <T,K> Keys groupBy(Ordinal col, Function<T,K> accessor);
-
-    <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor);
+    default <T,K extends Comparable<K>> Args orderBy(Ordinal ordinal, Function<T,K> accessor) {
+        order().reorder(comparator(ordinal, accessor));
+        return this;
+    }
 }

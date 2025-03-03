@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,160 +26,257 @@ package io.github.composix.math;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
+import java.util.stream.Collector;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-public class Matrix extends OrderInt implements Args {
-    private static final Object[] ARGV = new Object[-Short.MIN_VALUE];
-    private static final int MASK = Short.MAX_VALUE;
+public class Matrix extends OrderInt implements Keys, Args {
 
-    @Override
-    public Ordinal ordinal() {
-        return this;      
+  private static final Object[] ARGV = new Object[-Short.MIN_VALUE];
+  private static final int MASK = Short.MAX_VALUE;
+
+  @Override
+  public Ordinal ordinal() {
+    return this;
+  }
+
+  @Override
+  public Args clone() throws CloneNotSupportedException {
+    if (!isOrdinal()) {
+      throw new CloneNotSupportedException(
+        "reordered varargs cannot be cloned"
+      );
     }
+    return (Args) super.clone();
+  }
 
-    @Override
-    public Args clone() throws CloneNotSupportedException {
-        if (!isOrdinal()) {
-            throw new CloneNotSupportedException("reordered varargs cannot be cloned");
-        }
-        return (Args) super.clone();
+  @Override
+  public MutableOrder order() {
+    return this;
+  }
+
+  @Override
+  public Args extend(Ordinal col, Object... arrays) {
+    if (!OMEGA.contains(col)) {
+      throw new IndexOutOfBoundsException();
     }
-
-    @Override
-    public MutableOrder order() {
-        return this;
+    if (!arrays[0].getClass().isArray()) {
+      OBJECT[0] = arrays;
+      arrays = OBJECT;
     }
+    final int omega = OMEGA.intValue();
+    final int index = col.intValue();
+    final int length = arrays.length;
+    ordinal += omega * (index + length);
 
-    @Override
-    public Args extend(Ordinal col, Object... arrays) {
-        if (!OMEGA.contains(col)) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (!arrays[0].getClass().isArray()) {
-            OBJECT[0] = arrays;
-            arrays = OBJECT;            
-        }
-        final int omega = OMEGA.intValue();
-        final int index = col.intValue();
-        final int length = arrays.length;
-        ordinal += omega * (index + length);
-
-        final Object[] argv = argv();
-        int target = hashCode() + index;
-        for (int i = 0; i < length; ++i) {
-            if (argv[mask(target)] == null) {
-                argv[mask(target++)] = arrays[i];
-            } else {
-                throw new IllegalStateException("hash collision");
-            }
-        }
-        int amount = ordinal % omega;
-        for (int i = 0; i < length; ++i) {
-            amount = Math.max(amount, Array.getLength(arrays[i]));
-        }
-        resize(amount);
-        return this;
+    final Object[] argv = argv();
+    int target = hashCode() + index;
+    for (int i = 0; i < length; ++i) {
+      if (argv[mask(target)] == null) {
+        argv[mask(target++)] = arrays[i];
+      } else {
+        throw new IllegalStateException("hash collision");
+      }
     }
-
-    @Override
-    public <T> T getValue(int index) {
-        return OMEGA.getValue(argv(), hashCode() & MASK, index, ordinals);
+    int amount = ordinal % omega;
+    for (int i = 0; i < length; ++i) {
+      amount = Math.max(amount, Array.getLength(arrays[i]));
     }
+    resize(amount);
+    return this;
+  }
 
-    @Override
-    public long getLongValue(int index) {
-        return OMEGA.getLongValue(argv(), hashCode() & MASK, index, ordinals);
+  @Override
+  public Args select(Order order) {
+    final int omega = OMEGA.intValue(), oldSize = ordinal / omega, newSize =
+      order.ordinal().intValue();
+    if (oldSize < newSize) {
+      throw new IndexOutOfBoundsException();
     }
+    final Object[] argv = argv();
+    final int hashCode = hashCode(), mask = mask();
+    order.permute(hashCode, mask, argv);
+    for (int i = newSize; i < oldSize; ++i) {
+      argv[(hashCode + i) & mask] = null;
+    }
+    ordinal = newSize * omega + (ordinal % omega);
+    return this;
+  }
 
-    @Override
-    public <T> Stream<T> stream(Ordinal ordinal) {
-        if (contains(ordinal)) {
-            return (Stream<T>) stream((Object[]) argv(ordinal.intValue()));
-        }
-        throw new IndexOutOfBoundsException();
-    }
+  @Override
+  public <T> T getValue(int index) {
+    return OMEGA.getValue(argv(), hashCode() & MASK, index, ordinals);
+  }
 
-    @Override
-    public LongStream longStream(Ordinal ordinal) {
-        if (contains(ordinal)) {
-            return stream((long[]) argv(ordinal.intValue()));
-        }
-        throw new IndexOutOfBoundsException();
-    }
+  @Override
+  public long getLongValue(int index) {
+    return OMEGA.getLongValue(argv(), hashCode() & MASK, index, ordinals);
+  }
 
-    @Override
-    public Args select(Order order) {
-        final int omega = OMEGA.intValue(),
-            oldSize = ordinal / omega,
-            newSize = order.ordinal().intValue();
-        if (oldSize < newSize) {
-            throw new IndexOutOfBoundsException();
-        }
-        final Object[] argv = argv();
-        final int hashCode = hashCode(),
-            mask = mask();
-        order.permute(hashCode, mask, argv);
-        for (int i = newSize; i < oldSize; ++i) {
-            argv[(hashCode + i) & mask] = null;
-        }
-        ordinal = newSize * omega + ordinal % omega;
-        return this;
-    }
+  @Override
+  public Comparator<Ordinal> comparator(Ordinal ordinal) {
+    return Comparator.comparing(
+      Fn.of(ordinal::index).intAndThen(this::getValue)
+    );
+  }
 
-    @Override
-    public Args orderBy(Ordinal ordinal) {
-        reorder(comparator(ordinal));
-        return this;
-    }
+  @Override
+  public <T, K extends Comparable<K>> Comparator<Ordinal> comparator(
+    Ordinal ordinal,
+    Function<T, K> accessor
+  ) {
+    final T[] source = argv(ordinal.intValue());
+    return (lhs, rhs) ->
+      accessor
+        .apply(source[lhs.intValue()])
+        .compareTo(accessor.apply(source[lhs.intValue()]));
+  }
 
-    @Override
-    public Ordinal ordinalAt(final Ordinal col, Object value) {
-        if (isOrdinal()) {
-            if (value.getClass() == Long.class) {
-                final int index = Arrays.binarySearch((long[]) argv(col.intValue()),
-                        ((Long) value).longValue());
-                return index < 0 ? OMEGA : ORDINALS[index];
-            }
-            final int index = Arrays.binarySearch((Object[]) argv(col.intValue()), value);
-            return index < 0 ? OMEGA : ORDINALS[index];
-        }
-        return ordinalAt(value, (row, key) -> ((Comparable<Object>) Array.get(
-                argv(col.intValue()),
-                ((OrdinalInt) row).ordinal)).compareTo(key));
-    }
+  @Override
+  public <T> Comparator<Ordinal> comparator(
+    Ordinal ordinal,
+    ToLongFunction<T> accessor
+  ) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException(
+      "Unimplemented method 'comparator'"
+    );
+  }
 
-    protected Matrix() {
-        super(0);
+  @Override
+  public <T> Stream<T> stream(Ordinal ordinal) {
+    if (contains(ordinal)) {
+      return (Stream<T>) stream((Object[]) argv(ordinal.intValue()));
     }
+    throw new IndexOutOfBoundsException();
+  }
 
-    protected Object[] argv() {
-        return ARGV;
+  @Override
+  public LongStream longStream(Ordinal ordinal) {
+    if (contains(ordinal)) {
+      return stream((long[]) argv(ordinal.intValue()));
     }
+    throw new IndexOutOfBoundsException();
+  }
 
-    protected int mask() {
-        return MASK;
+  @Override
+  public Ordinal ordinalAt(final Ordinal col, Object value) {
+    if (isOrdinal()) {
+      if (value.getClass() == Long.class) {
+        final int index = Arrays.binarySearch(
+          (long[]) argv(col.intValue()),
+          ((Long) value).longValue()
+        );
+        return index < 0 ? OMEGA : ORDINALS[index];
+      }
+      final int index = Arrays.binarySearch(
+        (Object[]) argv(col.intValue()),
+        value
+      );
+      return index < 0 ? OMEGA : ORDINALS[index];
     }
+    return ordinalAt(value, (row, key) ->
+      ((Comparable<Object>) Array.get(
+          argv(col.intValue()),
+          ((OrdinalInt) row).ordinal
+        )).compareTo(key)
+    );
+  }
 
-    protected int mask(int index) {
-        return index & MASK;
-    }
+  @Override
+  public <T, K extends Comparable<K>> Keys groupBy(Ordinal col, Function<T, K> accessor) {
+    final int amount = amount();
+    final T[] source = argv(col.intValue());
+    final int count = count(col, accessor);
+    final Ordinal[] indices = new Ordinal[count];
+    final K[] keys =
+      ORDINALS[count].newInstance((Class<K>)accessor.apply(source[0]).getClass());
+    argv(-1, indices);
+    argv(size(), keys);
 
-    private Object argv(int index) {
-        return argv()[mask(hashCode() + index)]; 
+    int k = 0;
+    K key = null;
+    for (int i = 0; i < amount; ++i) {
+      K current = accessor.apply(source[rank(i)]);
+      if (!current.equals(key)) {
+        key = current;
+        indices[k] = ORDINALS[i];
+        keys[k++] = current;
+      }
     }
+    return this;
+  }
 
-    @Override
-    public <T, K> Keys groupBy(Ordinal col, Function<T, K> accessor) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
-    }
+  @Override
+  public <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
+  }
 
-    @Override
-    public <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
+  @Override
+  public <T, K> Keys thenBy(Ordinal col, Function<T, K> accessor) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'thenBy'");
+  }
+
+  @Override
+  public <T> Keys thenBy(Ordinal col, ToLongFunction<T> accessor) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'thenBy'");
+  }
+
+  @Override
+  public Args collect(Collector<?, ?, ?> collector) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'collect'");
+  }
+
+  @Override
+  public Args join(Keys rhs) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'join'");
+  }
+
+  protected Matrix() {
+    super(0);
+  }
+
+  protected Object[] argv() {
+    return ARGV;
+  }
+
+  protected int mask() {
+    return MASK;
+  }
+
+  protected int mask(int index) {
+    return index & MASK;
+  }
+
+  private <T> T argv(int index) {
+    return (T) argv()[mask(hashCode() + index)];
+  }
+
+  private void argv(int index, Object value) {
+    argv()[mask(hashCode() + index)] = value;
+  }
+
+  private <T, K extends Comparable<K>> int count(Ordinal col, Function<T, K> accessor) {
+    final int amount = amount(); 
+    final T[] source = argv(col.intValue());
+    orderBy(col, accessor);
+    int count = 0;
+    K key = null;
+    for (int i = 0; i < amount; ++i) {
+      K current = accessor.apply(source[rank(i)]);
+      if (!current.equals(key)) {
+        key = current;
+        ++count;
+      }
     }
+    return count;
+  }
 }

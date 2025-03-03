@@ -104,4 +104,12 @@ class OrdinalInt extends OrdinalNumber implements Order {
     public LongStream stream(long[] array) {
         return LongStream.of(array);
     }
+
+    protected int size() {
+        return ordinal / OMEGA.intValue();
+    }
+
+    protected int amount() {
+        return ordinal % OMEGA.intValue();
+    }
 }
