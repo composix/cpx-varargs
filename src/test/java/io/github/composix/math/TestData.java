@@ -21,7 +21,7 @@ public interface TestData extends ArgsOrdinal {
     final Tag[] MICE = new Tag[1], DUCKS = new Tag[1], MISC = new Tag[2];
     final Pet.Status AVAILABLE, PENDING, SOLD;
     CATS = new Category(0, "cats");
-    DOGS = new Category(1, "cats");
+    DOGS = new Category(1, "dogs");
     OTHER = new Category(2, "other");
 
     MICE[0] = new Tag(0, "mice");

@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
@@ -73,13 +74,24 @@ class KeysTest extends TestCase implements TestData {
   void testGroupBy() {
     long[] expected = { 1, 12, 15 };
 
+    Args petsByCategory = pets
+      .groupBy(A, Pet::category)
+      .keys(A, Pet::category)
+      .collect(A, Pet::id, Long::sum);
+
     // using VarArgs
     assertArrayEquals(
+      new Category[] {
+        new Category(0, "cats"), 
+        new Category(1, "dogs"), 
+        new Category(2, "other")
+      }, 
+      petsByCategory.stream(B).toArray(Category[]::new)
+    );
+    assertArrayEquals(
       expected,
-      pets
-        .groupBy(A, Pet::category)
-        .collect(A, Pet::id, Long::sum)
-        .longStream(B)
+      petsByCategory
+        .longStream(C)
         .toArray()
     );
 

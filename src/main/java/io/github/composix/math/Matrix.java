@@ -135,7 +135,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     return (lhs, rhs) ->
       accessor
         .apply(source[lhs.intValue()])
-        .compareTo(accessor.apply(source[lhs.intValue()]));
+        .compareTo(accessor.apply(source[rhs.intValue()]));
   }
 
   @Override
@@ -150,19 +150,27 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T> Stream<T> stream(Ordinal ordinal) {
-    if (contains(ordinal)) {
-      return (Stream<T>) stream((Object[]) argv(ordinal.intValue()));
+  public <T> Stream<T> stream(Ordinal col) {
+    if (col.intValue() < size()) {
+      return (Stream<T>) stream((Object[]) argv(col.intValue()));
     }
-    throw new IndexOutOfBoundsException();
+    T[] array = argv(col.intValue());
+    if (array == null) {
+      throw new IndexOutOfBoundsException();
+    }
+    return Stream.of(array);
   }
 
   @Override
-  public LongStream longStream(Ordinal ordinal) {
-    if (contains(ordinal)) {
-      return stream((long[]) argv(ordinal.intValue()));
+  public LongStream longStream(Ordinal col) {
+    if (col.intValue() < size()) {
+      return stream((long[]) argv(col.intValue()));
     }
-    throw new IndexOutOfBoundsException();
+    long[] array = argv(col.intValue());
+    if (array == null) {
+      throw new IndexOutOfBoundsException();
+    }
+    return LongStream.of(array);
   }
 
   @Override
@@ -195,28 +203,45 @@ public class Matrix extends OrderInt implements Keys, Args {
     final T[] source = argv(col.intValue());
     final int count = count(col, accessor);
     final Ordinal[] indices = new Ordinal[count];
-    final K[] keys =
-      ORDINALS[count].newInstance((Class<K>)accessor.apply(source[0]).getClass());
     argv(-1, indices);
-    argv(size(), keys);
 
     int k = 0;
-    K key = null;
+    K key = accessor.apply(source[rank(0)]);
     for (int i = 0; i < amount; ++i) {
       K current = accessor.apply(source[rank(i)]);
       if (!current.equals(key)) {
         key = current;
-        indices[k] = ORDINALS[i];
-        keys[k++] = current;
+        indices[k++] = ORDINALS[i];
       }
     }
+    indices[k] = ORDINALS[amount];
     return this;
   }
-
+ 
   @Override
   public <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'groupBy'");
+  }
+
+
+  @Override
+  public <T, K> Keys keys(Ordinal col, Function<T, K> accessor) {
+    final Ordinal[] indices = indices();
+    final int count = indices.length;
+    final T[] source = argv(col.intValue());
+    final K[] keys =
+      ORDINALS[count].newInstance((Class<K>)accessor.apply(source[0]).getClass());
+    int index = size();
+    while(argv(index) != null) {
+      ++index;
+    }
+    argv(index, keys);
+    keys[0] = accessor.apply(source[rank(0)]);
+    for (int i = 0; ++i < count; ++i) {
+      keys[i] = accessor.apply(source[rank(indices[--i]).intValue()]);
+    }
+    return this;
   }
 
   @Override
@@ -233,7 +258,11 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public <T> Args collect(Ordinal col, ToLongFunction<T> accessor, LongBinaryOperator reducer) {
-    argv(size(), target(ofLong(col, accessor), reducer, indices(col)));
+    int index = size();
+    while(argv(index) != null) {
+      ++index;
+    }
+    argv(index, target(ofLong(col, accessor), reducer, indices()));
     return this;
   }
 
@@ -283,7 +312,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     return count;
   }
 
-  private Ordinal[] indices(Ordinal col) {
+  private Ordinal[] indices() {
     int index = 0;
     if (argv(--index) == null) {
       return ALL;
@@ -307,6 +336,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       while (j++ < indices[i].intValue()) {
         spliterator.tryAdvance(consumer(target, i, reducer));
       }
+      --j;
     }
     return target;
   }

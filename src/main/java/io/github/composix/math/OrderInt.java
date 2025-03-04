@@ -83,7 +83,7 @@ class OrderInt extends OrdinalInt implements MutableOrder {
         if (isOrdinal()) {
             return Stream.of(array);
         }
-        throw new UnsupportedOperationException("not yet implemented");
+        return Stream.of(ordinals).mapToInt(Ordinal::intValue).mapToObj(i -> array[i]);
     }
 
     @Override
@@ -91,7 +91,7 @@ class OrderInt extends OrdinalInt implements MutableOrder {
         if (isOrdinal()) {
             return LongStream.of(array);
         }
-        throw new UnsupportedOperationException("not yet implemented");
+        return Stream.of(ordinals).mapToInt(Ordinal::intValue).mapToLong(i -> array[i]);
     }
 
     @Override
@@ -129,8 +129,7 @@ class OrderInt extends OrdinalInt implements MutableOrder {
 
     @Override
     public void reorder(Ordinal... ordinals) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'reorder'");
+        this.ordinals = ordinals;
     }
 
     @Override
@@ -147,18 +146,24 @@ class OrderInt extends OrdinalInt implements MutableOrder {
 
     private int cycle(final int target, final int mask, final int index, Object[] array) {
         final Object value = array[(target + index) & mask];
-        int current = index, rank, next = MARKED.nextClearBit(index) + 1;
-        while(index != (rank = rank(current))) {
+        int current = index, next = MARKED.nextClearBit(index) + 1;
+        while(next <= ordinal) {
+            final int rank = rank(current);
+            if (rank == index) {
+                array[(target + current) & mask] = value;
+                return next;
+            }
             if (rank == next) {
                 next = MARKED.nextClearBit(++next);
             } else {
                 MARKED.set(rank);
             }
             array[(target + current) & mask] = array[(target + rank) & mask];
-            current = rank;
-        }
-        if (current != index) {
-            array[(target + current) & mask] = value;
+            if (rank < ordinal) {
+                current = rank;
+            } else {
+                current = next;
+            }
         }
         return next;
     }
