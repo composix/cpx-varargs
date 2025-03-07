@@ -32,6 +32,8 @@ public interface MutableOrder extends Order {
     
     void reorder(Comparator<Ordinal> comparator);
 
+    void reorder(Comparator<Ordinal> comparator, int fromIndex, int toIndex);
+
     void reorder(Ordinal... ordinals);
 
     Ordinal ordinalAt(Object key, Comparator<Object> comparator);

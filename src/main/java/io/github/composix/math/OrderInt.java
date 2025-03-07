@@ -106,19 +106,23 @@ class OrderInt extends OrdinalInt implements MutableOrder {
 
     @Override
     public void reorder(Comparator<Ordinal> comparator) {
-        int amount = ordinal % OMEGA.intValue();
-        if (amount-- > 1) {
+        reorder(comparator, 0, ordinal % OMEGA.intValue());
+    }
+    
+    @Override
+    public void reorder(Comparator<Ordinal> comparator, int fromIndex, int toIndex) {
+        if (toIndex-- > 1) {
             final Ordinal[] omega = ORDINALS;
             if (comparator == NATURAL_ORDER) {
                 ordinals = omega;
             } else {
-                int i = 0;
-                while(i < amount) {
+                int i = fromIndex;
+                while(i < toIndex) {
                     if (comparator.compare(omega[i], omega[++i]) > 0) {
                         if (ordinals == omega) {
                             ordinals = copyOf(omega);
                         }
-                        Arrays.sort(ordinals, comparator);
+                        Arrays.sort(ordinals, fromIndex, ++toIndex, comparator);
                         return;
                     }
                 }
