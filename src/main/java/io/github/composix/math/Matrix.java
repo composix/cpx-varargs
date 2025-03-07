@@ -145,10 +145,12 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal ordinal,
     ToLongFunction<T> accessor
   ) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException(
-      "Unimplemented method 'comparator'"
-    );
+    final T[] source = argv(ordinal.intValue());
+    return (lhs, rhs) ->
+      Long.compare(
+        accessor.applyAsLong(source[lhs.intValue()]),
+        accessor.applyAsLong(source[rhs.intValue()])
+      );
   }
 
   @Override
@@ -200,16 +202,20 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T, K extends Comparable<K>> Keys groupBy(Ordinal col, Function<T, K> accessor) {
+  public <T, K extends Comparable<K>> Keys groupBy(
+    Ordinal col,
+    Function<T, K> accessor
+  ) {
     orderBy(col, accessor);
     ACCESS_OBJECT.accessor(accessor);
     groupBy(col, ACCESS_OBJECT);
     ACCESS_OBJECT.destroy();
     return this;
   }
- 
+
   @Override
   public <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
+    orderBy(col, accessor);
     ACCESS_LONG.accessor(accessor);
     groupBy(col, ACCESS_LONG);
     ACCESS_LONG.destroy();
@@ -222,9 +228,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int count = indices.length;
     final T[] source = argv(col.intValue());
     final K[] keys =
-      ORDINALS[count].newInstance((Class<K>)accessor.apply(source[0]).getClass());
+      ORDINALS[count].newInstance(
+          (Class<K>) accessor.apply(source[0]).getClass()
+        );
     int index = size();
-    while(argv(index) != null) {
+    while (argv(index) != null) {
       ++index;
     }
     argv(index, keys);
@@ -248,9 +256,13 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T> Args collect(Ordinal col, ToLongFunction<T> accessor, LongBinaryOperator reducer) {
+  public <T> Args collect(
+    Ordinal col,
+    ToLongFunction<T> accessor,
+    LongBinaryOperator reducer
+  ) {
     int index = size();
-    while(argv(index) != null) {
+    while (argv(index) != null) {
       ++index;
     }
     argv(index, target(ofLong(col, accessor), reducer, indices()));
@@ -308,8 +320,12 @@ public class Matrix extends OrderInt implements Keys, Args {
     return count(1, amount, container, accessor);
   }
 
-  private int count(final int offset, final int amount, Object container, Accessor accessor) {
-    accessor.setValueAt(rank(0), container);
+  private int count(
+    final int offset,
+    final int amount,
+    Object container,
+    Accessor accessor
+  ) {
     int count = 0;
     for (int i = offset; i < amount; ++i) {
       final int result = accessor.compareAt(rank(i), container);
@@ -331,17 +347,24 @@ public class Matrix extends OrderInt implements Keys, Args {
       while (argv(--index) != null);
       return argv(++index);
     }
-  } 
+  }
 
-  private <T> Spliterator.OfLong ofLong(Ordinal col, ToLongFunction<T> accessor) {
+  private <T> Spliterator.OfLong ofLong(
+    Ordinal col,
+    ToLongFunction<T> accessor
+  ) {
     final Stream<T> stream = stream(col);
     return stream.mapToLong(accessor).spliterator();
   }
 
-  private Object target(Spliterator.OfLong spliterator, LongBinaryOperator reducer, Ordinal... indices) {
+  private Object target(
+    Spliterator.OfLong spliterator,
+    LongBinaryOperator reducer,
+    Ordinal... indices
+  ) {
     final int length = indices.length;
     long[] target = new long[length];
-    
+
     int j = 0;
     for (int i = 0; i < length; ++i) {
       while (j++ < indices[i].intValue()) {
@@ -352,44 +375,61 @@ public class Matrix extends OrderInt implements Keys, Args {
     return target;
   }
 
-  private LongConsumer consumer(final long[] target, final int index, final LongBinaryOperator reducer) {
+  private LongConsumer consumer(
+    final long[] target,
+    final int index,
+    final LongBinaryOperator reducer
+  ) {
     return value -> {
       target[index] = reducer.applyAsLong(target[index], value);
     };
   }
 
-  private static final Accessor.OfObject ACCESS_OBJECT = new Accessor.OfObject() {
-    private BiFunction<Ordinal,Object,Object> accessor;
-    private Comparable<Object> current;
+  private static final Accessor.OfObject ACCESS_OBJECT =
+    new Accessor.OfObject() {
+      private BiFunction<Ordinal, Object, Object> accessor;
+      private Comparable<Object> current;
 
-    @Override
-    public void setValueAt(int index, Object container) {
-      current = (Comparable<Object>) accessor.apply(ORDINALS[index], container);
-    }
+      @Override
+      public void setValueAt(int index, Object container) {
+        current = (Comparable<Object>) accessor.apply(
+          ORDINALS[index],
+          container
+        );
+      }
 
-    @Override
-    public int compareAt(int index, Object container) {
-      return current.compareTo(current = (Comparable<Object>) accessor.apply(ORDINALS[index], container));
-    }
+      @Override
+      public int compareAt(int index, Object container) {
+        return current.compareTo(
+          current = (Comparable<Object>) accessor.apply(
+            ORDINALS[index],
+            container
+          )
+        );
+      }
 
-    @Override
-    public void destroy() {
-      accessor = null;
-      current = null;
-    }
+      @Override
+      public void destroy() {
+        accessor = null;
+        current = null;
+      }
 
-    @Override
-    public <T, K extends Comparable<K>> void accessor(Function<T, K> accessor) {
-      this.accessor = (index, container) -> accessor.apply(((T[]) container)[index.intValue()]);
-    }
-  };
+      @Override
+      public <T, K extends Comparable<K>> void accessor(
+        Function<T, K> accessor
+      ) {
+        this.accessor = (index, container) ->
+          accessor.apply(((T[]) container)[index.intValue()]);
+      }
+    };
   private static final Accessor.OfLong ACCESS_LONG = new Accessor.OfLong() {
-    private ToLongBiFunction<Ordinal,Object> accessor;
+    private ToLongBiFunction<Ordinal, Object> accessor;
     private long current;
 
     @Override
     public <T> void accessor(ToLongFunction<T> accessor) {
-      this.accessor = (index, container) -> accessor.applyAsLong(((T[]) container)[index.intValue()]);
+      this.accessor = (index, container) ->
+        accessor.applyAsLong(((T[]) container)[index.intValue()]);
     }
 
     @Override
@@ -399,7 +439,10 @@ public class Matrix extends OrderInt implements Keys, Args {
 
     @Override
     public int compareAt(int index, Object container) {
-      return Long.compare(current, current = accessor.applyAsLong(ORDINALS[index], container));
+      return Long.compare(
+        current,
+        current = accessor.applyAsLong(ORDINALS[index], container)
+      );
     }
 
     @Override
