@@ -75,4 +75,9 @@ public interface Args extends ArgsOrdinal, Order {
         order().reorder(comparator(ordinal, accessor));
         return this;
     }
+
+    default <T> Args orderBy(Ordinal ordinal, ToLongFunction<T> accessor) {
+        order().reorder(comparator(ordinal, accessor));
+        return this;
+    }
 }
