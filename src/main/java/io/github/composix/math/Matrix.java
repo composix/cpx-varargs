@@ -304,9 +304,14 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   private int count(final int amount, Object container, Accessor accessor) {
-    int count = 0;
     accessor.setValueAt(rank(0), container);
-    for (int i = 1; i < amount; ++i) {
+    return count(1, amount, container, accessor);
+  }
+
+  private int count(final int offset, final int amount, Object container, Accessor accessor) {
+    accessor.setValueAt(rank(0), container);
+    int count = 0;
+    for (int i = offset; i < amount; ++i) {
       final int result = accessor.compareAt(rank(i), container);
       if (result != 0) {
         if (result > 0) {
