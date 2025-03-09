@@ -31,7 +31,7 @@ import io.github.composix.math.Keys;
 import io.github.composix.math.Ordinal;
 
 public interface KeysI<K,A> extends Keys {
-    <T, KK> KeysI2<K,KK,A> thenBy(Ordinal col, Function<T,KK> accessor);
+    <T, KK extends Comparable<KK>> KeysI2<K,KK,A> thenBy(Ordinal col, Function<T,KK> accessor);
 
     <T> KeysI2<K,long[],A> thenBy(Ordinal col, ToLongFunction<T> accessor);
 }
