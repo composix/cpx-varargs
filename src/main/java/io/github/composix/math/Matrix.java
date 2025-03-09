@@ -206,19 +206,21 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal col,
     Function<T, K> accessor
   ) {
+    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
     orderBy(col, accessor);
-    ACCESS_OBJECT.accessor(accessor);
-    groupBy(col, ACCESS_OBJECT);
-    ACCESS_OBJECT.destroy();
+    accessObject.accessor(accessor);
+    groupBy(col, accessObject);
+    accessObject.destroy();
     return this;
   }
 
   @Override
   public <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
+    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
     orderBy(col, accessor);
-    ACCESS_LONG.accessor(accessor);
-    groupBy(col, ACCESS_LONG);
-    ACCESS_LONG.destroy();
+    accessLong.accessor(accessor);
+    groupBy(col, accessLong);
+    accessLong.destroy();
     return this;
   }
 
@@ -244,15 +246,21 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T, K> Keys thenBy(Ordinal col, Function<T, K> accessor) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'thenBy'");
+  public <T, K extends Comparable<K>> Keys thenBy(Ordinal col, Function<T, K> accessor) {
+    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
+    accessObject.accessor(accessor);
+    thenBy(col, accessObject);
+    accessObject.destroy();
+    return this;
   }
 
   @Override
   public <T> Keys thenBy(Ordinal col, ToLongFunction<T> accessor) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'thenBy'");
+    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
+    accessLong.accessor(accessor);
+    thenBy(col, accessLong);
+    accessLong.destroy();
+    return this;
   }
 
   @Override
@@ -304,8 +312,16 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Object[] source = argv(col.intValue());
     final int count = count(amount, source, accessor);
     final Ordinal[] indices = new Ordinal[count];
-    argv(-1, indices);
     int k = 0;
+    while (argv(--k) != null) {
+      argv(k, null);
+    }
+    k = size();
+    while(argv(k) != null) {
+      argv(k++, null);
+    }
+    argv(-1, indices);
+    k = 0;
     accessor.setValueAt(rank(0), source);
     for (int i = 1; i < amount; ++i) {
       if (accessor.compareAt(rank(i), source) < 0) {
@@ -313,6 +329,30 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
     }
     indices[k] = ORDINALS[amount];
+  }
+
+  private void thenBy(Ordinal col, Accessor accessor) {
+    final Object[] source = argv(col.intValue());
+    final Ordinal[] indices = indices();
+    final int count = count(indices(), source, accessor);
+    final int length = indices.length;
+    final Ordinal[] subindices = new Ordinal[count];
+    int k = 0;
+    while (argv(--k) != null);
+    argv(k, subindices);
+    k = 0;
+    int fromIndex = 0;
+    for (int i = 0; i < length; ++i) {
+      final int toIndex = indices[i].intValue();
+      accessor.setValueAt(rank(fromIndex++), source);
+      for (int j = fromIndex; j < toIndex; ++j) {
+        if (accessor.compareAt(rank(j), source) < 0) {
+          subindices[k++] = ORDINALS[j];
+        }
+      }
+      subindices[k++] = ORDINALS[toIndex];
+      fromIndex = toIndex;
+    }
   }
 
   private int count(final int amount, Object container, Accessor accessor) {
@@ -337,6 +377,29 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
     }
     return ++count;
+  }
+
+  private int count(
+    final Ordinal[] indices,
+    Object container,
+    Accessor accessor
+  ) {
+    final int length = indices.length;
+    int offset = indices[0].intValue();
+    order().reorder(accessor.comparator(container), 0, offset);
+    int count = count(offset, container, accessor);
+    for (int i = 1; i < length; ++i) {
+      int toIndex = indices[i].intValue();
+      order().reorder(accessor.comparator(container), offset, toIndex);
+      accessor.setValueAt(rank(offset), container);
+      count += count(
+        ++offset,
+        offset = toIndex,
+        container,
+        accessor
+      );
+    }
+    return count;
   }
 
   private Ordinal[] indices() {
@@ -385,69 +448,4 @@ public class Matrix extends OrderInt implements Keys, Args {
     };
   }
 
-  private static final Accessor.OfObject ACCESS_OBJECT =
-    new Accessor.OfObject() {
-      private BiFunction<Ordinal, Object, Object> accessor;
-      private Comparable<Object> current;
-
-      @Override
-      public void setValueAt(int index, Object container) {
-        current = (Comparable<Object>) accessor.apply(
-          ORDINALS[index],
-          container
-        );
-      }
-
-      @Override
-      public int compareAt(int index, Object container) {
-        return current.compareTo(
-          current = (Comparable<Object>) accessor.apply(
-            ORDINALS[index],
-            container
-          )
-        );
-      }
-
-      @Override
-      public void destroy() {
-        accessor = null;
-        current = null;
-      }
-
-      @Override
-      public <T, K extends Comparable<K>> void accessor(
-        Function<T, K> accessor
-      ) {
-        this.accessor = (index, container) ->
-          accessor.apply(((T[]) container)[index.intValue()]);
-      }
-    };
-  private static final Accessor.OfLong ACCESS_LONG = new Accessor.OfLong() {
-    private ToLongBiFunction<Ordinal, Object> accessor;
-    private long current;
-
-    @Override
-    public <T> void accessor(ToLongFunction<T> accessor) {
-      this.accessor = (index, container) ->
-        accessor.applyAsLong(((T[]) container)[index.intValue()]);
-    }
-
-    @Override
-    public void setValueAt(int index, Object container) {
-      current = accessor.applyAsLong(ORDINALS[index], container);
-    }
-
-    @Override
-    public int compareAt(int index, Object container) {
-      return Long.compare(
-        current,
-        current = accessor.applyAsLong(ORDINALS[index], container)
-      );
-    }
-
-    @Override
-    public void destroy() {
-      accessor = null;
-    }
-  };
 }

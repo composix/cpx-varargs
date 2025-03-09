@@ -24,7 +24,10 @@
 
 package io.github.composix.math;
 
+import java.util.Comparator;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.ToLongBiFunction;
 import java.util.function.ToLongFunction;
 
 public interface Accessor {
@@ -32,13 +35,98 @@ public interface Accessor {
 
     int compareAt(int index, Object container);
 
+    Comparator<Ordinal> comparator(Object container);
+    
     void destroy();
 
     public interface OfObject extends Accessor {
+        static OfObject INSTANCE = new Accessor.OfObject() {
+            private BiFunction<Ordinal, Object, Object> accessor;
+            private Comparable<Object> current;
+      
+            @Override
+            public void setValueAt(int index, Object container) {
+              current = (Comparable<Object>) accessor.apply(
+                OrdinalNumber.ORDINALS[index],
+                container
+              );
+            }
+      
+            @Override
+            public int compareAt(int index, Object container) {
+              return current.compareTo(
+                current = (Comparable<Object>) accessor.apply(
+                  OrdinalNumber.ORDINALS[index],
+                  container
+                )
+              );
+            }
+      
+            @Override
+            public Comparator<Ordinal> comparator(final Object container) {
+              return (lhs, rhs) ->
+                ((Comparable<Object>) accessor.apply(lhs, container)).compareTo(
+                    accessor.apply(rhs, container)
+                  );
+            }
+      
+            @Override
+            public void destroy() {
+              accessor = null;
+              current = null;
+            }
+      
+            @Override
+            public <T, K extends Comparable<K>> void accessor(
+              Function<T, K> accessor
+            ) {
+              this.accessor = (index, container) ->
+                accessor.apply(((T[]) container)[index.intValue()]);
+            }
+          };
+
         <T,K extends Comparable<K>> void accessor(Function<T,K> accessor);
     }
 
     public interface OfLong extends Accessor {
+        static OfLong INSTANCE = new Accessor.OfLong() {
+            private ToLongBiFunction<Ordinal, Object> accessor;
+            private long current;
+        
+            @Override
+            public <T> void accessor(ToLongFunction<T> accessor) {
+              this.accessor = (index, container) ->
+                accessor.applyAsLong(((T[]) container)[index.intValue()]);
+            }
+        
+            @Override
+            public void setValueAt(int index, Object container) {
+              current = accessor.applyAsLong(OrdinalNumber.ORDINALS[index], container);
+            }
+        
+            @Override
+            public int compareAt(int index, Object container) {
+              return Long.compare(
+                current,
+                current = accessor.applyAsLong(OrdinalNumber.ORDINALS[index], container)
+              );
+            }
+        
+            @Override
+            public Comparator<Ordinal> comparator(final Object container) {
+              return (lhs, rhs) ->
+                Long.compare(
+                  accessor.applyAsLong(lhs, container),
+                  accessor.applyAsLong(rhs, container)
+                );
+            }
+        
+            @Override
+            public void destroy() {
+              accessor = null;
+            }
+          };
+
         <T> void accessor(ToLongFunction<T> accessor);
     }
 }
