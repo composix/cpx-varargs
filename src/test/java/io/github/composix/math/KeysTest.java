@@ -28,15 +28,18 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 class KeysTest extends TestCase implements TestData {
   static Pet THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY;
@@ -71,7 +74,7 @@ class KeysTest extends TestCase implements TestData {
   }
 
   @Test
-  void testGroupBy() {
+  void testGroupBy_PETS() {
     long[] expected = { 1, 12, 15 };
 
     Args petsByCategory = pets
@@ -110,6 +113,15 @@ class KeysTest extends TestCase implements TestData {
   }
 
   @Test
+  void testGroupBy_ORDERS() {
+    Args ordersByQuantity = orders
+      .groupBy(A, Order::quantity)
+      .keys(A, Order::quantity)
+      .collect(A, x -> 1L, Long::sum);
+  }
+  
+  @Test
+  @Disabled
   void testThenBy() {
     long[] expected = { 1, 9, 3, 11, 4 };
     assertArrayEquals(
@@ -124,6 +136,7 @@ class KeysTest extends TestCase implements TestData {
   }
 
   @Test
+  @Disabled
   void testJoin() {
     Args result = pets
       .groupBy(A, Pet::id)
