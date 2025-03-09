@@ -31,11 +31,25 @@ import java.util.function.ToLongFunction;
 public interface Keys {
     <T,K> Keys keys(Ordinal col, Function<T,K> accessor);
 
-    <T, K extends Comparable<K>> Keys thenBy(Ordinal col, Function<T,K> accessor);
-
-    <T> Keys thenBy(Ordinal col, ToLongFunction<T> accessor);
+    void thenBy(Ordinal col, Accessor accessor);
 
     <T> Args collect(Ordinal col, ToLongFunction<T> accessor, LongBinaryOperator reducer);
 
     Args join(Keys rhs);
+
+    default <T, K extends Comparable<K>> Keys thenBy(Ordinal col, Function<T, K> accessor) {
+      final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
+      accessObject.accessor(accessor);
+      thenBy(col, accessObject);
+      accessObject.destroy();
+      return this;
+    }
+  
+    default <T> Keys thenBy(Ordinal col, ToLongFunction<T> accessor) {
+      final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
+      accessLong.accessor(accessor);
+      thenBy(col, accessLong);
+      accessLong.destroy();
+      return this;
+    }
 }

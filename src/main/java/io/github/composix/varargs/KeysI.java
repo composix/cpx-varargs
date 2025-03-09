@@ -27,11 +27,24 @@ package io.github.composix.varargs;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
+import io.github.composix.math.Accessor;
 import io.github.composix.math.Keys;
 import io.github.composix.math.Ordinal;
 
 public interface KeysI<K,A> extends Keys {
-    <T, KK extends Comparable<KK>> KeysI2<K,KK,A> thenBy(Ordinal col, Function<T,KK> accessor);
-
-    <T> KeysI2<K,long[],A> thenBy(Ordinal col, ToLongFunction<T> accessor);
+    default <T, KK extends Comparable<KK>> KeysI2<K,KK,A> thenBy(Ordinal col, Function<T, KK> accessor) {
+      final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
+      accessObject.accessor(accessor);
+      thenBy(col, accessObject);
+      accessObject.destroy();
+      return (KeysI2<K, KK, A>) this;
+    }
+  
+    default <T> KeysI2<K,long[],A> thenBy(Ordinal col, ToLongFunction<T> accessor) {
+      final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
+      accessLong.accessor(accessor);
+      thenBy(col, accessLong);
+      accessLong.destroy();
+      return (KeysI2<K, long[], A>) this;
+    }
 }

@@ -33,7 +33,7 @@ import io.github.composix.math.Ordinal;
 class MatrixI<A> extends Matrix implements ArgsI<A> {
 
     MatrixI() {
-        super();
+        super(OMEGA.intValue());
     }
 
     public ArgsI<A> clone() throws CloneNotSupportedException {

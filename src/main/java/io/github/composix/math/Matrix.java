@@ -28,11 +28,9 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Spliterator;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
 import java.util.function.LongConsumer;
-import java.util.function.ToLongBiFunction;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -202,26 +200,28 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T, K extends Comparable<K>> Keys groupBy(
-    Ordinal col,
-    Function<T, K> accessor
-  ) {
-    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-    orderBy(col, accessor);
-    accessObject.accessor(accessor);
-    groupBy(col, accessObject);
-    accessObject.destroy();
-    return this;
-  }
-
-  @Override
-  public <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
-    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-    orderBy(col, accessor);
-    accessLong.accessor(accessor);
-    groupBy(col, accessLong);
-    accessLong.destroy();
-    return this;
+  public void groupBy(Ordinal col, Accessor accessor) {
+    final int amount = amount();
+    final Object[] source = argv(col.intValue());
+    final int count = count(amount, source, accessor);
+    final Ordinal[] indices = new Ordinal[count];
+    int k = 0;
+    while (argv(--k) != null) {
+      argv(k, null);
+    }
+    k = size();
+    while(argv(k) != null) {
+      argv(k++, null);
+    }
+    argv(-1, indices);
+    k = 0;
+    accessor.setValueAt(rank(0), source);
+    for (int i = 1; i < amount; ++i) {
+      if (accessor.compareAt(rank(i), source) < 0) {
+        indices[k++] = ORDINALS[i];
+      }
+    }
+    indices[k] = ORDINALS[amount];
   }
 
   @Override
@@ -246,21 +246,28 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T, K extends Comparable<K>> Keys thenBy(Ordinal col, Function<T, K> accessor) {
-    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-    accessObject.accessor(accessor);
-    thenBy(col, accessObject);
-    accessObject.destroy();
-    return this;
-  }
-
-  @Override
-  public <T> Keys thenBy(Ordinal col, ToLongFunction<T> accessor) {
-    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-    accessLong.accessor(accessor);
-    thenBy(col, accessLong);
-    accessLong.destroy();
-    return this;
+  public void thenBy(Ordinal col, Accessor accessor) {
+    final Object[] source = argv(col.intValue());
+    final Ordinal[] indices = indices();
+    final int count = count(indices(), source, accessor);
+    final int length = indices.length;
+    final Ordinal[] subindices = new Ordinal[count];
+    int k = 0;
+    while (argv(--k) != null);
+    argv(k, subindices);
+    k = 0;
+    int fromIndex = 0;
+    for (int i = 0; i < length; ++i) {
+      final int toIndex = indices[i].intValue();
+      accessor.setValueAt(rank(fromIndex++), source);
+      for (int j = fromIndex; j < toIndex; ++j) {
+        if (accessor.compareAt(rank(j), source) < 0) {
+          subindices[k++] = ORDINALS[j];
+        }
+      }
+      subindices[k++] = ORDINALS[toIndex];
+      fromIndex = toIndex;
+    }
   }
 
   @Override
@@ -283,8 +290,8 @@ public class Matrix extends OrderInt implements Keys, Args {
     throw new UnsupportedOperationException("Unimplemented method 'join'");
   }
 
-  protected Matrix() {
-    super(0);
+  protected Matrix(int ordinal) {
+    super(ordinal);
   }
 
   protected Object[] argv() {
@@ -305,54 +312,6 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   private void argv(int index, Object value) {
     argv()[mask(hashCode() + index)] = value;
-  }
-
-  private void groupBy(Ordinal col, Accessor accessor) {
-    final int amount = amount();
-    final Object[] source = argv(col.intValue());
-    final int count = count(amount, source, accessor);
-    final Ordinal[] indices = new Ordinal[count];
-    int k = 0;
-    while (argv(--k) != null) {
-      argv(k, null);
-    }
-    k = size();
-    while(argv(k) != null) {
-      argv(k++, null);
-    }
-    argv(-1, indices);
-    k = 0;
-    accessor.setValueAt(rank(0), source);
-    for (int i = 1; i < amount; ++i) {
-      if (accessor.compareAt(rank(i), source) < 0) {
-        indices[k++] = ORDINALS[i];
-      }
-    }
-    indices[k] = ORDINALS[amount];
-  }
-
-  private void thenBy(Ordinal col, Accessor accessor) {
-    final Object[] source = argv(col.intValue());
-    final Ordinal[] indices = indices();
-    final int count = count(indices(), source, accessor);
-    final int length = indices.length;
-    final Ordinal[] subindices = new Ordinal[count];
-    int k = 0;
-    while (argv(--k) != null);
-    argv(k, subindices);
-    k = 0;
-    int fromIndex = 0;
-    for (int i = 0; i < length; ++i) {
-      final int toIndex = indices[i].intValue();
-      accessor.setValueAt(rank(fromIndex++), source);
-      for (int j = fromIndex; j < toIndex; ++j) {
-        if (accessor.compareAt(rank(j), source) < 0) {
-          subindices[k++] = ORDINALS[j];
-        }
-      }
-      subindices[k++] = ORDINALS[toIndex];
-      fromIndex = toIndex;
-    }
   }
 
   private int count(final int amount, Object container, Accessor accessor) {

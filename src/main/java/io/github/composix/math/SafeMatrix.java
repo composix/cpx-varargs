@@ -24,13 +24,20 @@
 
 package io.github.composix.math;
 
-public class SafeMatrix extends Matrix {
+import io.github.composix.varargs.ArgsI;
+import io.github.composix.varargs.KeysI;
+
+public class SafeMatrix<K extends Comparable<?>,A> extends Matrix implements KeysI<K,A>, ArgsI<A> {
+    protected SafeMatrix(int ordinal) {
+        super(ordinal);
+    }
+    
     private static int MASK = 15;
 
     private Object[] argv = new Object[MASK + 1];
 
     @Override
-    public Args clone() throws CloneNotSupportedException {
+    public ArgsI<A> clone() throws CloneNotSupportedException {
         final SafeMatrix result = (SafeMatrix) super.clone();
         result.argv = argv.clone();
         return result;
