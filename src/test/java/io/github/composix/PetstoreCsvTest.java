@@ -80,7 +80,7 @@ public class PetstoreCsvTest extends TestCase {
                 .refreshLines()
                 .collect()
                 .toArray(String[]::new)
-            ).split(C, PATTERN::splitAsStream);
+            ).split(PATTERN::splitAsStream);
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }

@@ -24,6 +24,10 @@
 
 package io.github.composix.math;
 
+import java.util.Iterator;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
 import io.github.composix.varargs.ArgsI;
 import io.github.composix.varargs.KeysI;
 
@@ -46,6 +50,36 @@ public class SafeMatrix<K extends Comparable<?>,A> extends Matrix implements Key
     @Override
     public int hashCode() {
         return 0;
+    }
+
+    @Override
+    public ArgsI<A> split(Function<A, Stream<A>> splitter) {
+        if (size() != 1) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+        final int amount = amount();
+        final Object[] argv = argv();
+        int size = 0;
+        for (int j = 0; j < amount; ++j) {
+            Iterator<A> iterator = splitter.apply(((A[]) argv[0])[j]).iterator();
+            int i = 0;
+            while (iterator.hasNext()) {
+                A item = iterator.next();
+                if (argv[i] == null) {
+                    argv[i] = newInstance(item.getClass());
+                }
+                ((A[]) argv[i++])[j] = item;
+            }
+            size = Math.max(size, i);
+        }
+        ordinal = size * OMEGA.intValue() + amount;
+        try {
+            ArgsI<A> result = clone();
+            argv[0] = null;
+            return result;
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override

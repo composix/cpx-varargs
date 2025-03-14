@@ -38,6 +38,8 @@ public interface ArgsI<A> extends Args {
     @Override
     ArgsI<A> clone() throws CloneNotSupportedException;
 
+    ArgsI<A> split(Function<A, Stream<A>> splitter);
+
     default ArgsI<A> orderByA() {
         return (ArgsI<A>) orderBy(A);
     }
