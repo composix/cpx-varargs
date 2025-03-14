@@ -83,7 +83,11 @@ public class Matrix extends OrderInt implements Keys, Args {
       if (argv[mask(target + i)] != null) {
           if (index + i < size) {
             if (safe) {
-              throw new UnsupportedOperationException("unsafe update");
+              try {
+                return ((Matrix) clone()).extend(index, arrays, false);
+              } catch (CloneNotSupportedException e) {
+                throw new IllegalStateException(e);
+              }
             }
           } else {
             throw new IllegalStateException("hash collision");
@@ -417,5 +421,4 @@ public class Matrix extends OrderInt implements Keys, Args {
       target[index] = reducer.applyAsLong(target[index], value);
     };
   }
-
 }
