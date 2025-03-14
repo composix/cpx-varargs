@@ -90,7 +90,9 @@ public interface Accessor {
 
     public interface OfLong extends Accessor {
         static OfLong INSTANCE = new Accessor.OfLong() {
-            private ToLongBiFunction<Ordinal, Object> accessor;
+            private static final ToLongBiFunction<Ordinal,Object> ACCESSOR = (index, container) -> ((long[]) container)[index.intValue()];
+
+            private ToLongBiFunction<Ordinal, Object> accessor = ACCESSOR;
             private long current;
         
             @Override

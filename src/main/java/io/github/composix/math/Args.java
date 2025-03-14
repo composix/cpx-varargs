@@ -55,6 +55,13 @@ public interface Args extends ArgsOrdinal, Order {
 
     void groupBy(Ordinal col, Accessor accessor);
 
+    default Keys groupBy(Ordinal col) {
+        orderBy(col);
+        final Accessor accessor = Accessor.OfLong.INSTANCE;
+        groupBy(col, accessor);
+        return (Keys) this;
+    }
+
     default <T, K extends Comparable<K>> Keys groupBy(
       Ordinal col,
       Function<T, K> accessor
@@ -81,9 +88,7 @@ public interface Args extends ArgsOrdinal, Order {
     }
 
     default Keys on(Ordinal col) {
-        Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-        groupBy(col, accessObject);
-        return (Keys) this;
+        return groupBy(col);
     }
     
     default <T> Iterable<T> column(Ordinal ordinal) {
