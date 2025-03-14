@@ -70,24 +70,35 @@ public class Matrix extends OrderInt implements Keys, Args {
       OBJECT[0] = arrays;
       arrays = OBJECT;
     }
-    final int omega = OMEGA.intValue();
-    final int index = col.intValue();
-    final int length = arrays.length;
-    ordinal += omega * (index + length);
+    return extend(col.intValue(), arrays, true);
+  }
 
+  private Args extend(final int index, final Object[] arrays, final boolean safe) {
+    final int omega = OMEGA.intValue();
+    final int size = ordinal / omega;
+    final int length = arrays.length;
     final Object[] argv = argv();
     int target = hashCode() + index;
-    for (int i = 0; i < length; ++i) {
-      if (argv[mask(target)] == null) {
-        argv[mask(target++)] = arrays[i];
-      } else {
-        throw new IllegalStateException("hash collision");
+    for (int i = 0; i <= length; ++i) {
+      if (argv[mask(target + i)] != null) {
+          if (index + i < size) {
+            if (safe) {
+              throw new UnsupportedOperationException("unsafe update");
+            }
+          } else {
+            throw new IllegalStateException("hash collision");
+          }
       }
+    }  
+    for (int i = 0; i < length; ++i) {
+      argv[mask(target++)] = arrays[i];
     }
+
     int amount = ordinal % omega;
     for (int i = 0; i < length; ++i) {
       amount = Math.max(amount, Array.getLength(arrays[i]));
     }
+    ordinal = omega * Math.max(index + length, size);
     resize(amount);
     return this;
   }
