@@ -91,4 +91,31 @@ public interface ArgsOrdinal extends Cloneable {
     default ArgsI<long[]> extendA(long... array) {
         return (ArgsI<long[]>) extend(A, array);
     }
+
+    default Class<?> typeOf(Ordinal col) {
+        return void.class;
+    }
+
+    default <T> ArgsI<T> castI(Class<T> expected) {
+        if (expected.isPrimitive()) {
+            throw new UnsupportedOperationException("primitives (e.g., long.class) must be boxed as wrapper (e.g., Long.class) or array (e.g., long[].class)");
+        }
+        Class<?> actual = typeOf(A);
+        if (actual.isPrimitive()) {
+            if (expected.getComponentType() == actual) {
+                return (ArgsI<T>) this;
+            }
+        } else {
+            if (expected == actual) {
+                return (ArgsI<T>) this;
+            }
+            while (actual.isArray()) {
+                actual = actual.getComponentType();
+            }
+            if (actual.isPrimitive() && expected.getComponentType() == typeOf(A)) {
+                return (ArgsI<T>) this;
+            }    
+        }
+        throw new ClassCastException();
+    }
 }
