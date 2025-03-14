@@ -135,10 +135,15 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public Comparator<Ordinal> comparator(Ordinal ordinal) {
-    return Comparator.comparing(
-      Fn.of(ordinal::index).intAndThen(this::getValue)
-    );
+  public Comparator<Ordinal> comparator(Ordinal col) {
+    switch (argv(col.intValue())) {
+      case long[] longs:
+        return (lhs,rhs) -> Long.compare(longs[lhs.intValue()], longs[rhs.intValue()]);
+      default:
+        return Comparator.comparing(
+          Fn.of(col::index).intAndThen(this::getValue)
+        );
+    }
   }
 
   @Override
