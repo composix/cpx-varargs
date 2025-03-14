@@ -45,4 +45,8 @@ public interface Order extends OrdinalIterable {
     <T> Stream<T> stream(T[] array);
 
     LongStream stream(long[] array);
+
+    public int size();
+
+    public int amount();
 }

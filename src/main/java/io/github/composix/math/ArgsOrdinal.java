@@ -25,10 +25,13 @@
 package io.github.composix.math;
 
 import java.math.BigInteger;
+import java.util.regex.Pattern;
 
 import io.github.composix.varargs.ArgsI;
 
 public interface ArgsOrdinal extends Cloneable {
+    static final char QUOTE = '"', DELIM = ';';
+    static final Pattern PATTERN = Pattern.compile(Pattern.quote(new String(new char[] {QUOTE,DELIM,QUOTE})));
     static final Ordinal OMEGA = Constants.getInstance().omega();
     static final Ordinal A = Constants.getInstance().ordinal(0),
             B = Constants.getInstance().ordinal(1),

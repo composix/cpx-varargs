@@ -105,11 +105,13 @@ class OrdinalInt extends OrdinalNumber implements Order {
         return LongStream.of(array);
     }
 
-    protected int size() {
+    @Override
+    public int size() {
         return ordinal / OMEGA.intValue();
     }
 
-    protected int amount() {
+    @Override
+    public int amount() {
         return ordinal % OMEGA.intValue();
     }
 }

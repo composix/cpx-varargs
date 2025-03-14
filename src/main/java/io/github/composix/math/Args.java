@@ -75,7 +75,17 @@ public interface Args extends ArgsOrdinal, Order {
       accessLong.destroy();
       return (Keys) this;
     }
-        
+
+    default <T> Keys on(Ordinal col, ToLongFunction<T> accessor) {
+        return groupBy(col, accessor);
+    }
+
+    default Keys on(Ordinal col) {
+        Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
+        groupBy(col, accessObject);
+        return (Keys) this;
+    }
+    
     default <T> Iterable<T> column(Ordinal ordinal) {
         return new Iterable<>() {
             @Override
