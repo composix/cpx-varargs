@@ -217,7 +217,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   @Override
   public void groupBy(Ordinal col, Accessor accessor) {
     final int amount = amount();
-    final Object[] source = argv(col.intValue());
+    final Object source = argv(col.intValue());
     final int count = count(amount, source, accessor);
     final Ordinal[] indices = new Ordinal[count];
     int k = 0;
@@ -225,7 +225,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       argv(k, null);
     }
     k = size();
-    while(argv(k) != null) {
+    while (argv(k) != null) {
       argv(k++, null);
     }
     argv(-1, indices);
