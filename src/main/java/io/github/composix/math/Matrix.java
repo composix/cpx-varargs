@@ -62,6 +62,11 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
+  public Class<?> typeOf(Ordinal col) {
+    return argv(col.intValue()).getClass().getComponentType();
+  }
+  
+  @Override
   public Args extend(Ordinal col, Object... arrays) {
     if (!OMEGA.contains(col)) {
       throw new IndexOutOfBoundsException();
