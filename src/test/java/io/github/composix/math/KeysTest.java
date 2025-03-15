@@ -27,21 +27,21 @@ package io.github.composix.math;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 class KeysTest extends TestCase implements TestData {
+
   static Pet THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY;
   static Order O, P, Q, R, S, T;
 
@@ -85,18 +85,13 @@ class KeysTest extends TestCase implements TestData {
     // using VarArgs
     assertArrayEquals(
       new Category[] {
-        new Category(0, "cats"), 
-        new Category(1, "dogs"), 
-        new Category(2, "other")
-      }, 
+        new Category(0, "cats"),
+        new Category(1, "dogs"),
+        new Category(2, "other"),
+      },
       petsByCategory.stream(B).toArray(Category[]::new)
     );
-    assertArrayEquals(
-      expected,
-      petsByCategory
-        .longStream(C)
-        .toArray()
-    );
+    assertArrayEquals(expected, petsByCategory.longStream(C).toArray());
 
     // using Streams
     assertArrayEquals(
@@ -119,7 +114,7 @@ class KeysTest extends TestCase implements TestData {
       .keys(A, Order::quantity)
       .collect(A, x -> 1L, Long::sum);
   }
-  
+
   @Test
   @Disabled
   void testThenBy() {
@@ -136,11 +131,12 @@ class KeysTest extends TestCase implements TestData {
   }
 
   @Test
-  @Disabled
   void testJoin() {
-    Args result = pets
-      .groupBy(A, Pet::id)
-      .join(orders.groupBy(A, Order::petId));
+    assertThrows(IllegalArgumentException.class, () ->
+      pets.on(A, Pet::id).join(orders.on(A, Order::petId))
+    );
+
+    Args result = orders.on(A, Order::petId).join(pets.on(A, Pet::id));
 
     assertSame(THOMAS, result.getValue(A.index(A)));
     assertNull(result.getValue(B.index(A)));

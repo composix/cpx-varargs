@@ -307,28 +307,48 @@ public class Matrix extends OrderInt implements Keys, Args {
   @Override
   public Args join(Keys rhs) {
     final Matrix matrix = (Matrix) rhs;
-    final Ordinal[] lhsIndices = indices(), rhsIndices = matrix.indices();
-    if (lhsIndices.length == amount()) {
-      if (rhsIndices.length == matrix.amount()) {
-        argv(size(), bijection(matrix.argv(0), order(), matrix.order(), argv(size()), matrix.argv(matrix.size())));
-      }  
+    final Ordinal[] indices = matrix.indices();
+    if (indices.length == matrix.amount()) {
+      argv(
+        size(),
+        injection(
+          indices(),
+          matrix.argv(0),
+          order(),
+          matrix.order(),
+          argv(size()),
+          matrix.argv(matrix.size())
+        )
+      );
     } else {
-      throw new UnsupportedOperationException();
+      throw new IllegalArgumentException();
     }
     return this;
   }
 
-  private static Object[] bijection(Object[] source, Order lhsOrder, Order rhsOrder, long[] lhs, long[] rhs) {
-    final int m = lhsOrder.amount(), n = rhsOrder.amount();
-    int j = -1;
+  private static Object[] injection(
+    final Ordinal[] indices,
+    Object[] source,
+    Order lhsOrder,
+    Order rhsOrder,
+    long[] lhs,
+    long[] rhs
+  ) {
+    final int l = indices.length, m = lhsOrder.amount(), n = rhsOrder.amount();
+    int j = 0, k = -1;
     Object[] target = new Object[m];
-    for (int i = 0; i < m; ++i) {
+    for (int i = 0; i < l; ++i) {
       long value = lhs[i];
-      while(++j < n && rhs[j] < value);
-      if (j < n && rhs[j] == value) {
-        target[lhsOrder.rank(i)] = source[rhsOrder.rank(j)];
+      while (++k < n && rhs[k] < value);
+      final int limit = indices[i].intValue();
+      if (k < n && rhs[k] == value) {
+        while (j < limit) {
+          target[lhsOrder.rank(j++)] = source[rhsOrder.rank(k)];
+        }
       } else {
-        target[lhsOrder.rank(i)] = null;
+        while (j < limit) {
+          target[lhsOrder.rank(j++)] = null;
+        }
       }
     }
     return target;
