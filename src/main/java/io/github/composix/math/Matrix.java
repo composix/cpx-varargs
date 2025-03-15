@@ -301,8 +301,32 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public Args join(Keys rhs) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'join'");
+    final Matrix matrix = (Matrix) rhs;
+    final Ordinal[] lhsIndices = indices(), rhsIndices = matrix.indices();
+    if (lhsIndices.length == amount()) {
+      if (rhsIndices.length == matrix.amount()) {
+        argv(size(), bijection(matrix.argv(0), order(), matrix.order(), argv(size()), matrix.argv(matrix.size())));
+      }  
+    } else {
+      throw new UnsupportedOperationException();
+    }
+    return this;
+  }
+
+  private static Object[] bijection(Object[] source, Order lhsOrder, Order rhsOrder, long[] lhs, long[] rhs) {
+    final int m = lhsOrder.amount(), n = rhsOrder.amount();
+    int j = -1;
+    Object[] target = new Object[m];
+    for (int i = 0; i < m; ++i) {
+      long value = lhs[i];
+      while(++j < n && rhs[j] < value);
+      if (j < n && rhs[j] == value) {
+        target[lhsOrder.rank(i)] = source[rhsOrder.rank(j)];
+      } else {
+        target[lhsOrder.rank(i)] = null;
+      }
+    }
+    return target;
   }
 
   protected Matrix(int ordinal) {
