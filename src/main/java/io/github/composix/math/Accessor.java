@@ -33,6 +33,10 @@ import java.util.function.ToLongFunction;
 public interface Accessor {
     void setValueAt(int index, Object container);
 
+    Object alloc(Ordinal length);
+
+    void assign(int index, Object target);
+    
     int compareAt(int index, Object container);
 
     Comparator<Ordinal> comparator(Object container);
@@ -52,6 +56,15 @@ public interface Accessor {
               );
             }
       
+            @Override
+            public Object alloc(Ordinal length) {
+              return length.newInstance(current.getClass());
+            }
+
+            public void assign(int index, Object target) {
+              ((Object[]) target)[index] = current;
+            }
+
             @Override
             public int compareAt(int index, Object container) {
               return current.compareTo(
@@ -106,6 +119,16 @@ public interface Accessor {
               current = accessor.applyAsLong(OrdinalNumber.ORDINALS[index], container);
             }
         
+            @Override
+            public Object alloc(Ordinal length) {
+              return new long[length.intValue()];
+            }
+
+            @Override
+            public void assign(int index, Object target) {
+              ((long[]) target)[index] = current;
+            }
+
             @Override
             public int compareAt(int index, Object container) {
               return Long.compare(

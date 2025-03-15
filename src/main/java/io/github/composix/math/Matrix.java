@@ -245,22 +245,17 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T, K> Keys keys(Ordinal col, Function<T, K> accessor) {
+  public Keys keys(Ordinal col, Accessor accessor) {
     final Ordinal[] indices = indices();
     final int count = indices.length;
-    final T[] source = argv(col.intValue());
-    final K[] keys =
-      ORDINALS[count].newInstance(
-          (Class<K>) accessor.apply(source[0]).getClass()
-        );
-    int index = size();
-    while (argv(index) != null) {
-      ++index;
-    }
-    argv(index, keys);
-    keys[0] = accessor.apply(source[rank(0)]);
+    final Object source = argv(col.intValue());
+    accessor.setValueAt(rank(0), source);
+    final Object keys = accessor.alloc(ORDINALS[count]);
+    argv(index(), keys);
+    accessor.assign(0, keys);
     for (int i = 0; ++i < count; ++i) {
-      keys[i] = accessor.apply(source[rank(indices[--i]).intValue()]);
+      accessor.setValueAt(rank(indices[--i]).intValue(), source);
+      accessor.assign(i + 1, keys);
     }
     return this;
   }
@@ -379,6 +374,14 @@ public class Matrix extends OrderInt implements Keys, Args {
       );
     }
     return count;
+  }
+
+  private int index() {
+    int index = size();
+    while (argv(index) != null) {
+      ++index;
+    }
+    return index;
   }
 
   private Ordinal[] indices() {
