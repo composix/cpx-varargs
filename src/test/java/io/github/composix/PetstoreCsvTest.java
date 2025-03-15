@@ -165,10 +165,11 @@ public class PetstoreCsvTest extends TestCase {
     ArgsI<long[]> tagging,
     ArgsI<long[]> photoUrls
   ) {
-    final int amount = args.amount();
+    final int amount = args.amount() - 1;
     final Pet[] pets = new Pet[amount];
     CURSOR.position(A, args);
     CURSOR.cols(4);
+    assertTrue(CURSOR.advance(B));
     for (int i = 0; i < amount; ++i) {
       CURSOR.advance(B);
       pets[i] = new Pet(
