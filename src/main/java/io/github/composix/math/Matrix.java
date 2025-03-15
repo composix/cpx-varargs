@@ -305,7 +305,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public Args join(Keys rhs) {
+  public Args joinOne(Keys rhs) {
     final Matrix matrix = (Matrix) rhs;
     final Ordinal[] indices = matrix.indices();
     if (indices.length == matrix.amount()) {
@@ -322,6 +322,29 @@ public class Matrix extends OrderInt implements Keys, Args {
       );
     } else {
       throw new IllegalArgumentException();
+    }
+    return this;
+  }
+
+  @Override
+  public Args joinMany(Keys rhs) {
+    final Matrix matrix = (Matrix) rhs;
+    final Ordinal[] indices = matrix.indices();
+    if (indices.length == matrix.amount()) {
+      throw new IllegalArgumentException();
+    } else {
+      argv(
+        size(),
+        surjection(
+          indices(),
+          matrix.argv(0),
+          order(),
+          matrix.order(),
+          argv(size()),
+          matrix.argv(matrix.size()),
+          indices
+        )
+      );
     }
     return this;
   }
@@ -348,6 +371,43 @@ public class Matrix extends OrderInt implements Keys, Args {
       } else {
         while (j < limit) {
           target[lhsOrder.rank(j++)] = null;
+        }
+      }
+    }
+    return target;
+  }
+
+  private static Object[] surjection(
+    final Ordinal[] indices,
+    Object[] source,
+    Order lhsOrder,
+    Order rhsOrder,
+    long[] lhs,
+    long[] rhs,
+    final Ordinal[] rhsIndices
+  ) {
+    final int l = indices.length, n = rhsIndices.length;
+    int j = 0, k = 0, m = -1;
+    Class<?> componentType = source.getClass();
+    final Object[] target = (Object[]) Array.newInstance(componentType, lhsOrder.amount());
+    componentType = componentType.getComponentType();
+    final Object empty = Array.newInstance(componentType, 0);
+    for (int i = 0; i < l; ++i) {
+      long value = lhs[i];
+      while (++m < n && rhs[m] < value);
+      final int limit = indices[i].intValue();
+      final int length = rhsIndices[m].intValue() - k;
+      if (m < n && rhs[m] == value) {
+        while (j < limit) {
+          Object[] values = (Object[]) Array.newInstance(componentType, length);
+          for (int index = 0; index < length; ++index) {
+            values[index] = source[rhsOrder.rank(k++)];
+          } 
+          target[lhsOrder.rank(j++)] = values;
+        }
+      } else {
+        while (j < limit) {
+          target[lhsOrder.rank(j++)] = empty;
         }
       }
     }

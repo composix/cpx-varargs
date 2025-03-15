@@ -146,7 +146,7 @@ public class PetstoreCsvTest extends TestCase {
           .toArray()
       )
       .on(B)
-      .join(tags.on(A, Tag::id))
+      .joinOne(tags.on(A, Tag::id))
       .castI(long[].class);
   }
 

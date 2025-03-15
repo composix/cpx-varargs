@@ -134,10 +134,10 @@ class KeysTest extends TestCase implements TestData {
   @Test
   void testJoinOne() {
     assertThrows(IllegalArgumentException.class, () ->
-      pets.on(A, Pet::id).join(orders.on(A, Order::petId))
+      pets.on(A, Pet::id).joinOne(orders.on(A, Order::petId))
     );
 
-    Args result = orders.on(A, Order::petId).join(pets.on(A, Pet::id));
+    Args result = orders.on(A, Order::petId).joinOne(pets.on(A, Pet::id));
     result.orderBy(A, Order::id);
     assertTrue(result.isOrdinal());
 
@@ -153,7 +153,7 @@ class KeysTest extends TestCase implements TestData {
 
   @Test
   void testJoinMany() {
-    Args result = pets.on(A, Pet::id).join(orders.on(A, Order::petId));
+    Args result = pets.on(A, Pet::id).joinMany(orders.on(A, Order::petId));
 
     assertSame(THOMAS, result.getValue(A.index(A)));
     assertNull(result.getValue(B.index(A)));

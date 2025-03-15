@@ -35,7 +35,9 @@ public interface Keys {
 
     <T> Args collect(Ordinal col, ToLongFunction<T> accessor, LongBinaryOperator reducer);
 
-    Args join(Keys rhs);
+    Args joinOne(Keys rhs);
+
+    Args joinMany(Keys rhs);
 
     default <T,K extends Comparable<K>> Keys keys(Ordinal col, Function<T,K> accessor) {
       Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
