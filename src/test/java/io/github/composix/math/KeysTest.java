@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
@@ -131,12 +132,28 @@ class KeysTest extends TestCase implements TestData {
   }
 
   @Test
-  void testJoin() {
+  void testJoinOne() {
     assertThrows(IllegalArgumentException.class, () ->
       pets.on(A, Pet::id).join(orders.on(A, Order::petId))
     );
 
     Args result = orders.on(A, Order::petId).join(pets.on(A, Pet::id));
+    result.orderBy(A, Order::id);
+    assertTrue(result.isOrdinal());
+
+    assertAllSame(
+      all(O, P, Q, R, S, T),
+      result.stream(A).toArray(Order[]::new)
+    );
+    assertAllSame(
+      all(MICKEY, DUCHESS, DONALD, PLUTO, FREY, MICKEY),
+      result.stream(B).toArray(Pet[]::new)
+    );
+  }
+
+  @Test
+  void testJoinMany() {
+    Args result = pets.on(A, Pet::id).join(orders.on(A, Order::petId));
 
     assertSame(THOMAS, result.getValue(A.index(A)));
     assertNull(result.getValue(B.index(A)));
