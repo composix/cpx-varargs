@@ -142,7 +142,7 @@ class KeysTest extends TestCase implements TestData {
     assertTrue(result.isOrdinal());
 
     assertAllSame(
-      all(O, P, Q, R, S, T),
+      orders.stream(A).toArray(Order[]::new),
       result.stream(A).toArray(Order[]::new)
     );
     assertAllSame(
