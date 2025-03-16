@@ -396,8 +396,8 @@ public class Matrix extends OrderInt implements Keys, Args {
       long value = lhs[i];
       while (++m < n && rhs[m] < value);
       final int limit = indices[i].intValue();
-      final int length = rhsIndices[m].intValue() - k;
       if (m < n && rhs[m] == value) {
+        final int length = rhsIndices[m].intValue() - k;
         while (j < limit) {
           Object[] values = (Object[]) Array.newInstance(componentType, length);
           for (int index = 0; index < length; ++index) {
@@ -406,6 +406,7 @@ public class Matrix extends OrderInt implements Keys, Args {
           target[lhsOrder.rank(j++)] = values;
         }
       } else {
+        --m;
         while (j < limit) {
           target[lhsOrder.rank(j++)] = empty;
         }
