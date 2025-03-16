@@ -45,6 +45,7 @@ class KeysTest extends TestCase implements TestData {
 
   static Pet THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY;
   static Order O, P, Q, R, S, T;
+  static Order[] EMPTY = new Order[0];
 
   Args pets;
   Args orders;
@@ -155,31 +156,13 @@ class KeysTest extends TestCase implements TestData {
   void testJoinMany() {
     Args result = pets.on(A, Pet::id).joinMany(orders.on(A, Order::petId));
 
-    assertSame(THOMAS, result.getValue(A.index(A)));
-    assertNull(result.getValue(B.index(A)));
-
-    assertSame(DUCHESS, result.getValue(A.index(B)));
-    assertSame(P, result.getValue(B.index(B)));
-
-    assertSame(PLUTO, result.getValue(A.index(C)));
-    assertSame(R, result.getValue(B.index(C)));
-
-    assertSame(FRANK, result.getValue(A.index(D)));
-    assertNull(result.getValue(B.index(D)));
-
-    assertSame(FREY, result.getValue(A.index(E)));
-    assertSame(S, result.getValue(B.index(E)));
-
-    assertSame(MICKEY, result.getValue(A.index(F)));
-    assertSame(O, result.getValue(B.index(F)));
-
-    assertSame(MICKEY, result.getValue(A.index(G)));
-    assertSame(T, result.getValue(B.index(G)));
-
-    assertSame(DONALD, result.getValue(A.index(H)));
-    assertSame(Q, result.getValue(B.index(H)));
-
-    assertSame(GOOFY, result.getValue(A.index(I)));
-    assertNull(result.getValue(B.index(I)));
+    assertAllSame(
+      pets.stream(A).toArray(Pet[]::new),
+      result.stream(A).toArray(Pet[]::new)
+    );
+    assertAllEquals(
+      all(EMPTY, all(P), all(R), EMPTY, all(S), all(O, T), all(Q), EMPTY),
+      result.stream(B).toArray(Order[][]::new)
+    );
   }
 }
