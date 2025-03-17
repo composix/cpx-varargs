@@ -81,14 +81,18 @@ public interface Args extends ArgsOrdinal, Order {
         final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
         accessLong.accessor(accessor);
         groupBy(col, accessLong);
-        return ((Keys) this).keys(col, accessLong);
+        Keys result = ((Keys) this).keys(col, accessLong);
+        accessLong.destroy();
+        return result;
     }
 
     default Keys on(Ordinal col) {
         orderBy(col);
         final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
         groupBy(col, accessLong);
-        return ((Keys) this).keys(col, accessLong);
+        Keys result = ((Keys) this).keys(col, accessLong);
+        accessLong.destroy();
+        return result;
     }
     
     default <T> Iterable<T> column(Ordinal ordinal) {

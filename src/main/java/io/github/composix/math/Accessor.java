@@ -148,7 +148,7 @@ public interface Accessor {
         
             @Override
             public void destroy() {
-              accessor = null;
+              accessor = ACCESSOR;
             }
           };
 
