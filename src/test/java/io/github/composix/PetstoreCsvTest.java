@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
-import java.util.stream.LongStream;
+import java.util.function.ToLongFunction;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
