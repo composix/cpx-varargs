@@ -79,7 +79,7 @@ public class PetstoreCsvTest extends TestCase {
                 .select("~", filename)
                 .refreshLines()
                 .collect()
-                .toArray(String[]::new)
+                .toArray(CharSequence[]::new)
             ).split(PATTERN::splitAsStream);
           } catch (IOException e) {
             throw new UncheckedIOException(e);
