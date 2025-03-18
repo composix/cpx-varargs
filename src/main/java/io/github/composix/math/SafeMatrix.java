@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,69 +31,67 @@ import java.util.stream.Stream;
 import io.github.composix.varargs.ArgsI;
 import io.github.composix.varargs.KeysI;
 
-public class SafeMatrix<K extends Comparable<?>,A> extends Matrix implements KeysI<K,A>, ArgsI<A> {
-    protected SafeMatrix(int ordinal) {
-        super(ordinal);
+public class SafeMatrix<K extends Comparable<?>, A>
+  extends Matrix
+  implements KeysI<K, A>, ArgsI<A> {
+
+  protected SafeMatrix(int ordinal) {
+    super(ordinal);
+  }
+
+  private static int MASK = 15;
+
+  private Object[] argv = new Object[MASK + 1];
+
+  @Override
+  public ArgsI<A> clone() throws CloneNotSupportedException {
+    final SafeMatrix result = (SafeMatrix) super.clone();
+    result.argv = argv.clone();
+    return result;
+  }
+
+  @Override
+  public int hashCode() {
+    return 0;
+  }
+
+  @Override
+  public <T> ArgsI<T> split(Function<A, Stream<T>> splitter) {
+    if (size() != 1) {
+      throw new UnsupportedOperationException("not yet implemented");
     }
-    
-    private static int MASK = 15;
-
-    private Object[] argv = new Object[MASK + 1];
-
-    @Override
-    public ArgsI<A> clone() throws CloneNotSupportedException {
-        final SafeMatrix result = (SafeMatrix) super.clone();
-        result.argv = argv.clone();
-        return result;
-    }
-
-    @Override
-    public int hashCode() {
-        return 0;
-    }
-
-    @Override
-    public ArgsI<A> split(Function<A, Stream<A>> splitter) {
-        if (size() != 1) {
-            throw new UnsupportedOperationException("not yet implemented");
+    final int amount = amount();
+    final Object[] argv = argv();
+    int size = 0;
+    for (int j = 0; j < amount; ++j) {
+      Iterator<T> iterator = splitter.apply(((A[]) argv[0])[j]).iterator();
+      int i = 0;
+      while (iterator.hasNext()) {
+        T item = iterator.next();
+        if (i > size) {
+          ++size;
+          argv[i] = newInstance(argv[0].getClass().getComponentType());
         }
-        final int amount = amount();
-        final Object[] argv = argv();
-        int size = 0;
-        for (int j = 0; j < amount; ++j) {
-            Iterator<A> iterator = splitter.apply(((A[]) argv[0])[j]).iterator();
-            int i = 0;
-            while (iterator.hasNext()) {
-                A item = iterator.next();
-                if (argv[i] == null) {
-                    argv[i] = newInstance(item.getClass());
-                }
-                ((A[]) argv[i++])[j] = item;
-            }
-            size = Math.max(size, i);
-        }
-        ordinal = size * OMEGA.intValue() + amount;
-        try {
-            ArgsI<A> result = clone();
-            argv[0] = null;
-            return result;
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException(e);
-        }
+        ((T[]) argv[i++])[j] = item;
+      }
     }
+    ordinal = ++size * OMEGA.intValue() + amount;
+    // TODO: operation now has side effects on the original matrix 
+    return (ArgsI<T>) this;
+  }
 
-    @Override
-    protected Object[] argv() {
-        return argv;
-    }
+  @Override
+  protected Object[] argv() {
+    return argv;
+  }
 
-    @Override
-    protected int mask() {
-        return MASK;
-    }
+  @Override
+  protected int mask() {
+    return MASK;
+  }
 
-    @Override
-    protected int mask(int index) {
-        return index & MASK;
-    }
+  @Override
+  protected int mask(int index) {
+    return index & MASK;
+  }
 }

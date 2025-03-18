@@ -38,7 +38,9 @@ public interface ArgsI<A> extends Args {
     @Override
     ArgsI<A> clone() throws CloneNotSupportedException;
 
-    ArgsI<A> split(Function<A, Stream<A>> splitter);
+    <T> ArgsI<T> split(Function<A, Stream<T>> splitter);
+
+    // <T extends Defaults<T>> ArgsI<T> join(Class<T> dto, Function<A[],T> joiner);
 
     default ArgsI<A> orderByA() {
         return (ArgsI<A>) orderBy(A);
