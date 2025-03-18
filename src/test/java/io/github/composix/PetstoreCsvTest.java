@@ -99,7 +99,7 @@ public class PetstoreCsvTest extends TestCase {
 
     ArgsI<CharSequence> photoUrls = petstore.getValue(B.index(C));
     ArgsI<Tag> tags = tags(petstore.getValue(B.index(E)));
-    ArgsI<long[]> tagging = tagging(petstore.getValue(B.index(D)), tags);
+    ArgsI<String> tagging = tagging(petstore.getValue(B.index(D)), tags);
     ArgsI<Pet> pets = pets(
       petstore.getValue(B.index(B)),
       categories,
@@ -124,38 +124,18 @@ public class PetstoreCsvTest extends TestCase {
     return A.extendA(tags);
   }
 
-  static ArgsI<long[]> tagging(ArgsI<String> args, ArgsI<Tag> tags) {
-    return A.extendA(
-      args.streamA().skip(1).mapToLong(Long::parseLong).toArray()
-    )
-      .extend(
-        B,
-        args
-          .stream(B)
-          .skip(1)
-          .map(Object::toString)
-          .mapToLong(Long::parseLong)
-          .toArray()
-      )
-      .on(B)
+  static ArgsI<String> tagging(ArgsI<String> args, ArgsI<Tag> tags) {
+    return args
+      .on(B, (ToLongFunction<String>) Long::parseLong)
       .joinOne(tags.on(A, Tag::id))
-      .castI(long[].class);
-  }
-
-  static ArgsI<long[]> photoUrls(ArgsI<String> args) {
-    return args.extendA(
-      LongStream.concat(
-        LongStream.of(-1),
-        args.streamA().skip(1).mapToLong(Long::parseLong)
-      ).toArray()
-    );
+      .castI(3, String.class);
   }
 
   static ArgsI<Pet> pets(
     Args args,
     ArgsI<Category> categories,
-    ArgsI<long[]> tagging,
-    ArgsI<long[]> photoUrls
+    ArgsI<String> tagging,
+    ArgsI<CharSequence> photoUrls
   ) {
     final int amount = args.amount() - 1;
     final Pet[] pets = new Pet[amount];
