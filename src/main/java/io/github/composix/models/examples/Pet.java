@@ -29,13 +29,11 @@ import java.util.Comparator;
 import io.github.composix.models.Defaults;
 
 public record Pet(long id, String name, Status status, Category category, Tag[] tags, String[] photoUrls) {
-    public static final Pet DEFAULTS = Defaults.initialize(
-        new Pet(0, null, null, null, null, null)
-    );
+    private static Category CATEGORY = Defaults.of(Category.class);
 
     public Pet {
         status = status == null ? Status.AVAILABLE : status;
-        category = category == null ? Category.DEFAULTS : category;
+        category = category == null ? CATEGORY : category;
         tags = tags == null ? new Tag[0] : tags;
         photoUrls = photoUrls == null ? new String[0] : photoUrls;
     }

@@ -29,10 +29,10 @@ import java.util.Objects;
 
 import io.github.composix.models.Defaults;
 
-public record Category(long id, String name) implements Comparable<Category> {
-    public static final Category DEFAULTS = Defaults.initialize(
-        new Category(0, null)
-    );
+public record Category(long id, String name) implements Comparable<Category>, Defaults<Category> {
+    static {
+        new Category(0, null).defaults();
+    }
 
     public Category {
         name = name == null ? "" : name;

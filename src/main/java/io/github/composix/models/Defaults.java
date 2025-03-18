@@ -24,8 +24,26 @@
 
 package io.github.composix.models;
 
-public interface Defaults {
-    static <R extends Record> R initialize(R defaults) {
-        return defaults;
+import java.util.IdentityHashMap;
+import java.util.Map;
+
+public interface Defaults<T extends Defaults<T>> {
+    Map<Class<? extends Defaults<?>>,Defaults<?>> DEFAULTS = new IdentityHashMap<>();
+ 
+    static <T extends Defaults<T>> T register(Defaults<T> defaults) {
+        T result = (T) of(defaults.getClass());
+        if (result == null) {
+            DEFAULTS.put((Class<? extends Defaults<?>>) defaults.getClass(), defaults);
+            return (T) defaults;
+        }
+        return result;
+    }
+
+    static <T extends Defaults<T>> T of(Class<T> dto) {
+        return (T) DEFAULTS.get(dto);
+    }
+
+    default T defaults() {
+        return Defaults.register(this);
     }
 }

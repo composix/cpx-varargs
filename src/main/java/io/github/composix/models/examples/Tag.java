@@ -26,8 +26,8 @@ package io.github.composix.models.examples;
 
 import io.github.composix.models.Defaults;
 
-public record Tag(long id, String name) {
-    public static final Tag DEFAULTS = Defaults.initialize(
-        new Tag(0, null)
-    );
+public record Tag(long id, String name) implements Defaults<Tag> {
+    static {
+        new Tag(0, null).defaults();
+    }
 }
