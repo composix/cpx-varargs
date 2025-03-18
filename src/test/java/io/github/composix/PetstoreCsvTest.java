@@ -74,13 +74,15 @@ public class PetstoreCsvTest extends TestCase {
         .streamA()
         .map(filename -> {
           try {
-            return A.extendA(
+            final ArgsI<String> csv = A.extendA(
               testData
                 .select("~", filename)
                 .refreshLines()
                 .collect()
                 .toArray(CharSequence[]::new)
             ).split(PATTERN::splitAsStream);
+            csv.order().skipHeader();
+            return csv;
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }

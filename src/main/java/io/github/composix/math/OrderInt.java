@@ -105,6 +105,11 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     }
 
     @Override
+    public void skipHeader() {
+        // TODO: implement skipHeader()
+    }
+
+    @Override
     public void reorder(Comparator<Ordinal> comparator) {
         reorder(comparator, 0, ordinal % OMEGA.intValue());
     }
@@ -112,10 +117,11 @@ class OrderInt extends OrdinalInt implements MutableOrder {
     @Override
     public void reorder(Comparator<Ordinal> comparator, int fromIndex, int toIndex) {
         if (toIndex-- > 1) {
+            if (fromIndex == 0 && ordinals[0] == null) {
+                ++fromIndex;
+            }
             final Ordinal[] omega = ORDINALS;
-            if (comparator == NATURAL_ORDER) {
-                ordinals = omega;
-            } else {
+            if (comparator != NATURAL_ORDER) {
                 int i = fromIndex;
                 while(i < toIndex) {
                     if (comparator.compare(omega[i], omega[++i]) > 0) {
@@ -126,7 +132,15 @@ class OrderInt extends OrdinalInt implements MutableOrder {
                         return;
                     }
                 }
-                ordinals = omega;
+            }
+            if (ordinals != omega) {
+                if (fromIndex > 0 && toIndex < ordinal % OMEGA.intValue()) {
+                    for (int i = fromIndex; i < toIndex; ++i) {
+                        ordinals[i] = omega[i];
+                    }
+                } else {
+                    ordinals = omega;
+                }
             }    
         }
     }
