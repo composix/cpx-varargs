@@ -39,6 +39,10 @@ public interface Args extends ArgsOrdinal, Order {
 
     <T> T getValue(int index);
 
+    default ArgsOrdinal getArgsValue(int index) {
+        return (Args) getValue(index);
+    }
+
     long getLongValue(int index);
     
     Comparator<Ordinal> comparator(Ordinal ordinal);
