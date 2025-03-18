@@ -24,16 +24,19 @@
 
 package io.github.composix.math;
 
+import io.github.composix.models.Defaults;
+import io.github.composix.varargs.ArgsI;
+import io.github.composix.varargs.KeysI;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import io.github.composix.varargs.ArgsI;
-import io.github.composix.varargs.KeysI;
-
 public class SafeMatrix<K extends Comparable<?>, A>
   extends Matrix
   implements KeysI<K, A>, ArgsI<A> {
+
+  static final String[] VALUES = new String[16];
+  static final Cursor CURSOR = Cursor.ofRow(VALUES);
 
   protected SafeMatrix(int ordinal) {
     super(ordinal);
@@ -76,8 +79,28 @@ public class SafeMatrix<K extends Comparable<?>, A>
       }
     }
     ordinal = ++size * OMEGA.intValue() + amount;
-    // TODO: operation now has side effects on the original matrix 
+    // TODO: operation now has side effects on the original matrix
     return (ArgsI<T>) this;
+  }
+
+  @Override
+  public <T extends Defaults<T>> ArgsI<T> join(
+    Class<T> dto,
+    Function<A[], T> joiner
+  ) {
+    final int omega = OMEGA.intValue();
+    final int amount = ordinal % omega;
+    final T[] result = newInstance(dto);
+    CURSOR.position(B, this);
+    CURSOR.cols(ordinal / omega);
+    for (int i = 1; i < amount; ++i) {
+      if (!CURSOR.advance(B)) {
+        throw new AssertionError();
+      }
+      result[i] = joiner.apply((A[]) VALUES);
+    }
+    result[0] = Defaults.of(dto);
+    return A.extendA(result);
   }
 
   @Override

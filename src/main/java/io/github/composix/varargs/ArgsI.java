@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import io.github.composix.math.Accessor;
 import io.github.composix.math.Args;
 import io.github.composix.math.Ordinal;
+import io.github.composix.models.Defaults;
 
 public interface ArgsI<A> extends Args {
     @Override
@@ -40,7 +41,7 @@ public interface ArgsI<A> extends Args {
 
     <T> ArgsI<T> split(Function<A, Stream<T>> splitter);
 
-    // <T extends Defaults<T>> ArgsI<T> join(Class<T> dto, Function<A[],T> joiner);
+    <T extends Defaults<T>> ArgsI<T> join(Class<T> dto, Function<A[],T> joiner);
 
     default ArgsI<A> orderByA() {
         return (ArgsI<A>) orderBy(A);

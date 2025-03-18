@@ -89,8 +89,15 @@ public class PetstoreCsvTest extends TestCase {
         })
         .toArray(Args[]::new)
     );
-    ArgsI<Category> categories = categories(petstore.getValue(B.index(A)));
-    ArgsI<long[]> photoUrls = photoUrls(petstore.getValue(B.index(C)));
+
+    ArgsI<Category> categories = petstore
+      .getArgsValue(B.index(A))
+      .castI(2)
+      .join(Category.class, values ->
+        new Category(Long.parseLong(values[0].toString()), values[1].toString())
+      );
+
+    ArgsI<CharSequence> photoUrls = petstore.getValue(B.index(C));
     ArgsI<Tag> tags = tags(petstore.getValue(B.index(E)));
     ArgsI<long[]> tagging = tagging(petstore.getValue(B.index(D)), tags);
     ArgsI<Pet> pets = pets(
@@ -99,23 +106,6 @@ public class PetstoreCsvTest extends TestCase {
       tagging,
       photoUrls
     );
-  }
-
-  static ArgsI<Category> categories(Args args)
-    throws CloneNotSupportedException {
-    final int amount = args.amount() - 1;
-    final Category[] categories = new Category[amount];
-    CURSOR.position(A, args);
-    CURSOR.cols(2);
-    assertTrue(CURSOR.advance(B));
-    for (int i = 0; i < amount; ++i) {
-      assertTrue(CURSOR.advance(B));
-      categories[i] = new Category(
-        Long.parseLong(VALUES[0].toString()),
-        VALUES[1].toString()
-      );
-    }
-    return A.extendA(categories);
   }
 
   static ArgsI<Tag> tags(Args args) {
