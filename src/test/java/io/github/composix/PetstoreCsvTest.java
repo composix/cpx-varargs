@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,36 +24,31 @@
 
 package io.github.composix;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URISyntaxException;
-import java.util.Optional;
-import java.util.function.ToLongFunction;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import io.github.composix.math.Args;
 import io.github.composix.math.Cursor;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
-import io.github.composix.models.examples.Pet.Status;
 import io.github.composix.models.examples.Tag;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.TestData;
 import io.github.composix.varargs.ArgsI;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class PetstoreCsvTest extends TestCase {
+public class PetstoreCsvTest
+  extends TestCase
+  implements io.github.composix.math.TestData {
 
   static TestData testData;
   static String[] VALUES;
   static Cursor CURSOR;
 
   @BeforeAll
-  static void beforeAll()
-    throws IOException, URISyntaxException {
+  static void beforeAll() throws IOException, URISyntaxException {
     testData = DEFAULT.testData("src/test/resources/", Optional.empty());
     VALUES = new String[4];
     CURSOR = Cursor.ofRow(VALUES);
@@ -90,69 +85,37 @@ public class PetstoreCsvTest extends TestCase {
         .toArray(Args[]::new)
     );
 
+    ArgsI<CharSequence> photoUrls = petstore.getArgsValue(B.index(C)).castI(2);
+
     ArgsI<Category> categories = petstore
       .getArgsValue(B.index(A))
       .castI(2)
-      .join(Category.class, values ->
-        new Category(Long.parseLong(values[0].toString()), values[1].toString())
-      );
+      .combine(Category.DEFAULTS);
 
-    ArgsI<CharSequence> photoUrls = petstore.getValue(B.index(C));
-    ArgsI<Tag> tags = tags(petstore.getValue(B.index(E)));
-    ArgsI<String> tagging = tagging(petstore.getValue(B.index(D)), tags);
-    ArgsI<Pet> pets = pets(
-      petstore.getValue(B.index(B)),
-      categories,
-      tagging,
-      photoUrls
-    );
-  }
+    ArgsI<Tag> tags = petstore
+      .getArgsValue(B.index(E))
+      .castI(2)
+      .combine(Tag.DEFAULTS);
 
-  static ArgsI<Tag> tags(Args args) {
-    final int amount = args.amount() - 1;
-    final Tag[] tags = new Tag[amount];
-    CURSOR.position(A, args);
-    CURSOR.cols(2);
-    assertTrue(CURSOR.advance(B));
-    for (int i = 0; i < amount; ++i) {
-      assertTrue(CURSOR.advance(B));
-      tags[i] = new Tag(
-        Long.parseLong(VALUES[0].toString()),
-        VALUES[1].toString()
-      );
-    }
-    return A.extendA(tags);
-  }
-
-  static ArgsI<String> tagging(ArgsI<String> args, ArgsI<Tag> tags) {
-    return args
-      .on(B, (ToLongFunction<String>) Long::parseLong)
+    ArgsI<CharSequence> tagging = petstore
+      .getArgsValue(B.index(D))
+      .castI(2)
+      .on(B, Args::parseLong)
       .joinOne(tags.on(A, Tag::id))
-      .castI(3, String.class);
-  }
+      .castI(3, CharSequence.class);
 
-  static ArgsI<Pet> pets(
-    Args args,
-    ArgsI<Category> categories,
-    ArgsI<String> tagging,
-    ArgsI<CharSequence> photoUrls
-  ) {
-    final int amount = args.amount() - 1;
-    final Pet[] pets = new Pet[amount];
-    CURSOR.position(A, args);
-    CURSOR.cols(4);
-    assertTrue(CURSOR.advance(B));
-    for (int i = 0; i < amount; ++i) {
-      CURSOR.advance(B);
-      pets[i] = new Pet(
-        Long.parseLong(VALUES[0]),
-        VALUES[1],
-        Status.valueOf(VALUES[2]),
-        null,
-        new Tag[0],
-        STRINGS
-      );
-    }
-    return args.extendA(pets);
+    ArgsI<Pet> pets = petstore
+      .getArgsValue(B.index(B))
+      .castI(4)
+      .onI(D, Args::parseLong)
+      .joinOne(categories.on(A, Category::id))
+      .on(A)
+      .joinMany(tagging.on(A))
+      .on(A)
+      .joinMany(photoUrls.on(A))
+      .castI(4)
+      .combine(Pet.DEFAULTS);
+
+    assertAllEquals(PETS, pets);
   }
 }
