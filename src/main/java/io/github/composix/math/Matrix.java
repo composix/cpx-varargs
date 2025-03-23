@@ -27,6 +27,7 @@ package io.github.composix.math;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
