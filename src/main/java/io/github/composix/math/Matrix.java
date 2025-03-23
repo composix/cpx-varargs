@@ -43,6 +43,9 @@ public class Matrix extends OrderInt implements Keys, Args {
   private static final Object[] ARGV = new Object[-Short.MIN_VALUE];
   private static final int MASK = Short.MAX_VALUE;
   private static final Ordinal[] ALL = new Ordinal[] { A };
+  private static final CharSequence[] VALUES = new CharSequence[16];
+  private static final Cursor CURSOR = Cursor.ofRow(VALUES);
+
 
   @Override
   public Ordinal ordinal() {
