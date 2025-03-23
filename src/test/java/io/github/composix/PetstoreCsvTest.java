@@ -44,14 +44,10 @@ public class PetstoreCsvTest
   implements io.github.composix.math.TestData {
 
   static TestData testData;
-  static String[] VALUES;
-  static Cursor CURSOR;
 
   @BeforeAll
   static void beforeAll() throws IOException, URISyntaxException {
     testData = DEFAULT.testData("src/test/resources/", Optional.empty());
-    VALUES = new String[4];
-    CURSOR = Cursor.ofRow(VALUES);
   }
 
   @Test
@@ -69,13 +65,14 @@ public class PetstoreCsvTest
         .streamA()
         .map(filename -> {
           try {
-            final ArgsI<String> csv = A.extendA(
+            final Args csv = A.extend(A,
               testData
                 .select("~", filename)
                 .refreshLines()
                 .collect()
                 .toArray(CharSequence[]::new)
-            ).split(PATTERN::splitAsStream);
+            ).split(PATTERN);
+            csv.castI(csv.size());
             csv.order().skipHeader();
             return csv;
           } catch (IOException e) {
@@ -85,35 +82,29 @@ public class PetstoreCsvTest
         .toArray(Args[]::new)
     );
 
-    ArgsI<CharSequence> photoUrls = petstore.getArgsValue(B.index(C)).castI(2);
+    Args photoUrls = petstore.getArgsValue(B.index(C));
 
     Args categories = petstore
       .getArgsValue(B.index(A))
-      .castI(2)
       .combine(Category.DEFAULTS);
 
     Args tags = petstore
       .getArgsValue(B.index(E))
-      .castI(2)
       .combine(Tag.DEFAULTS);
 
-    ArgsI<CharSequence> tagging = petstore
+    Args tagging = petstore
       .getArgsValue(B.index(D))
-      .castI(2)
       .on(B, Args::parseLong)
-      .joinOne(tags.on(A, Tag::id))
-      .castI(3, CharSequence.class);
+      .joinOne(tags.on(A, Tag::id));
 
     Args pets = petstore
       .getArgsValue(B.index(B))
-      .castI(4)
       .on(D, Args::parseLong)
       .joinOne(categories.on(A, Category::id))
       .on(A)
       .joinMany(tagging.on(A))
       .on(A)
       .joinMany(photoUrls.on(A))
-      .castI(4)
       .combine(Pet.DEFAULTS);
 
     assertAllEquals(PETS, pets);

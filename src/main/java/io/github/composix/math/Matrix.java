@@ -70,9 +70,10 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public Class<?> typeOf(Ordinal col) {
-    return argv(col.intValue()).getClass().getComponentType();
+    final Object array = argv(col.intValue());
+    return array == null ? Void.class : array.getClass().getComponentType();
   }
-  
+
   @Override
   public Args extend(Ordinal col, Object... arrays) {
     if (!OMEGA.contains(col)) {

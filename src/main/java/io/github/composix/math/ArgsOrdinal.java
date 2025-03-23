@@ -93,7 +93,7 @@ public interface ArgsOrdinal extends Cloneable {
     }
 
     default Class<?> typeOf(Ordinal col) {
-        return void.class;
+        return Void.class;
     }
 
     default ArgsI<CharSequence> castI(int cols) {
@@ -105,6 +105,16 @@ public interface ArgsOrdinal extends Cloneable {
             throw new UnsupportedOperationException("primitives (e.g., long.class) must be boxed as wrapper (e.g., Long.class) or array (e.g., long[].class)");
         }
         Class<?> actual = typeOf(A);
+        for (int i = 0; i < cols; ++i) {
+            final Ordinal col = OrdinalNumber.ORDINALS[i];
+            if (actual != typeOf(col)) {
+                throw new ClassCastException("invalid type at column: " + col.column());
+            }    
+        }
+        final Ordinal col = OrdinalNumber.ORDINALS[cols];
+        if (actual == typeOf(col)) {
+            throw new ClassCastException("amount of columns of same type exceeds: " + cols);
+        }
         if (actual.isPrimitive()) {
             if (expected.getComponentType() == actual) {
                 return (ArgsI<T>) this;
