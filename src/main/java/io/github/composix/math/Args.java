@@ -46,7 +46,7 @@ public interface Args extends ArgsOrdinal, Order {
 
     <T> T getValue(int index);
 
-    default ArgsOrdinal getArgsValue(int index) {
+    default Args getArgsValue(int index) {
         return (Args) getValue(index);
     }
 
