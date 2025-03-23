@@ -27,21 +27,36 @@ package io.github.composix.models.examples;
 import java.util.Comparator;
 
 import io.github.composix.models.Defaults;
+import io.github.composix.models.DefaultsIII;
 
-public record Pet(long id, String name, Status status, Category category, Tag[] tags, String[] photoUrls) {
+public record Pet(long id, CharSequence name, Status status, Category category, Tag[] tags, String[] photoUrls) implements DefaultsIII<Pet,Category,Tag[],String[]> {
     private static Category CATEGORY = Defaults.of(Category.class);
+    private static Tag[] TAGS = new Tag[0];
+    private static String[] PHOTO_URLS = new String[0];
+    
+    public static Pet DEFAULTS = new Pet(0, null, Status.AVAILABLE, CATEGORY, TAGS, PHOTO_URLS).defaults(); 
 
     public Pet {
         status = status == null ? Status.AVAILABLE : status;
         category = category == null ? CATEGORY : category;
-        tags = tags == null ? new Tag[0] : tags;
-        photoUrls = photoUrls == null ? new String[0] : photoUrls;
+        tags = tags == null ? TAGS : tags;
+        photoUrls = photoUrls == null ? PHOTO_URLS : photoUrls;
     }
 
     public Comparator<Pet> byCategory() {
         return Comparator.comparing(Pet::category);
     }
     
+    @Override
+    public Pet combine(CharSequence[] parts) {
+        return combine(parts, CATEGORY, TAGS, PHOTO_URLS);
+    }
+
+    @Override
+    public Pet combine(CharSequence[] parts, Category category, Tag[] tags, String[] photoUrls) {
+        return new Pet(Long.parseLong(parts[0].toString()), parts[1], Status.valueOf(parts[2].toString()), category, tags, photoUrls);
+    }
+
     public enum Status {
         AVAILABLE, PENDING, SOLD
     };
