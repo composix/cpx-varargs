@@ -198,9 +198,56 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     }
 
     @Override
-    public final Object copyOf(Object array) {
-        Object result = Array.newInstance(array.getClass().getComponentType(), intValue() % OMEGA.intValue());
-        System.arraycopy(array, 0, result, 0, Array.getLength(array));
-        return result;
+    public final <T> T copyOf(T array) {
+        final int amount = intValue() % OMEGA.intValue();
+        switch(array) {
+            case Object[] objectArray:
+                return (T) Arrays.copyOf(objectArray, amount);
+            case int[] intArray:
+                return (T) Arrays.copyOf(intArray, amount);
+            case long[] longArray:
+                return (T) Arrays.copyOf(longArray, amount);
+            case short[] shortArray:
+                return (T) Arrays.copyOf(shortArray, amount);
+            case byte[] byteArray:
+                return (T) Arrays.copyOf(byteArray, amount);
+            case char[] charArray:
+                return (T) Arrays.copyOf(charArray, amount);
+            case float[] floatArray:
+                return (T) Arrays.copyOf(floatArray, amount);
+            case double[] doubleArray:
+                return (T) Arrays.copyOf(doubleArray, amount);
+            case boolean[] booleanArray:
+                return (T) Arrays.copyOf(booleanArray, amount);
+            default:
+                throw new IllegalArgumentException("array expected");
+        }
+    }
+
+    @Override
+    public final <T> T copyOf(T array, int offset) {
+        final int amount = intValue() % OMEGA.intValue();
+        switch(array) {
+            case Object[] objectArray:
+                return (T) Arrays.copyOfRange(objectArray, offset, amount);
+            case int[] intArray:
+                return (T) Arrays.copyOfRange(intArray, offset, amount);
+            case long[] longArray:
+                return (T) Arrays.copyOfRange(longArray, offset, amount);
+            case short[] shortArray:
+                return (T) Arrays.copyOfRange(shortArray, offset, amount);
+            case byte[] byteArray:
+                return (T) Arrays.copyOfRange(byteArray, offset, amount);
+            case char[] charArray:
+                return (T) Arrays.copyOfRange(charArray, offset, amount);
+            case float[] floatArray:
+                return (T) Arrays.copyOfRange(floatArray, offset, amount);
+            case double[] doubleArray:
+                return (T) Arrays.copyOfRange(doubleArray, offset, amount);
+            case boolean[] booleanArray:
+                return (T) Arrays.copyOfRange(booleanArray, offset, amount);
+            default:
+                throw new IllegalArgumentException("array expected");
+        }
     }
 }

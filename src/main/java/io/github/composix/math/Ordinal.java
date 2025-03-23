@@ -59,5 +59,7 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
 
     <T> T[] copyOf(T[] array);
 
-    Object copyOf(Object array);
+    <T> T copyOf(T array);
+
+    <T> T copyOf(T array, int offset);
 }
