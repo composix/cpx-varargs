@@ -30,9 +30,7 @@ import java.util.Objects;
 import io.github.composix.models.Defaults;
 
 public record Category(long id, String name) implements Comparable<Category>, Defaults<Category> {
-    static {
-        new Category(0, null).defaults();
-    }
+    public static Category DEFAULTS = new Category(0, null).defaults();
 
     public Category {
         name = name == null ? "" : name;
@@ -45,5 +43,10 @@ public record Category(long id, String name) implements Comparable<Category>, De
                 .comparing(Category::name)
                 .thenComparingLong(Category::id)
         );
+    }
+
+    @Override
+    public Category combine(CharSequence[] parts) {
+        return new Category(Long.parseLong(parts[0].toString()), parts[1].toString());
     }
 }

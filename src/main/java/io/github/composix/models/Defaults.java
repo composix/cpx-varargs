@@ -46,4 +46,6 @@ public interface Defaults<T extends Defaults<T>> {
     default T defaults() {
         return Defaults.register(this);
     }
+
+    T combine(CharSequence[] parts);
 }
