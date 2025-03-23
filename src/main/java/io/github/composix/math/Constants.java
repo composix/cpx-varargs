@@ -35,6 +35,11 @@ class Constants {
                 INSTANCE.ordinal(i);
             }
             INSTANCE.omega();
+            INSTANCE.columns[0] = INSTANCE.ordinals[0];
+            INSTANCE.columns[1] = INSTANCE.ordinals[-Short.MIN_VALUE];
+            for (int i = 2; i < INSTANCE.columns.length; ++i) {
+                INSTANCE.columns[i] = new OrdinalInt(i * -Short.MIN_VALUE);
+            }    
         }
         return INSTANCE;
     }
@@ -45,9 +50,6 @@ class Constants {
     private Constants() {
         ordinals = new Ordinal[Short.MAX_VALUE - Short.MIN_VALUE];
         columns = new Ordinal[Byte.MAX_VALUE - Byte.MIN_VALUE];
-        for (int i = 0; i < columns.length; ++i) {
-            columns[i] = new OrdinalInt(i * -Short.MIN_VALUE);
-        }
     }
 
     Ordinal ordinal(int index) {

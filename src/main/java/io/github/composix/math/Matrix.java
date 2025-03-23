@@ -391,7 +391,7 @@ public class Matrix extends OrderInt implements Keys, Args {
           ++size;
           argv[i] = new CharSequence[amount];
         }
-        ((String[]) argv[i++])[j] = item;
+        ((CharSequence[]) argv[i++])[j] = item;
       }
     }
     ordinal = ++size * OMEGA.intValue() + amount;
