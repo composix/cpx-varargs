@@ -32,8 +32,11 @@ import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
 import java.util.function.LongConsumer;
 import java.util.function.ToLongFunction;
+import java.util.regex.Pattern;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+
+import io.github.composix.models.Defaults;
 
 public class Matrix extends OrderInt implements Keys, Args {
 
@@ -225,6 +228,28 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
+  public Args split(Pattern pattern) {
+    return split(pattern::splitAsStream);
+  }
+
+  @Override
+  public <T extends Defaults<T>> Args combine(T defaults) {
+    final int omega = OMEGA.intValue();
+    final int amount = ordinal % omega;
+    final T[] result = (T[]) newInstance(defaults.getClass());
+    result[0] = defaults;
+    CURSOR.position(B, this);
+    CURSOR.cols(ordinal / omega);
+    for (int i = 1; i < amount; ++i) {
+      if (!CURSOR.advance(B)) {
+        throw new AssertionError();
+      }
+      result[i] = defaults.combine(VALUES);
+    }
+    return A.extendA(result);    
+  }
+
+  @Override
   public void groupBy(Ordinal col, Accessor accessor) {
     final int amount = amount();
     final Object source = argv(col.intValue());
@@ -330,22 +355,42 @@ public class Matrix extends OrderInt implements Keys, Args {
   public Args joinMany(Keys rhs) {
     final Matrix matrix = (Matrix) rhs;
     final Ordinal[] indices = matrix.indices();
-    if (indices.length == matrix.amount()) {
-      throw new IllegalArgumentException();
-    } else {
-      argv(
-        size(),
-        surjection(
-          indices(),
-          matrix.argv(0),
-          order(),
-          matrix.order(),
-          argv(size()),
-          matrix.argv(matrix.size()),
-          indices
-        )
-      );
+    argv(
+      size(),
+      surjection(
+        indices(),
+        matrix.argv(0),
+        order(),
+        matrix.order(),
+        argv(size()),
+        matrix.argv(matrix.size()),
+        indices
+      )
+    );
+    return this;
+  }
+
+  private Args split(Function<CharSequence, Stream<String>> splitter) {
+    if (size() != 1) {
+      throw new UnsupportedOperationException("not yet implemented");
     }
+    final int amount = amount();
+    final Object[] argv = argv();
+    int size = 0;
+    for (int j = 0; j < amount; ++j) {
+      Iterator<String> iterator = splitter.apply(((CharSequence[]) argv[0])[j]).iterator();
+      int i = 0;
+      while (iterator.hasNext()) {
+        String item = iterator.next();
+        if (i > size) {
+          ++size;
+          argv[i] = new CharSequence[amount];
+        }
+        ((String[]) argv[i++])[j] = item;
+      }
+    }
+    ordinal = ++size * OMEGA.intValue() + amount;
+    // TODO: operation now has side effects on the original matrix
     return this;
   }
 

@@ -28,8 +28,11 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
+import java.util.regex.Pattern;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+
+import io.github.composix.models.Defaults;
 
 public interface Args extends ArgsOrdinal, Order {
     @Override
@@ -56,6 +59,10 @@ public interface Args extends ArgsOrdinal, Order {
     LongStream longStream(Ordinal ordinal);
 
     Ordinal ordinalAt(Ordinal ordinal, Object value);
+
+    Args split(Pattern pattern);
+
+    <T extends Defaults<T>> Args combine(T defaults);
 
     void groupBy(Ordinal col, Accessor accessor);
 
