@@ -42,6 +42,8 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
 
     int index(Ordinal row);
 
+    Ordinal column();
+    
     boolean isOrdinal();
 
     boolean contains(Ordinal ordinal);

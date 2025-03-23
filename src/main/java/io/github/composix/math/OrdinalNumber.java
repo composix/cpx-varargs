@@ -154,6 +154,11 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     }
 
     @Override
+    public final Ordinal column() {
+        return Constants.getInstance().columns[intValue()];
+    }
+    
+    @Override
     public void forEach(Consumer<? super Ordinal> consumer) {
         final int length = intValue();
         for (int i = 0; i < length; ++i) {

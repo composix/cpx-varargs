@@ -40,9 +40,14 @@ class Constants {
     }
 
     final Ordinal[] ordinals;
+    final Ordinal[] columns;
 
     private Constants() {
         ordinals = new Ordinal[Short.MAX_VALUE - Short.MIN_VALUE];
+        columns = new Ordinal[Byte.MAX_VALUE - Byte.MIN_VALUE];
+        for (int i = 0; i < columns.length; ++i) {
+            columns[i] = new OrdinalInt(i * -Short.MIN_VALUE);
+        }
     }
 
     Ordinal ordinal(int index) {
