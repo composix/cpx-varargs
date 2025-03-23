@@ -121,9 +121,6 @@ class OrderInt extends OrdinalInt implements MutableOrder {
         final int amount = ordinal % OMEGA.intValue(), offset = Math.max(0, amount - ordinals.length);
         toIndex = Math.min(toIndex, amount);
         if (toIndex-- > 1) {
-            if (fromIndex == 0 && ordinals[0] == null) {
-                ++fromIndex;
-            }
             final Ordinal[] omega = ORDINALS;
             if (comparator != NATURAL_ORDER) {
                 int i = fromIndex;
@@ -138,7 +135,7 @@ class OrderInt extends OrdinalInt implements MutableOrder {
                 }
             }
             if (ordinals != omega) {
-                if (fromIndex > 0 || toIndex < amount) {
+                if (++toIndex < amount || fromIndex > 0) {
                     for (int i = fromIndex; i < toIndex; ++i) {
                         ordinals[i] = omega[i];
                     }
