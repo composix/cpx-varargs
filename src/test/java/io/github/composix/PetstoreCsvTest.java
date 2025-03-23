@@ -87,12 +87,12 @@ public class PetstoreCsvTest
 
     ArgsI<CharSequence> photoUrls = petstore.getArgsValue(B.index(C)).castI(2);
 
-    ArgsI<Category> categories = petstore
+    Args categories = petstore
       .getArgsValue(B.index(A))
       .castI(2)
       .combine(Category.DEFAULTS);
 
-    ArgsI<Tag> tags = petstore
+    Args tags = petstore
       .getArgsValue(B.index(E))
       .castI(2)
       .combine(Tag.DEFAULTS);
@@ -104,10 +104,10 @@ public class PetstoreCsvTest
       .joinOne(tags.on(A, Tag::id))
       .castI(3, CharSequence.class);
 
-    ArgsI<Pet> pets = petstore
+    Args pets = petstore
       .getArgsValue(B.index(B))
       .castI(4)
-      .onI(D, Args::parseLong)
+      .on(D, Args::parseLong)
       .joinOne(categories.on(A, Category::id))
       .on(A)
       .joinMany(tagging.on(A))
