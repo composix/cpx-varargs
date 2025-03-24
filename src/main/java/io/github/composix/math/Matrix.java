@@ -240,11 +240,10 @@ public class Matrix extends OrderInt implements Keys, Args {
   @Override
   public <T extends Defaults<T>> Args combine(T defaults) {
     final int omega = OMEGA.intValue();
-    final int amount = ordinal % omega;
-    final T[] result = (T[]) newInstance(defaults.getClass());
-    result[0] = defaults;
+    final int amount = ordinal % omega - 1;
+    final T[] result = (T[]) ORDINALS[amount].newInstance(defaults.getClass());
     CURSOR.position(0, this);
-    for (int i = 1; i < amount; ++i) {
+    for (int i = 0; i < amount; ++i) {
       if (!CURSOR.advance(1)) {
         throw new AssertionError();
       }
