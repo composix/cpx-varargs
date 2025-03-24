@@ -405,9 +405,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     long[] lhs,
     long[] rhs
   ) {
-    final int l = indices.length, m = lhsOrder.amount(), n = rhsOrder.amount();
+    final int l = indices.length, n = rhsOrder.amount();
     int j = 0, k = -1;
-    Object[] target = new Object[m];
+    Object[] target = lhsOrder
+      .ordinal()
+      .newInstance(source.getClass().getComponentType());
     for (int i = 0; i < l; ++i) {
       long value = lhs[i];
       while (++k < n && rhs[k] < value);
@@ -437,7 +439,9 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int l = indices.length, n = rhsIndices.length;
     int j = 0, k = 0, m = -1;
     Class<?> componentType = source.getClass();
-    final Object[] target = (Object[]) Array.newInstance(componentType, lhsOrder.amount());
+    final Object[] target = (Object[]) lhsOrder
+      .ordinal()
+      .newInstance(componentType);
     componentType = componentType.getComponentType();
     final Object empty = Array.newInstance(componentType, 0);
     for (int i = 0; i < l; ++i) {
@@ -450,7 +454,7 @@ public class Matrix extends OrderInt implements Keys, Args {
           Object[] values = (Object[]) Array.newInstance(componentType, length);
           for (int index = 0; index < length; ++index) {
             values[index] = source[rhsOrder.rank(k++)];
-          } 
+          }
           target[lhsOrder.rank(j++)] = values;
         }
       } else {
