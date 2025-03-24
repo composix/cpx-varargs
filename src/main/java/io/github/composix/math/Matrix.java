@@ -489,7 +489,7 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   private int count(final int amount, Object container, Accessor accessor) {
     accessor.setValueAt(rank(0), container);
-    return count(1, amount, container, accessor);
+    return count(0, amount, container, accessor);
   }
 
   private int count(
@@ -524,12 +524,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       int toIndex = indices[i].intValue();
       order().reorder(accessor.comparator(container), offset, toIndex);
       accessor.setValueAt(rank(offset), container);
-      count += count(
-        ++offset,
-        offset = toIndex,
-        container,
-        accessor
-      );
+      count += count(++offset, offset = toIndex, container, accessor);
     }
     return count;
   }
