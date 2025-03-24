@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,45 +24,10 @@
 
 package io.github.composix.math;
 
-import io.github.composix.varargs.ArgsI;
-import io.github.composix.varargs.KeysI;
+public interface Row {
+    Object get(Ordinal kind, int pos);
 
-public class SafeMatrix<K extends Comparable<?>, A>
-  extends Matrix
-  implements KeysI<K, A>, ArgsI<A> {
-
-  protected SafeMatrix(int ordinal) {
-    super(ordinal);
-  }
-
-  private static int MASK = 15;
-
-  private Object[] argv = new Object[MASK + 1];
-
-  @Override
-  public ArgsI<A> clone() throws CloneNotSupportedException {
-    final SafeMatrix result = (SafeMatrix) super.clone();
-    result.argv = argv.clone();
-    return result;
-  }
-
-  @Override
-  public int hashCode() {
-    return 0;
-  }
-
-  @Override
-  protected Object[] argv() {
-    return argv;
-  }
-
-  @Override
-  protected int mask() {
-    return MASK;
-  }
-
-  @Override
-  protected int mask(int index) {
-    return index & MASK;
-  }
+    default Object get(int pos) {
+        return get(ArgsOrdinal.A, pos);
+    }
 }

@@ -24,85 +24,66 @@
 
 package io.github.composix.math;
 
-class MatrixRowCursor extends OrdinalInt implements Cursor {
-    Matrix matrix;
-    private final Object[] values;
-    private int length;
+class MatrixRowCursor implements Cursor {
+    private final byte[] positions;
+    private Object[] argv;
+    private int length, omega, row, col, amount, size, offset, mask;
 
-    MatrixRowCursor(int ordinal, Object[] values) {
-        super(ordinal);
-        matrix = null;
-        this.values = values;
+    MatrixRowCursor(byte[] positions) {
+        this.positions = positions;
     }
     
     @Override
-    public void position(Ordinal position, Args args) {
-        this.matrix = (Matrix) args;
-        ordinal = position.intValue();
-    }
-
-    @Override
-    public void rows(int size) {
-        if (size > 0) {
-            if (size > 1) {
-                throw new IndexOutOfBoundsException("size must not exceed 1");
+    public void position(int index, Args args) {
+        final Matrix matrix = (Matrix) args;
+        final int ordinal = matrix.ordinal;
+        argv = matrix.argv();
+        mask = matrix.mask();
+        offset = matrix.hashCode();
+        omega = Ordinal.OMEGA.intValue();
+        size = ordinal / omega;
+        amount = ordinal % omega;
+        omega = Ordinal.OMEGA.intValue();
+        row = index % omega;
+        col = offset + index / omega;
+        Object current, actual = argv[col & mask];
+        int i = 0;
+        byte pos = 0;
+        while (actual != null) {
+            positions[i++] = pos;
+            while ((current = argv[(col + ++pos) & mask]) != null && current.getClass() == actual.getClass()) {
+                ++length;
             }
-        } else {
-            throw new IndexOutOfBoundsException("size must be greater than 0");
+            actual = current;
         }
+        positions[i] = -1;
+        length = --pos;
     }
 
     @Override
-    public void cols(int size) {
-        final int length = values.length;
-        if (size > 0) {
-            if (size > length) {
-                throw new IndexOutOfBoundsException("size must not exceed " + length);
-            } else {
-                this.length = size;
-            }
-        } else {
-            throw new IndexOutOfBoundsException("size must be greater than 0");
-        }
-    }
-
-    @Override
-    public boolean advance(Ordinal delta) {
-        final int omega = OMEGA.intValue(),
-            col = ordinal / omega,
-            row = ordinal % omega,
-            dim = matrix.ordinal;
-        if (col + length <= dim / omega && row < dim % omega) {
-            retrieve(row, col);
-            ordinal += delta.intValue();
+    public boolean advance(int delta) {
+        if (col + length <= size && row < amount) {
+            row += delta % omega;
+            col += delta / omega;
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean recede(Ordinal delta) {
-        final int omega = OMEGA.intValue(),
-            ord = ordinal - delta.intValue();
-        if (ord < 0) {
+    public boolean recede(int delta) {
+        row -= delta % omega;
+        col -= delta / omega;
+        if (row < 0 || col < 0) {
+            row += delta % omega;
+            col += delta / omega;
             return false;
         }
-        final int col = ord / omega,
-            row = ord % omega,
-            dim = matrix.ordinal;
-        if (row < dim % omega) {
-            ordinal = ord;
-            retrieve(row, col);
-            return true;
-        }
-        return false;
+        return true;
     }
 
-    private void retrieve(final int row, final int col) {
-        final int mask = matrix.mask();
-        final Object[] argv = matrix.argv();
-        for (int i = 0; i < length; ++i) {
-            values[i] = ((Object[]) argv[(col + i) & mask])[row];
-        } 
+    @Override
+    public Object get(Ordinal kind, int pos) {
+        return ((Object[]) argv[col + positions[kind.intValue()] + pos & mask])[row];
     }
 }

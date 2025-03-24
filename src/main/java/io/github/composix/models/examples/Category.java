@@ -27,6 +27,7 @@ package io.github.composix.models.examples;
 import java.util.Comparator;
 import java.util.Objects;
 
+import io.github.composix.math.Row;
 import io.github.composix.models.Defaults;
 
 public record Category(long id, String name) implements Comparable<Category>, Defaults<Category> {
@@ -46,7 +47,10 @@ public record Category(long id, String name) implements Comparable<Category>, De
     }
 
     @Override
-    public Category combine(CharSequence[] parts) {
-        return new Category(Long.parseLong(parts[0].toString()), parts[1].toString());
+    public Category combine(Row row) {
+        return new Category(
+            Long.parseLong(row.get(0).toString()),
+            row.get(1).toString()
+        );
     }
 }

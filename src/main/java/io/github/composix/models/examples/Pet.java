@@ -26,10 +26,11 @@ package io.github.composix.models.examples;
 
 import java.util.Comparator;
 
+import io.github.composix.math.Ordinal;
+import io.github.composix.math.Row;
 import io.github.composix.models.Defaults;
-import io.github.composix.models.DefaultsIII;
 
-public record Pet(long id, CharSequence name, Status status, Category category, Tag[] tags, String[] photoUrls) implements DefaultsIII<Pet,Category,Tag[],String[]> {
+public record Pet(long id, CharSequence name, Status status, Category category, Tag[] tags, String[] photoUrls) implements Defaults<Pet> {
     private static Category CATEGORY = Defaults.of(Category.class);
     private static Tag[] TAGS = new Tag[0];
     private static String[] PHOTO_URLS = new String[0];
@@ -48,16 +49,18 @@ public record Pet(long id, CharSequence name, Status status, Category category, 
     }
     
     @Override
-    public Pet combine(CharSequence[] parts) {
-        return combine(parts, CATEGORY, TAGS, PHOTO_URLS);
-    }
-
-    @Override
-    public Pet combine(CharSequence[] parts, Category category, Tag[] tags, String[] photoUrls) {
-        return new Pet(Long.parseLong(parts[0].toString()), parts[1], Status.valueOf(parts[2].toString()), category, tags, photoUrls);
-    }
+    public Pet combine(Row row) {
+        return new Pet(
+            Long.parseLong(row.get(0).toString()),
+            (CharSequence) row.get(1),
+            Status.valueOf((String) row.get(2)),
+            (Category) row.get(Ordinal.B, 0),
+            (Tag[]) row.get(Ordinal.C, 0),
+            (String[]) row.get(Ordinal.D, 0)
+        );
+    };
 
     public enum Status {
         AVAILABLE, PENDING, SOLD
-    };
+    }
 }

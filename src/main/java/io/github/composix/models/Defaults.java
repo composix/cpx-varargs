@@ -27,6 +27,8 @@ package io.github.composix.models;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import io.github.composix.math.Row;
+
 public interface Defaults<T extends Defaults<T>> {
     Map<Class<? extends Defaults<?>>,Defaults<?>> DEFAULTS = new IdentityHashMap<>();
  
@@ -47,5 +49,5 @@ public interface Defaults<T extends Defaults<T>> {
         return Defaults.register(this);
     }
 
-    T combine(CharSequence[] parts);
+    T combine(Row row);
 }

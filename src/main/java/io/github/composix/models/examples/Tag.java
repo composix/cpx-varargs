@@ -24,13 +24,17 @@
 
 package io.github.composix.models.examples;
 
+import io.github.composix.math.Row;
 import io.github.composix.models.Defaults;
 
 public record Tag(long id, CharSequence name) implements Defaults<Tag> {
     public static Tag DEFAULTS = new Tag(0, null).defaults();
 
     @Override
-    public Tag combine(CharSequence[] parts) {
-        return new Tag(Long.parseLong(parts[0].toString()), parts[1]);
+    public Tag combine(Row row) {
+        return new Tag(
+            Long.parseLong(row.get(0).toString()),
+            (CharSequence) row.get(1)
+        );
     }
 }

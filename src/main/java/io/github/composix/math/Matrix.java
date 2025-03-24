@@ -44,8 +44,8 @@ public class Matrix extends OrderInt implements Keys, Args {
   private static final Object[] ARGV = new Object[-Short.MIN_VALUE];
   private static final int MASK = Short.MAX_VALUE;
   private static final Ordinal[] ALL = new Ordinal[] { A };
-  private static final CharSequence[] VALUES = new CharSequence[16];
-  private static final Cursor CURSOR = Cursor.ofRow(VALUES);
+  private static final byte[] LENGTHS = new byte[16];
+  private static final Cursor CURSOR = Cursor.ofRow(LENGTHS);
 
 
   @Override
@@ -243,13 +243,12 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int amount = ordinal % omega;
     final T[] result = (T[]) newInstance(defaults.getClass());
     result[0] = defaults;
-    CURSOR.position(B, this);
-    CURSOR.cols(ordinal / omega);
+    CURSOR.position(0, this);
     for (int i = 1; i < amount; ++i) {
-      if (!CURSOR.advance(B)) {
+      if (!CURSOR.advance(1)) {
         throw new AssertionError();
       }
-      result[i] = defaults.combine(VALUES);
+      result[i] = defaults.combine(CURSOR); 
     }
     return A.extendA(result);    
   }

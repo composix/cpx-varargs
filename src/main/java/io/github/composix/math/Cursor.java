@@ -24,18 +24,14 @@
 
 package io.github.composix.math;
 
-public interface Cursor extends Ordinal {
-    static Cursor ofRow(Object[] values) {
-        return new MatrixRowCursor(0, values);
+public interface Cursor extends Row {
+    static Cursor ofRow(byte[] positions) {
+        return new MatrixRowCursor(positions);
     }
 
-    void position(Ordinal position, Args args);
+    void position(int index, Args args);
 
-    void rows(int size);
+    boolean advance(int delta);
 
-    void cols(int size);
-
-    boolean advance(Ordinal delta);
-
-    boolean recede(Ordinal delta);
+    boolean recede(int delta);
 }
