@@ -186,4 +186,9 @@ class OrderInt extends OrdinalInt implements MutableOrder {
         }
         return next;
     }
+
+    @Override
+    public int amount() {
+        return Math.min(ordinals.length, super.amount());
+    }
 }
