@@ -31,6 +31,13 @@ import java.util.function.ToLongBiFunction;
 import java.util.function.ToLongFunction;
 
 public interface Accessor {
+    static Accessor of(Class<?> type) {
+      if (type.isPrimitive()) {
+        return Accessor.OfLong.INSTANCE;
+      }
+      return Accessor.OfObject.INSTANCE;
+    }
+
     void setValueAt(int index, Object container);
 
     Object alloc(Ordinal length);
@@ -45,7 +52,9 @@ public interface Accessor {
 
     public interface OfObject extends Accessor {
         static OfObject INSTANCE = new Accessor.OfObject() {
-            private BiFunction<Ordinal, Object, Object> accessor;
+            private static final BiFunction<Ordinal,Object,Object> ACCESSOR = (index, container) -> ((Object[]) container)[index.intValue()];
+
+            private BiFunction<Ordinal, Object, Object> accessor = ACCESSOR;
             private Comparable<Object> current;
       
             @Override
@@ -85,7 +94,7 @@ public interface Accessor {
       
             @Override
             public void destroy() {
-              accessor = null;
+              accessor = ACCESSOR;
               current = null;
             }
       

@@ -103,10 +103,11 @@ public interface Args extends ArgsOrdinal, Order {
 
     default Keys on(Ordinal col) {
         orderBy(col);
-        final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-        groupBy(col, accessLong);
-        Keys result = ((Keys) this).keys(col, accessLong);
-        accessLong.destroy();
+        Class<?> type = typeOf(col);
+        Accessor accessor = Accessor.of(typeOf(col));
+        groupBy(col, accessor);
+        Keys result = ((Keys) this).keys(col, accessor);
+        accessor.destroy();
         return result;
     }
     
