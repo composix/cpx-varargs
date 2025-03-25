@@ -337,8 +337,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Matrix matrix = (Matrix) rhs;
     final Ordinal[] indices = matrix.indices();
     if (indices.length == matrix.amount()) {
+      int lastIndex = size() - 1;
       argv(
-        size() - 1,
+        argv(lastIndex).getClass() == CharSequence[].class
+          ? lastIndex
+          : ++lastIndex,
         injection(
           indices(),
           matrix.argv(0),
@@ -358,11 +361,12 @@ public class Matrix extends OrderInt implements Keys, Args {
   public Args joinMany(Keys rhs) {
     final Matrix matrix = (Matrix) rhs;
     final Ordinal[] indices = matrix.indices();
+    final Object[] source = matrix.argv(0);
     argv(
       size(),
       surjection(
         indices(),
-        matrix.argv(1),
+        source.getClass() == CharSequence[].class ? matrix.argv(1) : source,
         order(),
         matrix.order(),
         argv(size()),
