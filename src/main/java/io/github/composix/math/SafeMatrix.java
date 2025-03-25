@@ -35,7 +35,7 @@ public class SafeMatrix extends Matrix {
   private Object[] argv = new Object[MASK + 1];
 
   @Override
-  public ArgsI<A> clone() throws CloneNotSupportedException {
+  public Args clone() throws CloneNotSupportedException {
     final SafeMatrix result = (SafeMatrix) super.clone();
     result.argv = argv.clone();
     return result;
