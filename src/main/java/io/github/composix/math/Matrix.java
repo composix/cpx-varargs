@@ -338,7 +338,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Ordinal[] indices = matrix.indices();
     if (indices.length == matrix.amount()) {
       argv(
-        size(),
+        size() - 1,
         injection(
           indices(),
           matrix.argv(0),
@@ -362,7 +362,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       size(),
       surjection(
         indices(),
-        matrix.argv(0),
+        matrix.argv(1),
         order(),
         matrix.order(),
         argv(size()),
@@ -370,6 +370,7 @@ public class Matrix extends OrderInt implements Keys, Args {
         indices
       )
     );
+    ordinal += OMEGA.intValue();
     return this;
   }
 
