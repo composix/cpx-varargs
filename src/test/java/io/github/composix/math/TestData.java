@@ -22,7 +22,7 @@ public interface TestData extends ArgsOrdinal {
       new String[1], IMG_DONALD = new String[1], IMG_GOOFY = new String[0];
 
     final Category CATS, DOGS, OTHER;
-    final Tag[] MICE = new Tag[1], DUCKS = new Tag[1], MISC = new Tag[2];
+    final Tag[] MICE = new Tag[1], DUCKS = new Tag[1], MISC = new Tag[1];
     final Pet.Status AVAILABLE, PENDING, SOLD;
     CATS = new Category(0, "cats");
     DOGS = new Category(1, "dogs");
