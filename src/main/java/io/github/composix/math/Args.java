@@ -54,9 +54,13 @@ public interface Args extends ArgsOrdinal, Order {
 
     <T> Comparator<Ordinal> comparator(Ordinal ordinal, ToLongFunction<T> accessor);
 
-    <T> Stream<T> stream(Ordinal ordinal);
+    <T> Stream<T> stream(Ordinal col);
 
-    LongStream longStream(Ordinal ordinal);
+    <T> Stream<T> stream(int pos, Class<T> type) throws NoSuchFieldException;
+
+    LongStream longStream(Ordinal col);
+
+    LongStream longStream(int pos) throws NoSuchFieldException;
 
     Ordinal ordinalAt(Ordinal ordinal, Object value);
 

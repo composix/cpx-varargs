@@ -197,6 +197,21 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
+  public <T> Stream<T> stream(int pos, Class<T> type) throws NoSuchFieldException {
+    final int size = size() + 1;
+    for (int i = 0; i < size; ++i) {
+      if (argv(i).getClass() == type.arrayType()) {
+        i += pos;
+        if (argv(i).getClass() == type.arrayType()) {
+          return (Stream<T>) stream(ORDINALS[i + pos]);
+        }
+        throw new NoSuchFieldException();
+      }
+    }
+    throw new NoSuchFieldException();
+  }
+
+  @Override
   public LongStream longStream(Ordinal col) {
     if (col.intValue() < size()) {
       return stream((long[]) argv(col.intValue()));
@@ -206,6 +221,21 @@ public class Matrix extends OrderInt implements Keys, Args {
       throw new IndexOutOfBoundsException();
     }
     return LongStream.of(array);
+  }
+
+  @Override
+  public LongStream longStream(int pos) throws NoSuchFieldException {
+    final int size = size() + 2;
+    for (int i = 0; i < size; ++i) {
+      if (argv(i).getClass() == long[].class) {
+        i += pos;
+        if (argv(i).getClass() == long[].class) {
+          return longStream(ORDINALS[i + pos]);
+        }
+        throw new NoSuchFieldException();
+      }
+    }
+    throw new NoSuchFieldException();
   }
 
   @Override

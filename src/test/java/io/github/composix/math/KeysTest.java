@@ -25,21 +25,21 @@
 package io.github.composix.math;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
 class KeysTest extends TestCase implements TestData {
 
@@ -76,7 +76,7 @@ class KeysTest extends TestCase implements TestData {
   }
 
   @Test
-  void testGroupBy_PETS() {
+  void testGroupBy_PETS() throws NoSuchFieldException {
     long[] expected = { 1, 12, 15 };
 
     Args petsByCategory = pets
@@ -91,9 +91,9 @@ class KeysTest extends TestCase implements TestData {
         new Category(1, "dogs"),
         new Category(2, "other"),
       },
-      petsByCategory.stream(B).toArray(Category[]::new)
+      petsByCategory.stream(0, Category.class).toArray(Category[]::new)
     );
-    assertArrayEquals(expected, petsByCategory.longStream(C).toArray());
+    assertArrayEquals(expected, petsByCategory.longStream(0).toArray());
 
     // using Streams
     assertArrayEquals(
