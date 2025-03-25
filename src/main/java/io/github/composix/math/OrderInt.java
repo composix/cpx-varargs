@@ -137,7 +137,7 @@ class OrderInt extends OrdinalInt implements MutableOrder {
             if (ordinals != omega) {
                 if (++toIndex < amount || fromIndex > 0) {
                     for (int i = fromIndex; i < toIndex; ++i) {
-                        ordinals[i] = omega[i];
+                        ordinals[i] = omega[offset + i];
                     }
                 } else {
                     ordinals = omega;
