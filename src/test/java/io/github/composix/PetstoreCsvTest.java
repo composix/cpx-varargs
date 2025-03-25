@@ -24,14 +24,6 @@
 
 package io.github.composix;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URISyntaxException;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import io.github.composix.math.Args;
 import io.github.composix.math.Row;
 import io.github.composix.models.examples.Category;
@@ -40,10 +32,15 @@ import io.github.composix.models.examples.Tag;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.TestData;
 import io.github.composix.varargs.ArgsI;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class PetstoreCsvTest
-  extends TestCase
-  implements io.github.composix.math.TestData {
+  extends TestCase {
 
   static TestData testData;
 
@@ -53,7 +50,8 @@ public class PetstoreCsvTest
   }
 
   @Test
-  void testCSV() throws IOException, CloneNotSupportedException, NoSuchFieldException {
+  void testCSV()
+    throws IOException, CloneNotSupportedException, NoSuchFieldException {
     ArgsI<String> petstore = F.extendA(
       "categories.csv",
       "petstore.csv",
@@ -67,7 +65,8 @@ public class PetstoreCsvTest
         .streamA()
         .map(filename -> {
           try {
-            final Args csv = A.extend(A,
+            final Args csv = A.extend(
+              A,
               testData
                 .select("~", filename)
                 .refreshLines()
@@ -90,9 +89,7 @@ public class PetstoreCsvTest
       .getArgsValue(B.index(A))
       .combine(Category.DEFAULTS);
 
-    Args tags = petstore
-      .getArgsValue(B.index(E))
-      .combine(Tag.DEFAULTS);
+    Args tags = petstore.getArgsValue(B.index(E)).combine(Tag.DEFAULTS);
 
     Args tagging = petstore
       .getArgsValue(B.index(D))
@@ -109,6 +106,9 @@ public class PetstoreCsvTest
       .joinMany(photoUrls.on(A, Row::parseLong))
       .combine(Pet.DEFAULTS);
 
-    assertAllEquals(PETS, pets);
+    assertAllEquals(
+      io.github.composix.math.TestData.pets(I).stream(A).toArray(Pet[]::new),
+      pets.stream(A).toArray(Pet[]::new)
+    );
   }
 }
