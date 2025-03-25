@@ -440,6 +440,9 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int l = indices.length, n = rhsIndices.length;
     int j = 0, k = 0, m = -1;
     Class<?> componentType = source.getClass();
+    if (componentType == CharSequence[].class) {
+      componentType = String[].class;
+    }
     final Object[] target = (Object[]) lhsOrder
       .ordinal()
       .newInstance(componentType);
