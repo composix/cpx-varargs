@@ -91,7 +91,7 @@ class MatrixRowCursor implements Cursor {
     }
 
     @Override
-    public <T> T get(int pos, Class<T> type) throws NoSuchFieldException {
+    public <T> T get(Class<T> type, int pos) throws NoSuchFieldException {
         final int offset = col + pos;
         for (byte position : positions) {
             switch(argv[offset + position & mask]) {
@@ -108,7 +108,7 @@ class MatrixRowCursor implements Cursor {
     }
 
     @Override
-    public <T> List<T> getMany(int pos, Class<T> type) throws NoSuchFieldException {
+    public <T> List<T> getMany(Class<T> type, int pos) throws NoSuchFieldException {
         final int offset = col + pos;
         for (byte position : positions) {
             switch(argv[offset + position & mask]) {

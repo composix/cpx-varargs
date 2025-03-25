@@ -33,9 +33,9 @@ public interface Row {
 
     Object get(Ordinal kind, int pos);
 
-    <T> T get(int pos, Class<T> type) throws NoSuchFieldException;
+    <T> T get(Class<T> type, int pos) throws NoSuchFieldException;
 
-    <T> List<T> getMany(int pos, Class<T> type) throws NoSuchFieldException;
+    <T> List<T> getMany(Class<T> type, int pos) throws NoSuchFieldException;
 
     long getLong(int pos) throws NoSuchFieldException;
     
@@ -45,5 +45,13 @@ public interface Row {
         } catch(ClassCastException e) {
             throw new NoSuchFieldException();
         }
+    }
+
+    default <T> T get(Class<T> type) throws NoSuchFieldException {
+        return get(type, 0);
+    }
+
+    default <T> List<T> getMany(Class<T> type) throws NoSuchFieldException {
+        return getMany(type, 0);
     }
 }
