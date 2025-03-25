@@ -25,12 +25,17 @@
 package io.github.composix.models;
 
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.github.composix.math.Row;
 
 public interface Defaults<T extends Defaults<T>> {
     Map<Class<? extends Defaults<?>>,Defaults<?>> DEFAULTS = new IdentityHashMap<>();
+
+    static <T> List<T> empty() {
+        return List.of();
+    }
  
     static <T extends Defaults<T>> T register(Defaults<T> defaults) {
         T result = (T) of(defaults.getClass());
