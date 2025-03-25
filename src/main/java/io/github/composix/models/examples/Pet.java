@@ -25,14 +25,15 @@
 package io.github.composix.models.examples;
 
 import java.util.Comparator;
+import java.util.List;
 
 import io.github.composix.math.Row;
 import io.github.composix.models.Defaults;
 
-public record Pet(long id, String name, Status status, Category category, Tag[] tags, String[] photoUrls) implements Defaults<Pet> {
+public record Pet(long id, String name, Status status, Category category, List<Tag> tags, List<String> photoUrls) implements Defaults<Pet> {
     private static Category CATEGORY = Defaults.of(Category.class);
-    private static Tag[] TAGS = new Tag[0];
-    private static String[] PHOTO_URLS = new String[0];
+    private static List<Tag> TAGS = Defaults.empty();
+    private static List<String> PHOTO_URLS = Defaults.empty();
     
     public static Pet DEFAULTS = new Pet(0, null, Status.AVAILABLE, CATEGORY, TAGS, PHOTO_URLS).defaults(); 
 
@@ -54,8 +55,8 @@ public record Pet(long id, String name, Status status, Category category, Tag[] 
             row.get(1).toString(),
             Status.valueOf(row.get(2).toString()),
             row.get(0, Category.class),
-            row.get(0, Tag[].class),
-            row.get(0, String[].class)
+            row.getMany(0, Tag.class),
+            row.getMany(0, String.class)
         );
     };
 

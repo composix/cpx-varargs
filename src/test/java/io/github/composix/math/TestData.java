@@ -1,5 +1,9 @@
 package io.github.composix.math;
 
+import java.util.Arrays;
+import java.util.List;
+
+import io.github.composix.models.Defaults;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
@@ -10,7 +14,7 @@ public interface TestData extends ArgsOrdinal {
   static Args ORDERS = orders(H);
 
   static Args pets(Ordinal amount) {
-    final Tag[] EMPTY = new Tag[0];
+    final List<Tag> EMPTY = Defaults.empty();
 
     final String[] IMG_THOMAS = new String[0], IMG_DUCHESS =
       new String[0], IMG_PLUTO = new String[1], IMG_FRANK =
@@ -45,14 +49,14 @@ public interface TestData extends ArgsOrdinal {
 
     return amount.extend(
       A,
-      new Pet(0, "Thomas", SOLD, CATS, EMPTY, IMG_THOMAS),
-      new Pet(1, "Duchess", SOLD, CATS, EMPTY, IMG_DUCHESS),
-      new Pet(2, "Pluto", AVAILABLE, DOGS, EMPTY, IMG_PLUTO),
-      new Pet(3, "Frank", PENDING, DOGS, EMPTY, IMG_FRANK),
-      new Pet(4, "Frey", PENDING, OTHER, MISC, IMG_FREY),
-      new Pet(5, "Mickey", AVAILABLE, OTHER, MICE, IMG_MICKEY),
-      new Pet(6, "Donald", AVAILABLE, OTHER, DUCKS, IMG_DONALD),
-      new Pet(7, "Goofy", AVAILABLE, DOGS, MISC, IMG_GOOFY)
+      new Pet(0, "Thomas", SOLD, CATS, EMPTY, Arrays.asList(IMG_THOMAS)),
+      new Pet(1, "Duchess", SOLD, CATS, EMPTY, Arrays.asList(IMG_DUCHESS)),
+      new Pet(2, "Pluto", AVAILABLE, DOGS, EMPTY, Arrays.asList(IMG_PLUTO)),
+      new Pet(3, "Frank", PENDING, DOGS, EMPTY, Arrays.asList(IMG_FRANK)),
+      new Pet(4, "Frey", PENDING, OTHER, Arrays.asList(MISC), Arrays.asList(IMG_FREY)),
+      new Pet(5, "Mickey", AVAILABLE, OTHER, Arrays.asList(MICE), Arrays.asList(IMG_MICKEY)),
+      new Pet(6, "Donald", AVAILABLE, OTHER, Arrays.asList(DUCKS), Arrays.asList(IMG_DONALD)),
+      new Pet(7, "Goofy", AVAILABLE, DOGS, EMPTY, Arrays.asList(IMG_GOOFY))
     );
   }
 

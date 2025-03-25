@@ -24,6 +24,9 @@
 
 package io.github.composix.math;
 
+import java.util.Arrays;
+import java.util.List;
+
 class MatrixRowCursor implements Cursor {
     private final byte[] positions;
     private Object[] argv;
@@ -105,6 +108,23 @@ class MatrixRowCursor implements Cursor {
     }
 
     @Override
+    public <T> List<T> getMany(int pos, Class<T> type) throws NoSuchFieldException {
+        final int offset = col + pos;
+        for (byte position : positions) {
+            switch(argv[offset + position & mask]) {
+                case Object[] array:
+                    if (array.getClass() == type.arrayType().arrayType()) {
+                        return Arrays.asList((T[]) array[row]);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        throw new NoSuchFieldException();
+    }
+
+    @Override
     public long getLong(int pos) throws NoSuchFieldException {
         final int offset = col + pos;
         for (byte position : positions) {
@@ -119,5 +139,4 @@ class MatrixRowCursor implements Cursor {
         }
         throw new NoSuchFieldException();
     }
-
 }

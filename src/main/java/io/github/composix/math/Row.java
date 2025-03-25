@@ -24,6 +24,8 @@
 
 package io.github.composix.math;
 
+import java.util.List;
+
 public interface Row {
     static long parseLong(CharSequence chars) {
         return Long.parseLong(chars.toString());
@@ -32,6 +34,8 @@ public interface Row {
     Object get(Ordinal kind, int pos);
 
     <T> T get(int pos, Class<T> type) throws NoSuchFieldException;
+
+    <T> List<T> getMany(int pos, Class<T> type) throws NoSuchFieldException;
 
     long getLong(int pos) throws NoSuchFieldException;
     
