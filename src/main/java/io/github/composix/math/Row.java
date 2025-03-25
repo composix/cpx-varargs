@@ -58,4 +58,8 @@ public interface Row {
     default <E extends Enum<E>> E getEnum(Class<E> type, int pos) throws NoSuchFieldException {
         return (E) Enum.valueOf(type, get(pos).toString());
     }
+
+    default <E extends Enum<E>> E getENUM(Class<E> type, int pos) throws NoSuchFieldException {
+        return (E) Enum.valueOf(type, get(pos).toString().toUpperCase());
+    }
 }
