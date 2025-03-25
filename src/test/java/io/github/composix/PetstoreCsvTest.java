@@ -53,7 +53,7 @@ public class PetstoreCsvTest
   }
 
   @Test
-  void testCSV() throws IOException, CloneNotSupportedException {
+  void testCSV() throws IOException, CloneNotSupportedException, NoSuchFieldException {
     ArgsI<String> petstore = F.extendA(
       "categories.csv",
       "petstore.csv",
@@ -106,7 +106,7 @@ public class PetstoreCsvTest
       .on(A, Row::parseLong)
       .joinMany(tagging.on(A, Row::parseLong))
       .on(A, Row::parseLong)
-      .joinMany(photoUrls.on(A))
+      .joinMany(photoUrls.on(A, Row::parseLong))
       .combine(Pet.DEFAULTS);
 
     assertAllEquals(PETS, pets);

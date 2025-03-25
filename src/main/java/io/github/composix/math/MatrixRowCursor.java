@@ -86,4 +86,38 @@ class MatrixRowCursor implements Cursor {
     public Object get(Ordinal kind, int pos) {
         return ((Object[]) argv[col + positions[kind.intValue()] + pos & mask])[row];
     }
+
+    @Override
+    public <T> T get(int pos, Class<T> type) throws NoSuchFieldException {
+        final int offset = col + pos;
+        for (byte position : positions) {
+            switch(argv[offset + position & mask]) {
+                case Object[] array:
+                    if (array.getClass() == type.arrayType()) {
+                        return (T) array[row];
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        throw new NoSuchFieldException();
+    }
+
+    @Override
+    public long getLong(int pos) throws NoSuchFieldException {
+        final int offset = col + pos;
+        for (byte position : positions) {
+            switch(argv[offset + position & mask]) {
+                case long[] longs:
+                    return longs[row];
+                case CharSequence[] strings:
+                    return Row.parseLong(strings[row]);
+                default:
+                    break;
+            }
+        }
+        throw new NoSuchFieldException();
+    }
+
 }

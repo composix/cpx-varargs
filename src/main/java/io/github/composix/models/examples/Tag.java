@@ -27,14 +27,14 @@ package io.github.composix.models.examples;
 import io.github.composix.math.Row;
 import io.github.composix.models.Defaults;
 
-public record Tag(long id, CharSequence name) implements Defaults<Tag> {
+public record Tag(long id, String name) implements Defaults<Tag> {
     public static Tag DEFAULTS = new Tag(0, null).defaults();
 
     @Override
-    public Tag combine(Row row) {
+    public Tag combine(Row row) throws NoSuchFieldException {
         return new Tag(
-            Long.parseLong(row.get(0).toString()),
-            (CharSequence) row.get(1)
+            row.getLong(0),
+            row.get(1).toString()
         );
     }
 }

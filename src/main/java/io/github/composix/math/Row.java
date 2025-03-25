@@ -31,7 +31,15 @@ public interface Row {
 
     Object get(Ordinal kind, int pos);
 
-    default Object get(int pos) {
-        return get(ArgsOrdinal.A, pos);
+    <T> T get(int pos, Class<T> type) throws NoSuchFieldException;
+
+    long getLong(int pos) throws NoSuchFieldException;
+    
+    default CharSequence get(int pos) throws NoSuchFieldException {
+        try {
+            return (CharSequence) get(ArgsOrdinal.A, pos);
+        } catch(ClassCastException e) {
+            throw new NoSuchFieldException();
+        }
     }
 }

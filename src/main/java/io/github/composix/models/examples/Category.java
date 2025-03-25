@@ -47,9 +47,9 @@ public record Category(long id, String name) implements Comparable<Category>, De
     }
 
     @Override
-    public Category combine(Row row) {
+    public Category combine(Row row) throws NoSuchFieldException {
         return new Category(
-            Long.parseLong(row.get(0).toString()),
+            row.getLong(0),
             row.get(1).toString()
         );
     }

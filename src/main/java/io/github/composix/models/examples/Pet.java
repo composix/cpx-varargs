@@ -26,11 +26,10 @@ package io.github.composix.models.examples;
 
 import java.util.Comparator;
 
-import io.github.composix.math.Ordinal;
 import io.github.composix.math.Row;
 import io.github.composix.models.Defaults;
 
-public record Pet(long id, CharSequence name, Status status, Category category, Tag[] tags, String[] photoUrls) implements Defaults<Pet> {
+public record Pet(long id, String name, Status status, Category category, Tag[] tags, String[] photoUrls) implements Defaults<Pet> {
     private static Category CATEGORY = Defaults.of(Category.class);
     private static Tag[] TAGS = new Tag[0];
     private static String[] PHOTO_URLS = new String[0];
@@ -49,14 +48,14 @@ public record Pet(long id, CharSequence name, Status status, Category category, 
     }
     
     @Override
-    public Pet combine(Row row) {
+    public Pet combine(Row row) throws NoSuchFieldException {
         return new Pet(
-            Long.parseLong(row.get(0).toString()),
-            (CharSequence) row.get(1),
-            Status.valueOf((String) row.get(2)),
-            (Category) row.get(Ordinal.B, 0),
-            (Tag[]) row.get(Ordinal.C, 0),
-            (String[]) row.get(Ordinal.D, 0)
+            row.getLong(0),
+            row.get(1).toString(),
+            Status.valueOf(row.get(2).toString()),
+            row.get(0, Category.class),
+            row.get(0, Tag[].class),
+            row.get(0, String[].class)
         );
     };
 

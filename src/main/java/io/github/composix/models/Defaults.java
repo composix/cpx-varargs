@@ -49,5 +49,5 @@ public interface Defaults<T extends Defaults<T>> {
         return Defaults.register(this);
     }
 
-    T combine(Row row);
+    T combine(Row row) throws NoSuchFieldException;
 }
