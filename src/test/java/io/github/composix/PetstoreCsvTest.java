@@ -24,20 +24,22 @@
 
 package io.github.composix;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import io.github.composix.math.Args;
-import io.github.composix.math.Cursor;
+import io.github.composix.math.Row;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.models.examples.Tag;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.TestData;
 import io.github.composix.varargs.ArgsI;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URISyntaxException;
-import java.util.Optional;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 public class PetstoreCsvTest
   extends TestCase
@@ -94,16 +96,16 @@ public class PetstoreCsvTest
 
     Args tagging = petstore
       .getArgsValue(B.index(D))
-      .on(B, Args::parseLong)
+      .on(B, Row::parseLong)
       .joinOne(tags.on(A, Tag::id));
 
     Args pets = petstore
       .getArgsValue(B.index(B))
-      .on(D, Args::parseLong)
+      .on(D, Row::parseLong)
       .joinOne(categories.on(A, Category::id))
-      .on(A)
-      .joinMany(tagging.on(A))
-      .on(A)
+      .on(A, Row::parseLong)
+      .joinMany(tagging.on(A, Row::parseLong))
+      .on(A, Row::parseLong)
       .joinMany(photoUrls.on(A))
       .combine(Pet.DEFAULTS);
 

@@ -35,10 +35,6 @@ import java.util.stream.Stream;
 import io.github.composix.models.Defaults;
 
 public interface Args extends ArgsOrdinal, Order {
-    static long parseLong(CharSequence chars) {
-        return Long.parseLong(chars.toString());
-    }
-
     @Override
     Args clone() throws CloneNotSupportedException;
 

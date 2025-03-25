@@ -25,6 +25,10 @@
 package io.github.composix.math;
 
 public interface Row {
+    static long parseLong(CharSequence chars) {
+        return Long.parseLong(chars.toString());
+    }
+
     Object get(Ordinal kind, int pos);
 
     default Object get(int pos) {
