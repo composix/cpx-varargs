@@ -24,6 +24,14 @@
 
 package io.github.composix;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import io.github.composix.math.Args;
 import io.github.composix.math.Row;
 import io.github.composix.models.examples.Category;
@@ -31,13 +39,6 @@ import io.github.composix.models.examples.Pet;
 import io.github.composix.models.examples.Tag;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.TestData;
-import io.github.composix.varargs.ArgsI;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URISyntaxException;
-import java.util.Optional;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 public class PetstoreCsvTest
   extends TestCase {
@@ -52,7 +53,7 @@ public class PetstoreCsvTest
   @Test
   void testCSV()
     throws IOException, CloneNotSupportedException, NoSuchFieldException {
-    ArgsI<String> petstore = F.extendA(
+    Args petstore = F.extend(A,
       "categories.csv",
       "petstore.csv",
       "photoUrls.csv",
@@ -62,18 +63,17 @@ public class PetstoreCsvTest
     petstore.extend(
       B,
       petstore
-        .streamA()
+        .stream(A)
         .map(filename -> {
           try {
             final Args csv = A.extend(
               A,
               testData
-                .select("~", filename)
+                .select("~", (String) filename)
                 .refreshLines()
                 .collect()
                 .toArray(CharSequence[]::new)
             ).split(PATTERN);
-            csv.castI(csv.size());
             csv.order().skipHeader();
             return csv;
           } catch (IOException e) {

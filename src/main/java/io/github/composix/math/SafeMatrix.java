@@ -24,12 +24,7 @@
 
 package io.github.composix.math;
 
-import io.github.composix.varargs.ArgsI;
-import io.github.composix.varargs.KeysI;
-
-public class SafeMatrix<K extends Comparable<?>, A>
-  extends Matrix
-  implements KeysI<K, A>, ArgsI<A> {
+public class SafeMatrix extends Matrix {
 
   protected SafeMatrix(int ordinal) {
     super(ordinal);

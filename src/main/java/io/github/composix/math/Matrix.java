@@ -279,7 +279,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
       result[i] = defaults.combine(CURSOR);
     }
-    return A.extendA(result);
+    return A.extend(A, result);
   }
 
   @Override

@@ -34,7 +34,7 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     static Ordinal[] ORDINALS = Constants.getInstance().ordinals;
 
-    private static final Args EMPTY = new SafeMatrix<>(0);
+    private static final Args EMPTY = new SafeMatrix(0);
     private static final NoSuchElementException NO_SUCH_ELEMENT_EXCEPTION = new NoSuchElementException("Ordinal 0 has no predecessor");
 
     // inherited from Object

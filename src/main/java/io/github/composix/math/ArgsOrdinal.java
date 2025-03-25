@@ -85,11 +85,13 @@ public interface ArgsOrdinal extends Cloneable {
     }
 
     default <T> ArgsI<T> extendA(T... arrays) {
-        return (ArgsI<T>) extend(A, arrays);
+        extend(A, arrays);
+        return castI();
     }
 
     default ArgsI<long[]> extendA(long... array) {
-        return (ArgsI<long[]>) extend(A, array);
+        extend(A, array);
+        return castI();
     }
 
     default Class<?> typeOf(Ordinal col) {
@@ -117,19 +119,28 @@ public interface ArgsOrdinal extends Cloneable {
         }
         if (actual.isPrimitive()) {
             if (expected.getComponentType() == actual) {
-                return (ArgsI<T>) this;
+                return castI();
             }
         } else {
             if (expected == actual) {
-                return (ArgsI<T>) this;
+                return castI();
             }
             while (actual.isArray()) {
                 actual = actual.getComponentType();
             }
             if (actual.isPrimitive() && expected.getComponentType() == actual) {
-                return (ArgsI<T>) this;
+                return castI();
             }
         }
         throw new ClassCastException();
+    }
+
+    private <T> ArgsI<T> castI() {
+        switch(this) {
+            case ArgsI<?> result:
+                return (ArgsI<T>) this;
+            default:
+                throw new IllegalStateException("type-safe VarArgs not configured");
+        }
     }
 }
