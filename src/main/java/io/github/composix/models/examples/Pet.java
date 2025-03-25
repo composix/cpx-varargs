@@ -53,7 +53,7 @@ public record Pet(long id, String name, Status status, Category category, List<T
         return new Pet(
             row.getLong(0),
             row.get(1).toString(),
-            Status.valueOf(row.get(2).toString()),
+            row.getEnum(Status.class, 2),
             row.get(Category.class),
             row.getMany(Tag.class),
             row.getMany(String.class)

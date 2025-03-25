@@ -54,4 +54,8 @@ public interface Row {
     default <T> List<T> getMany(Class<T> type) throws NoSuchFieldException {
         return getMany(type, 0);
     }
+
+    default <E extends Enum<E>> E getEnum(Class<E> type, int pos) throws NoSuchFieldException {
+        return (E) Enum.valueOf(type, get(pos).toString());
+    }
 }
