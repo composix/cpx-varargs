@@ -62,7 +62,7 @@ public interface Args extends ArgsOrdinal, Order {
 
     Args split(Pattern pattern);
 
-    <T extends Defaults<T>> Args combine(T defaults);
+    <T extends Defaults<T>> Args combine(T defaults) throws NoSuchFieldException;
 
     void groupBy(Ordinal col, Accessor accessor);
 
