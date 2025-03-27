@@ -65,8 +65,8 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public void export(Args target) {
-    varArgs().export(hashCode(), size(), target.hashCode());
+  public void export(Args target, int offset, int size) {
+    varArgs().export(hashCode() + offset, size, target.hashCode());
   }
 
   @Override
