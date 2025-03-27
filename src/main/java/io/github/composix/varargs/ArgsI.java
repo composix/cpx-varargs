@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,62 +24,32 @@
 
 package io.github.composix.varargs;
 
-import java.util.Comparator;
+import io.github.composix.math.Ordinal;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import io.github.composix.math.Accessor;
-import io.github.composix.math.Args;
-import io.github.composix.math.Ordinal;
+public interface ArgsI<A> {
+  @SafeVarargs
+  static <T> ArgsI<T> of(T... columnA) {
+    final Ordinal nothing = Ordinal.A, everything = Ordinal.OMEGA;
+    final Table<T, ?> result = new Table<>(
+      everything.intValue() + columnA.length
+    );
+    nothing.extend(nothing, columnA).export(result);
+    return result;
+  }
 
-public interface ArgsI<A> extends Args {
-    @Override
-    ArgsI<A> clone() throws CloneNotSupportedException;
+  ArgsI<A> orderByA();
 
+  Iterable<A> columnA();
 
-    default ArgsI<A> orderByA() {
-        return (ArgsI<A>) orderBy(A);
-    }
+  Stream<A> streamA();
 
-    default Ordinal ordinalA(A value) {
-        return ordinalAt(A, value);
-    }
+  LongStream longStreamA();
 
-    default Iterable<A> columnA() {
-        return column(A);
-    }
+  <N extends Comparable<N>> KeysI<A, N> groupByA(Function<A, N> accessor);
 
-    default Stream<A> streamA() {
-        return stream(A);
-    }
-
-    default LongStream longStreamA() {
-        return longStream(A);
-    }
-
-    default Comparator<Ordinal> comparatorA() {
-        return comparator(A);
-    }
-
-    @Override
-    default <T, K extends Comparable<K>> KeysI<K,A> groupBy(Ordinal col, Function<T, K> accessor) {
-      final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-      orderBy(col, accessor);
-      accessObject.accessor(accessor);
-      groupBy(col, accessObject);
-      accessObject.destroy();
-      return (KeysI<K,A>) this;
-    }
-
-    @Override
-    default <T> KeysI<long[],A> groupBy(Ordinal col, ToLongFunction<T> accessor) {
-        final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-        orderBy(col, accessor);
-        accessLong.accessor(accessor);
-        groupBy(col, accessLong);
-        accessLong.destroy();
-        return (KeysI<long[],A>) this;
-      }
+  KeysI<A, long[]> groupByA(ToLongFunction<A> accessor);
 }
