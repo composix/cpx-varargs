@@ -37,7 +37,7 @@ public interface ArgsI<A> {
     final Table<T, ?> result = new Table<>(
       everything.intValue() + columnA.length
     );
-    nothing.extend(nothing, columnA).export(result);
+    nothing.extend(nothing, columnA).export(result, 0, 1);
     return result;
   }
 
