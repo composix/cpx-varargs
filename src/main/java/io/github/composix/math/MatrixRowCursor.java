@@ -37,24 +37,22 @@ class MatrixRowCursor implements Cursor {
     }
     
     @Override
-    public void position(int index, Args args) {
-        final Matrix matrix = (Matrix) args;
-        final int ordinal = matrix.ordinal;
-        argv = matrix.argv();
-        mask = matrix.mask();
-        offset = matrix.hashCode();
+    public void position(final int index, final int limit, final int offset, final VarArgs argv) {
+        this.argv = argv.argv;
+        this.offset = offset;
+        mask = argv.mask();
         omega = Ordinal.OMEGA.intValue();
-        size = ordinal / omega;
-        amount = ordinal % omega;
+        size = limit / omega;
+        amount = limit % omega;
         omega = Ordinal.OMEGA.intValue();
         row = index % omega;
         col = offset + index / omega;
-        Object current, actual = argv[col & mask];
+        Object current, actual = argv.argv[col & mask];
         int i = 0;
         byte pos = 0;
         while (actual != null) {
             positions[i++] = pos;
-            while ((current = argv[(col + ++pos) & mask]) != null && current.getClass() == actual.getClass()) {
+            while ((current = argv.argv[(col + ++pos) & mask]) != null && current.getClass() == actual.getClass()) {
                 ++length;
             }
             actual = current;

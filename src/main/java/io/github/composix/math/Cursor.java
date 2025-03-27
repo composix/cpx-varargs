@@ -29,7 +29,7 @@ public interface Cursor extends Row {
         return new MatrixRowCursor(positions);
     }
 
-    void position(int index, Args args);
+    void position(int index, int limit, final int offset, VarArgs argv);
 
     boolean advance(int delta);
 

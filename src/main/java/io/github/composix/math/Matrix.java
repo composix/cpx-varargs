@@ -274,11 +274,12 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T extends Defaults<T>> Args combine(T defaults) throws NoSuchFieldException {
+  public <T extends Defaults<T>> Args combine(T defaults)
+    throws NoSuchFieldException {
     final int omega = OMEGA.intValue();
     final int amount = (ordinal % omega) - 1;
     final T[] result = (T[]) ORDINALS[amount].newInstance(defaults.getClass());
-    CURSOR.position(0, this);
+    CURSOR.position(0, ordinal, hashCode(), varArgs());
     for (int i = 0; i < amount; ++i) {
       if (!CURSOR.advance(1)) {
         throw new AssertionError();
