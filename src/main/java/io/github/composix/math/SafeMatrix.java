@@ -48,6 +48,11 @@ public class SafeMatrix extends Matrix {
   }
 
   @Override
+  public void export(Args target) {
+    varArgs().export(0, MASK, ((Matrix) target).varArgs());
+  }
+
+  @Override
   public int hashCode() {
     return 0;
   }

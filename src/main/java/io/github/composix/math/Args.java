@@ -38,6 +38,8 @@ public interface Args extends ArgsOrdinal, Order {
     @Override
     Args clone() throws CloneNotSupportedException;
 
+    void export(Args target);
+
     Args select(Order order);
 
     <T> T getValue(int index);

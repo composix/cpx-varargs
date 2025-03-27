@@ -70,6 +70,11 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
+  public void export(Args target) {
+    varArgs().export(hashCode(), size(), target.hashCode());
+  }
+
+  @Override
   public MutableOrder order() {
     return this;
   }
