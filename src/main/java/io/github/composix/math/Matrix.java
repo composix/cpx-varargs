@@ -208,7 +208,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T> Stream<T> stream(int pos, Class<T> type) throws NoSuchFieldException {
+  public <T> Stream<T> stream(Class<T> type, int pos) throws NoSuchFieldException {
     final int size = size() + 1;
     for (int i = 0; i < size; ++i) {
       if (argv(i).getClass() == type.arrayType()) {
