@@ -24,6 +24,7 @@
 
 package io.github.composix.math;
 
+import io.github.composix.models.Defaults;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -37,16 +38,21 @@ import java.util.regex.Pattern;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import io.github.composix.models.Defaults;
-
 public class Matrix extends OrderInt implements Keys, Args {
 
-  private static final Object[] ARGV = new Object[-Short.MIN_VALUE];
-  private static final int MASK = Short.MAX_VALUE;
+  private static final VarArgs VARARGS = VarArgs.VARARGS;
+  private static final int MASK = VARARGS.mask();
   private static final Ordinal[] ALL = new Ordinal[] { A };
   private static final byte[] LENGTHS = new byte[16];
   private static final Cursor CURSOR = Cursor.ofRow(LENGTHS);
 
+  protected Matrix(int ordinal) {
+    super(ordinal);
+  }
+
+  protected VarArgs varArgs() {
+    return VARARGS;
+  }
 
   @Override
   public Ordinal ordinal() {
@@ -505,20 +511,16 @@ public class Matrix extends OrderInt implements Keys, Args {
     return target;
   }
 
-  protected Matrix(int ordinal) {
-    super(ordinal);
+  private Object[] argv() {
+    return varArgs().argv;
   }
 
-  protected Object[] argv() {
-    return ARGV;
+  private int mask() {
+    return varArgs().mask();
   }
 
-  protected int mask() {
-    return MASK;
-  }
-
-  protected int mask(int index) {
-    return index & MASK;
+  private int mask(int index) {
+    return index & varArgs().mask();
   }
 
   private <T> T argv(int index) {

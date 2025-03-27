@@ -141,7 +141,7 @@ class ArgsOrdinalTest {
         long[] expected = {0, 1, 2, 3};
         Matrix matrix  = (Matrix) OMEGA.extend(A, expected);
         assertEquals(0, matrix.hashCode());
-        assertSame(expected, matrix.argv()[0]);
+        assertSame(expected, matrix.varArgs().argv[0]);
         assertEquals(ORDINALS, matrix.ordinals);
         assertEquals(OMEGA.intValue() + 4, matrix.ordinal);
     }

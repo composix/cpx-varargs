@@ -26,38 +26,29 @@ package io.github.composix.math;
 
 public class SafeMatrix extends Matrix {
 
+  private static int MASK = 15;
+
+  private VarArgs varargs = new VarArgs(4);
+
   protected SafeMatrix(int ordinal) {
     super(ordinal);
   }
 
-  private static int MASK = 15;
-
-  private Object[] argv = new Object[MASK + 1];
+  @Override
+  protected VarArgs varArgs() {
+    return varargs;
+  }
 
   @Override
   public Args clone() throws CloneNotSupportedException {
     final SafeMatrix result = (SafeMatrix) super.clone();
-    result.argv = argv.clone();
+    result.varargs = new VarArgs(4);
+    varargs.export(0, MASK, result.varargs);
     return result;
   }
 
   @Override
   public int hashCode() {
     return 0;
-  }
-
-  @Override
-  protected Object[] argv() {
-    return argv;
-  }
-
-  @Override
-  protected int mask() {
-    return MASK;
-  }
-
-  @Override
-  protected int mask(int index) {
-    return index & MASK;
   }
 }
