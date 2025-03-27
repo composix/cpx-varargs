@@ -61,11 +61,6 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public Args clone() throws CloneNotSupportedException {
-    if (!isOrdinal()) {
-      throw new CloneNotSupportedException(
-        "reordered varargs cannot be cloned"
-      );
-    }
     return (Args) super.clone();
   }
 

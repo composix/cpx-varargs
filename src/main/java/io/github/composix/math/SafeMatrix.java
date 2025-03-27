@@ -43,7 +43,6 @@ public class SafeMatrix extends Matrix {
   public Args clone() throws CloneNotSupportedException {
     final SafeMatrix result = (SafeMatrix) super.clone();
     result.varargs = new VarArgs(4);
-    varargs.export(0, MASK, result.varargs);
     return result;
   }
 
