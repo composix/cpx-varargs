@@ -47,8 +47,8 @@ public class SafeMatrix extends Matrix {
   }
 
   @Override
-  public void export(Args target) {
-    varArgs().export(0, MASK, ((Matrix) target).varArgs());
+  public void export(Args target, int offset, int size) {
+    varArgs().export(offset, size, 0, ((Matrix) target).varArgs());
   }
 
   @Override

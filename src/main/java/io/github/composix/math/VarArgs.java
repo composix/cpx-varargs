@@ -62,8 +62,8 @@ public final class VarArgs implements Cloneable{
         return --result;
     }
 
-    final void export(int sourceHash, int size, VarArgs target) {
-        export(argv, sourceHash, mask(), target.argv, 0, target.mask(), size);
+    final void export(int sourceHash, int size, int targetHash, VarArgs target) {
+        export(argv, sourceHash, mask(), target.argv, targetHash, target.mask(), size);
     }
 
     final void export(int sourceHash, int size, int targetHash) {

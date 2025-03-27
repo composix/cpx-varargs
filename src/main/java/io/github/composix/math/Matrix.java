@@ -362,12 +362,23 @@ public class Matrix extends OrderInt implements Keys, Args {
     ToLongFunction<T> accessor,
     LongBinaryOperator reducer
   ) {
-    int index = size();
+    final int size = size();
+    int index = size;
     while (argv(index) != null) {
       ++index;
     }
-    argv(index, target(ofLong(col, accessor), reducer, indices()));
-    return this;
+    final Ordinal[] indices = indices();
+    argv(index, target(ofLong(col, accessor), reducer, indices));
+    try {
+      Args result = clone();
+      index -= size - 1;
+      export(result, size, index);
+      ordinal = OMEGA.intValue() * index + indices.length;
+      ordinals = ORDINALS;
+      return result;
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError();
+    }
   }
 
   @Override
