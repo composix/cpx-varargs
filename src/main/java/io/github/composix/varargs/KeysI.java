@@ -25,13 +25,15 @@
 package io.github.composix.varargs;
 
 import java.util.function.Function;
+import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
 
 import io.github.composix.math.Accessor;
+import io.github.composix.math.ArgsOrdinal;
 import io.github.composix.math.Keys;
 import io.github.composix.math.Ordinal;
 
-public interface KeysI<K,A> extends Keys {
+public interface KeysI<A,K> extends Keys {
     default <T, KK extends Comparable<KK>> KeysI2<K,KK,A> thenBy(Ordinal col, Function<T, KK> accessor) {
       final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
       accessObject.accessor(accessor);
@@ -47,4 +49,10 @@ public interface KeysI<K,A> extends Keys {
       accessLong.destroy();
       return (KeysI2<K, long[], A>) this;
     }
+
+    default ArgsI<K> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer) {
+      return (ArgsI<K>) collect(ArgsOrdinal.A, accessor, reducer);
+    }
+
+    <B,KK> ArgsII<A,B[]> joinMany(KeysI<B,KK> rhs);
 }
