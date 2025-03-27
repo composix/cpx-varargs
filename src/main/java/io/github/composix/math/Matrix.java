@@ -373,8 +373,8 @@ public class Matrix extends OrderInt implements Keys, Args {
       Args result = clone();
       index -= size - 1;
       export(result, size, index);
-      ordinal = OMEGA.intValue() * index + indices.length;
-      ordinals = ORDINALS;
+      result.order().reorder(NATURAL_ORDER);
+      result.order().resize(OMEGA.intValue() * index + indices.length);
       return result;
     } catch (CloneNotSupportedException e) {
       throw new AssertionError();
