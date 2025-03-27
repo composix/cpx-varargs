@@ -290,7 +290,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public void groupBy(Ordinal col, Accessor accessor) {
+  public Keys groupBy(Ordinal col, Accessor accessor) {
     final int amount = amount();
     final Object source = argv(col.intValue());
     final int count = count(amount, source, accessor);
@@ -312,6 +312,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
     }
     indices[k] = ORDINALS[amount];
+    return this;
   }
 
   @Override

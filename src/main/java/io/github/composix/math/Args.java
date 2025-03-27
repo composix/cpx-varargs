@@ -56,7 +56,7 @@ public interface Args extends ArgsOrdinal, Order {
 
     <T> Stream<T> stream(Ordinal col);
 
-    <T> Stream<T> stream(int pos, Class<T> type) throws NoSuchFieldException;
+    <T> Stream<T> stream(Class<T> type, int pos) throws NoSuchFieldException;
 
     LongStream longStream(Ordinal col);
 
@@ -68,8 +68,12 @@ public interface Args extends ArgsOrdinal, Order {
 
     <T extends Defaults<T>> Args combine(T defaults) throws NoSuchFieldException;
 
-    void groupBy(Ordinal col, Accessor accessor);
+    Keys groupBy(Ordinal col, Accessor accessor);
 
+    default <T> Stream<T> stream(Class<T> type) throws NoSuchFieldException {
+        return stream(type, 0);
+    }
+    
     default <T, K extends Comparable<K>> Keys groupBy(
       Ordinal col,
       Function<T, K> accessor

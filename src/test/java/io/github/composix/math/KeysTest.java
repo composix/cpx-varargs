@@ -91,7 +91,7 @@ class KeysTest extends TestCase implements TestData {
         new Category(1, "dogs"),
         new Category(2, "other"),
       },
-      petsByCategory.stream(0, Category.class).toArray(Category[]::new)
+      petsByCategory.stream(Category.class).toArray(Category[]::new)
     );
     assertArrayEquals(expected, petsByCategory.longStream(0).toArray());
 
