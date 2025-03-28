@@ -71,7 +71,7 @@ public final class VarArgs implements Cloneable{
         export(argv, sourceHash, mask, argv, targetHash, mask, size);
     }
 
-    private static void export(Object source, int sourceHash, int sourceMask, Object target, int targetHash, int targetMask, int size) {
+    private static final void export(Object source, int sourceHash, int sourceMask, Object target, int targetHash, int targetMask, int size) {
         if (size <= sourceMask && size <= targetMask) {
             final int sourcePos = sourceHash & sourceMask, targetPos = targetHash & targetMask;
             if (sourcePos < ((sourcePos + size) & sourceMask)) {

@@ -24,7 +24,7 @@
 
 package io.github.composix.math;
 
-public interface Cursor extends Row {
+interface Cursor extends Row {
     static Cursor ofRow(byte[] positions) {
         return new MatrixRowCursor(positions);
     }

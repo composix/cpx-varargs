@@ -27,9 +27,12 @@ package io.github.composix.math;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 
 @FunctionalInterface
-public interface Fn<A,B> extends Function<A,B> {
+interface Fn<A,B> extends Function<A,B> {
+    static ToLongFunction<CharSequence> parseLong = value -> Long.parseLong(value.toString());
+
     static <A> Fn<A,Integer> of(FnObjInt<A> fn) {
         return fn;
     } 

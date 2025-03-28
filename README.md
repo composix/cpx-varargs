@@ -19,7 +19,7 @@ public class MyPetstore {
     static ObjectMapper MAPPER = new ObjectMapper();
 
     // see also QuickStartTest::testShowListOfCategoryNames
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Configure Jackson to accept case-insensitive enums
         MAPPER.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
 
@@ -29,19 +29,13 @@ public class MyPetstore {
             .create("https://petstore3.swagger.io/api/v3/openapi.json");
 
         // Retrieve all available Pets using Jackson
-        ArgsI<Pet> pets;
-        try {
-            pets = ArgsI.of(MAPPER
-                .readValue(apiUri
-                    .resolve("pet/findByStatus?status=available")
-                        .toURL(),
-                    Pet[].class
-                )
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        ArgsI<Pet> pets = ArgsI.of(MAPPER
+            .readValue(apiUri
+                .resolve("pet/findByStatus?status=available")
+                    .toURL(),
+                Pet[].class
+            )
+        );
 
         // group by category with pet counts
         ArgsI<Category> categories = pets

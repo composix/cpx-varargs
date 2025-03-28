@@ -35,7 +35,7 @@ public record Pet(long id, String name, Status status, Category category, List<T
     private static List<Tag> TAGS = Defaults.empty();
     private static List<String> PHOTO_URLS = Defaults.empty();
     
-    public static Pet DEFAULTS = new Pet(0, null, Status.AVAILABLE, CATEGORY, TAGS, PHOTO_URLS).defaults(); 
+    public static final Pet DEFAULTS = new Pet(0, null, Status.AVAILABLE, CATEGORY, TAGS, PHOTO_URLS).defaults(); 
 
     public Pet {
         status = status == null ? Status.AVAILABLE : status;
