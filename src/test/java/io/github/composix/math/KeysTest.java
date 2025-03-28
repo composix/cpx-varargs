@@ -71,8 +71,10 @@ class KeysTest extends TestCase implements TestData {
 
   @BeforeEach
   void setUp() {
-    pets = PETS;
-    orders = G.extend(A, O, P, Q, R, S, T);
+    pets = new Matrix(8);
+    orders = new Matrix(6);
+    PETS.export(pets, 0, 1);
+    ORDERS.export(orders, 0, 1);
   }
 
   @Test
@@ -91,7 +93,7 @@ class KeysTest extends TestCase implements TestData {
         new Category(1, "dogs"),
         new Category(2, "other"),
       },
-      petsByCategory.stream(Category.class).toArray(Category[]::new)
+      petsByCategory.stream(B).toArray(Category[]::new)
     );
     assertArrayEquals(expected, petsByCategory.longStream(0).toArray());
 

@@ -25,10 +25,9 @@
 package io.github.composix.math;
 
 public class SafeMatrix extends Matrix {
+  public final int SIZE = 4;
 
-  private static int MASK = 15;
-
-  private VarArgs varargs = new VarArgs(4);
+  private VarArgs varargs = new VarArgs(SIZE);
 
   protected SafeMatrix(int ordinal) {
     super(ordinal);
@@ -42,13 +41,15 @@ public class SafeMatrix extends Matrix {
   @Override
   public Args clone() throws CloneNotSupportedException {
     final SafeMatrix result = (SafeMatrix) super.clone();
-    result.varargs = new VarArgs(4);
+    result.varargs = new VarArgs(SIZE);
     return result;
   }
 
   @Override
   public void export(Args target, int offset, int size) {
-    varArgs().export(offset, size, 0, ((Matrix) target).varArgs());
+    final int amount = target.ordinal().intValue();
+    varArgs().export(offset, size, target.hashCode(), ((Matrix) target).varArgs());
+    target.order().resize(OMEGA.intValue() * size + amount);
   }
 
   @Override
