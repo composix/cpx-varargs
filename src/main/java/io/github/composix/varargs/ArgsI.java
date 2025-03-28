@@ -33,10 +33,8 @@ import java.util.stream.Stream;
 public interface ArgsI<A> {
   @SafeVarargs
   static <T> ArgsI<T> of(T... columnA) {
-    final Ordinal nothing = Ordinal.A, everything = Ordinal.OMEGA;
-    final Table<T, ?> result = new Table<>(
-      everything.intValue() + columnA.length
-    );
+    final Ordinal nothing = Ordinal.A;
+    final Table<T, ?, ?> result = new Table<>(columnA.length);
     nothing.extend(nothing, columnA).export(result, 0, 1);
     return result;
   }

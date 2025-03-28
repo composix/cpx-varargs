@@ -50,9 +50,11 @@ public interface KeysI<A,K> extends Keys {
       return (KeysI2<K, long[], A>) this;
     }
 
-    default ArgsI<K> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer) {
-      return (ArgsI<K>) collect(ArgsOrdinal.A, accessor, reducer);
+    default KeysI2<A,K,long[]> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer) {
+      return (KeysI2<A, K, long[]>) collect(ArgsOrdinal.A, accessor, reducer);
     }
 
     <B,KK> ArgsII<A,B[]> joinMany(KeysI<B,KK> rhs);
+
+    ArgsI<K> done();
 }

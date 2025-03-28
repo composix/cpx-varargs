@@ -24,58 +24,87 @@
 
 package io.github.composix.varargs;
 
+import io.github.composix.math.Accessor;
+import io.github.composix.math.Args;
+import io.github.composix.math.Keys;
+import io.github.composix.math.Ordinal;
+import io.github.composix.math.SafeMatrix;
+import io.github.composix.math.VarArgs;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import io.github.composix.math.Accessor;
-import io.github.composix.math.Keys;
-import io.github.composix.math.SafeMatrix;
+class Table<A, N extends Comparable<N>, O>
+  extends SafeMatrix
+  implements ArgsI<A>, KeysI2<A, N, O> {
 
-class Table<A,N extends Comparable<N>> extends SafeMatrix implements ArgsI<A>, KeysI<A,N> {
+  protected Table(final int ordinal) {
+    super(ordinal);
+  }
 
-    protected Table(final int ordinal) {
-        super(ordinal);
+  public ArgsI<A> orderByA() {
+    return (ArgsI<A>) orderBy(A);
+  }
+
+  public Iterable<A> columnA() {
+    return column(A);
+  }
+
+  public Stream<A> streamA() {
+    return stream(A);
+  }
+
+  public LongStream longStreamA() {
+    return longStream(A);
+  }
+
+  public <KK extends Comparable<KK>> KeysI<A, KK> groupByA(
+    final Function<A, KK> accessor
+  ) {
+    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
+    orderBy(A, accessor);
+    accessObject.accessor(accessor);
+    final Keys result = groupBy(A, accessObject).keys(A, accessObject);
+    accessObject.destroy();
+    return (KeysI<A, KK>) result;
+  }
+
+  public KeysI<A, long[]> groupByA(final ToLongFunction<A> accessor) {
+    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
+    orderBy(A, accessor);
+    accessLong.accessor(accessor);
+    final Keys result = groupBy(A, accessLong).keys(A, accessLong);
+    accessLong.destroy();
+    return (KeysI<A, long[]>) result;
+  }
+
+  @Override
+  public <B, KK> ArgsII<A, B[]> joinMany(KeysI<B, KK> rhs) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'joinMany'");
+  }
+
+  @Override
+  public ArgsI<N> done() {
+    VarArgs varargs = varArgs();
+    final int mask = varargs.mask();
+    final Object[] argv = varargs.argv;
+    final Ordinal[] indices = (Ordinal[]) argv[-1 & mask];
+    final int size = size();
+    int index = size;
+    while (argv[index & mask] != null) {
+      ++index;
     }
-
-    public ArgsI<A> orderByA() {
-        return (ArgsI<A>) orderBy(A);
+    try {
+      Args result = clone();
+      index -= size - 1;
+      result.order().reorder(NATURAL_ORDER);
+      result.order().resize(OMEGA.intValue() * index + indices.length);
+      export(result, size, index);
+      return (ArgsI<N>) result;
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError();
     }
-
-    public Iterable<A> columnA() {
-        return column(A);
-    }
-
-    public Stream<A> streamA() {
-        return stream(A);
-    }
-
-    public LongStream longStreamA() {
-        return longStream(A);
-    }
-
-    public <KK extends Comparable<KK>> KeysI<A,KK> groupByA(final Function<A, KK> accessor) {
-      final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-      orderBy(A, accessor);
-      accessObject.accessor(accessor);
-      final Keys result = groupBy(A, accessObject).keys(A, accessObject);
-      accessObject.destroy();
-      return (KeysI<A, KK>) result;
-    }
-
-    public KeysI<A,long[]> groupByA(final ToLongFunction<A> accessor) {
-        final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-        orderBy(A, accessor);
-        accessLong.accessor(accessor);
-        final Keys result = groupBy(A, accessLong).keys(A, accessLong);
-        accessLong.destroy();
-        return (KeysI<A, long[]>) result;
-    }
-
-    @Override
-    public <B, KK> ArgsII<A, B[]> joinMany(KeysI<B, KK> rhs) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'joinMany'");
-    }
+  }
 }

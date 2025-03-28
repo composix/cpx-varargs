@@ -24,55 +24,52 @@
 
 package io.github.composix;
 
-import java.io.IOException;
-import java.net.URI;
-
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.varargs.ArgsI;
+import java.io.IOException;
+import java.net.URI;
+import org.junit.jupiter.api.Test;
 
 class QuickStartTest {
-    static ObjectMapper MAPPER = new ObjectMapper();
-    
-    @Test
-    void testShowListOfCategoryNames() throws IOException{
-        // code below is a verbatim copy of the main() method in README.md
 
-        // Configure Jackson to accept case-insensitive enums
-        MAPPER.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
+  static ObjectMapper MAPPER = new ObjectMapper();
 
-        // Url to OpenAPI spec of Petstore API
-        URI apiUri = URI
-            // .create("https://petstore.swagger.io/v2/pet/findByStatus?status=available");
-            .create("https://petstore3.swagger.io/api/v3/openapi.json");
+  @Test
+  void testShowListOfCategoryNames() throws IOException {
+    // code below is a verbatim copy of the main() method in README.md
 
-        // Retrieve all available Pets using Jackson
-        ArgsI<Pet> pets = ArgsI.of(MAPPER
-            .readValue(apiUri
-                .resolve("pet/findByStatus?status=available")
-                    .toURL(),
-                Pet[].class
-            )
-        );
+    // Configure Jackson to accept case-insensitive enums
+    MAPPER.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
 
-        // group by category with pet counts
-        ArgsI<Category> categories = pets
-            .groupByA(Pet::category)
-            .collectA(x -> 1L, Long::sum);
+    // Url to OpenAPI spec of Petstore API
+    URI apiUri = URI.create("https://petstore3.swagger.io/api/v3/openapi.json"); // .create("https://petstore.swagger.io/v2/pet/findByStatus?status=available");
 
-        // group categories by name
-        ArgsI<String> categoryNames = categories
-            .groupByA(Category::name)
-            .collectA(x -> 1L, Long::sum);
+    // Retrieve all available Pets using Jackson
+    ArgsI<Pet> pets = ArgsI.of(
+      MAPPER.readValue(
+        apiUri.resolve("pet/findByStatus?status=available").toURL(),
+        Pet[].class
+      )
+    );
 
-        // show a list of all category names
-        for (String categoryName : categoryNames.columnA()) {
-            System.out.println(categoryName);
-        }
+    // group by category with pet counts
+    ArgsI<Category> categories = pets
+      .groupByA(Pet::category)
+      .collectA(x -> 1L, Long::sum)
+      .done();
+
+    // group categories by name
+    ArgsI<String> categoryNames = categories
+      .groupByA(Category::name)
+      .collectA(x -> 1L, Long::sum)
+      .done();
+
+    // show a list of all category names
+    for (String categoryName : categoryNames.columnA()) {
+      System.out.println(categoryName);
     }
+  }
 }

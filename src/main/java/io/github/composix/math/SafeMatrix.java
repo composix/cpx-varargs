@@ -25,7 +25,7 @@
 package io.github.composix.math;
 
 public class SafeMatrix extends Matrix {
-  public final int SIZE = 4;
+  public static final int SIZE = 4;
 
   private VarArgs varargs = new VarArgs(SIZE);
 

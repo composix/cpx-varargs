@@ -369,16 +369,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     }
     final Ordinal[] indices = indices();
     argv(index, target(ofLong(col, accessor), reducer, indices));
-    try {
-      Args result = clone();
-      index -= size - 1;
-      export(result, size, index);
-      result.order().reorder(NATURAL_ORDER);
-      result.order().resize(OMEGA.intValue() * index + indices.length);
-      return result;
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError();
-    }
+    return this;
   }
 
   @Override

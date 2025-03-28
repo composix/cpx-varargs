@@ -24,6 +24,6 @@
 
 package io.github.composix.varargs;
 
-public interface KeysI2<K,KK,A> extends KeysI<K,A> {
+public interface KeysI2<A,N,O> extends KeysI<A,N> {
     
 }
