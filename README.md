@@ -13,43 +13,48 @@ ComPosiX VarArgs (aka ***cpx-varargs***) is a powerful framework of classes and 
 
 ## Getting Started
 
-To get you started with cpx-varargs, suppose as an example that you are managing a shop based on the [Petstore API](https://petstore3.swagger.io). People are calling with requests whether you have a pet available in a certain category. So first thing you want to know is what are the available categories. Unfortunately, the API does not have a direct resource path to query all categories. But it is possible to find the categories by retrieving all available pets from https://petstore.swagger.io/v2/pet/findByStatus?status=available. If you click this link you will see there are a large number of pets. So collecting all the categories by hand is hard work. This is where cpx-varargs comes in:
+To help you get started with cpx-varargs, let's consider an example where you're managing a shop using the [Petstore API](https://petstore3.swagger.io). In this scenario, customers are calling to inquire whether you have pets available in a certain category.
+
+The first thing you'll need is a list of available categories. Unfortunately, the API doesn't provide a direct resource path to query all categories. However, you can retrieve the categories indirectly by fetching all available pets from [this endpoint](https://petstore.swagger.io/v2/pet/findByStatus?status=available). If you click the link, you'll notice there is a large number of pets listed. Manually collecting all the categories from this data would be a tedious task, which is where *cpx-varargs* comes in handy.
 ```Java
 public class MyPetstore {
-    static ObjectMapper MAPPER = new ObjectMapper();
+    // Select the APIs to use (Swagger Petstore API URLs)
+    static Api petStoreApi = Api.select(ArgsI
+        // Title for the Swagger Petstore API (OpenAPI 3.0 version)
+        .of("title", "Swagger Petstore - OpenAPI 3.0")  
+        
+        // Alternatively, use the older Swagger Petstore v2 API by uncommenting the next line:
+        // .of("title", "Swagger Petstore")  // Title for the Swagger Petstore v2 API (OpenAPI 2.0)
 
+        .andOf(
+            "https://petstore.swagger.io/v2/swagger.json",  // Swagger v2 API JSON
+            "https://petstore3.swagger.io/api/v3/openapi.json"  // Swagger v3 API JSON
+        )
+    );
+    
     // see also QuickStartTest::testShowListOfCategoryNames
     public static void main(String[] args) throws IOException {
-        // Configure Jackson to accept case-insensitive enums
-        MAPPER.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
+        // Retrieve all available pets from the API
+        ArgsI<Pet> pets = petStoreApi.resource(        
+            "/pet/findByStatus",  // API endpoint path
+            Pet[].class           // Data transfer object (DTO) for pets        
+        ).get("?status=available");
 
-        // Url to OpenAPI spec of Petstore API
-        URI apiUri = URI
-            // .create("https://petstore.swagger.io/v2/pet/findByStatus?status=available");
-            .create("https://petstore3.swagger.io/api/v3/openapi.json");
-
-        // Retrieve all available Pets using Jackson
-        ArgsI<Pet> pets = ArgsI.of(MAPPER
-            .readValue(apiUri
-                .resolve("pet/findByStatus?status=available")
-                    .toURL(),
-                Pet[].class
-            )
-        );
-
-        // group by category with pet counts
+        // Group pets by category and count them
         ArgsI<Category> categories = pets
             .groupByA(Pet::category)
             .collectA(x -> 1L, Long::sum);
 
-        // group categories by name
+        // Group categories by name and count them
         ArgsI<String> categoryNames = categories
             .groupByA(Category::name)
             .collectA(x -> 1L, Long::sum);
 
-        // show a list of all category names
-        for (String categoryName : categoryNames.columnA()) {
-            System.out.println(categoryName);
+        // Output all category names with their counts
+        System.out.println("List of available categories:");
+
+        for (Row row : categoryNames.rows()) {
+            System.out.println(row);
         }
     }
 }
