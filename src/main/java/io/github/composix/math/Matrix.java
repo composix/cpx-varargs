@@ -191,6 +191,26 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
+  public <T> Iterable<T> column(Ordinal ordinal) {
+    final T[] array = argv(ordinal.intValue());
+    return Arrays.asList(array);
+  }
+
+  @Override
+  public <T> Iterable<T> column(Ordinal ordinal, CharSequence header) throws NoSuchFieldException {
+    int position = ordinal.intValue();
+    T[] array = argv(position);
+    Class<?> type = array.getClass();
+    do {
+      if (array[position].toString().equals(header)) {
+        return Arrays.asList(array).subList(1, array.length); 
+      }
+      array = argv(++position);
+    } while(array != null && array.getClass().equals(type));
+    throw new NoSuchFieldException();
+  }
+
+  @Override
   public <T> Stream<T> stream(Ordinal col) {
     if (col.intValue() < size()) {
       return (Stream<T>) stream((Object[]) argv(col.intValue()));

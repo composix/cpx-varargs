@@ -78,7 +78,7 @@ class Table<A, B, C, P, O, N>
   }
 
   @Override
-  public Iterable<A> columnA(CharSequence header) {
+  public Iterable<A> columnA(CharSequence header) throws NoSuchFieldException {
     return column(A, header);
   }
 
@@ -88,7 +88,7 @@ class Table<A, B, C, P, O, N>
   }
 
   @Override
-  public Iterable<B> columnB(CharSequence header) {
+  public Iterable<B> columnB(CharSequence header) throws NoSuchFieldException {
     return column(B, header);
   }
 

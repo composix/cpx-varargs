@@ -66,7 +66,7 @@ public interface ArgsI<A> {
 
   Iterable<A> columnA();
 
-  Iterable<A> columnA(CharSequence header);
+  Iterable<A> columnA(CharSequence header) throws NoSuchFieldException;
 
   LongStream longStreamA();
 
@@ -80,7 +80,7 @@ public interface ArgsI<A> {
     return StreamSupport.stream(columnA().spliterator(), false);
   }
 
-  default Stream<A> streamA(CharSequence header) {
+  default Stream<A> streamA(CharSequence header) throws NoSuchFieldException {
     return StreamSupport.stream(columnA(header).spliterator(), false);
   }
 }

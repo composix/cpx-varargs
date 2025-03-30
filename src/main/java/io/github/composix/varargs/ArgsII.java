@@ -33,7 +33,7 @@ import java.util.stream.StreamSupport;
 public interface ArgsII<A, B> extends ArgsI<A> {
   Iterable<B> columnB();
 
-  Iterable<B> columnB(CharSequence header);
+  Iterable<B> columnB(CharSequence header) throws NoSuchFieldException;
 
   LongStream longStreamB();
 
@@ -52,7 +52,7 @@ public interface ArgsII<A, B> extends ArgsI<A> {
     return StreamSupport.stream(columnB().spliterator(), false);
   }
 
-  default Stream<B> streamB(CharSequence header) {
+  default Stream<B> streamB(CharSequence header) throws NoSuchFieldException {
     return StreamSupport.stream(columnB(header).spliterator(), false);
   }
 

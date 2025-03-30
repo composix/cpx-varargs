@@ -56,6 +56,10 @@ public interface Args extends ArgsOrdinal, Order {
 
     <T> Comparator<Ordinal> comparator(Ordinal ordinal, ToLongFunction<T> accessor);
 
+    <T> Iterable<T> column(Ordinal ordinal);
+
+    <T> Iterable<T> column(Ordinal ordinal, CharSequence header) throws NoSuchFieldException;
+
     <T> Stream<T> stream(Ordinal col);
 
     <T> Stream<T> stream(Class<T> type, int pos) throws NoSuchFieldException;
@@ -117,15 +121,6 @@ public interface Args extends ArgsOrdinal, Order {
         return result;
     }
     
-    default <T> Iterable<T> column(Ordinal ordinal) {
-        return new Iterable<>() {
-            @Override
-            public Iterator<T> iterator() {
-                return (Iterator<T>) stream(ordinal).iterator();
-            }
-        };
-    }
-
     default Args orderBy(Ordinal col) {
         order().reorder(comparator(col));
         return this;
