@@ -24,52 +24,55 @@
 
 package io.github.composix;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
+
+import io.github.composix.apis.Api;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.varargs.ArgsI;
-import java.io.IOException;
-import java.net.URI;
-import org.junit.jupiter.api.Test;
+import io.github.composix.varargs.ArgsII;
 
 class QuickStartTest {
 
-  static ObjectMapper MAPPER = new ObjectMapper();
+    static Api petStoreApi = Api.select(ArgsI
+        // Title for the Swagger Petstore API (OpenAPI 3.0 version)
+        .of("title", "Swagger Petstore - OpenAPI 3.0")  
+        
+        // Alternatively, use the older Swagger Petstore v2 API by uncommenting the next line:
+        // .of("title", "Swagger Petstore")  // Title for the Swagger Petstore v2 API (OpenAPI 2.0)
 
+        .andOf("urls",
+            "https://petstore.swagger.io/v2/swagger.json",  // Swagger v2 API JSON
+            "https://petstore3.swagger.io/api/v3/openapi.json"  // Swagger v3 API JSON
+        )
+    );
+    
   @Test
   void testShowListOfCategoryNames() throws IOException {
-    // code below is a verbatim copy of the main() method in README.md
+        // Retrieve all available pets from the API
+        ArgsI<Pet> pets = petStoreApi.resource(        
+            (CharSequence) "/pet/findByStatus",  // API endpoint path
+            Pet.class           // Data transfer object (DTO) for pets        
+        ).get("?status=available");
 
-    // Configure Jackson to accept case-insensitive enums
-    MAPPER.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);
+        // Group pets by category and count them
+        ArgsII<Category, long[]> categories = pets
+            .groupByA(Pet::category)
+            .collectA(x -> 1L, Long::sum)
+            .toArgsII();
 
-    // Url to OpenAPI spec of Petstore API
-    URI apiUri = URI.create("https://petstore3.swagger.io/api/v3/openapi.json"); // .create("https://petstore.swagger.io/v2/pet/findByStatus?status=available");
+        // Group categories by name and count them
+        ArgsII<String, long[]> categoryNames = categories
+            .groupByA(Category::name)
+            .collectA(x -> 1L, Long::sum)
+            .toArgsII();
 
-    // Retrieve all available Pets using Jackson
-    ArgsI<Pet> pets = ArgsI.of(
-      MAPPER.readValue(
-        apiUri.resolve("pet/findByStatus?status=available").toURL(),
-        Pet[].class
-      )
-    );
-
-    // group by category with pet counts
-    ArgsI<Category> categories = pets
-      .groupByA(Pet::category)
-      .collectA(x -> 1L, Long::sum)
-      .done();
-
-    // group categories by name
-    ArgsI<String> categoryNames = categories
-      .groupByA(Category::name)
-      .collectA(x -> 1L, Long::sum)
-      .done();
-
-    // show a list of all category names
-    for (String categoryName : categoryNames.columnA()) {
-      System.out.println(categoryName);
-    }
+        // Output all category names with their counts
+        System.out.println("List of available categories:");
+        for (CharSequence categoryName : categoryNames.columnA()) {
+            System.out.println(categoryName);
+        }
   }
 }
