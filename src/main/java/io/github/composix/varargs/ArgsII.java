@@ -24,8 +24,37 @@
 
 package io.github.composix.varargs;
 
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public interface ArgsII<A, B> extends ArgsI<A> {
-  Stream<B> streamB();
+  Iterable<B> columnB();
+
+  Iterable<B> columnB(CharSequence header);
+
+  LongStream longStreamB();
+
+  @Override
+  KeysII<A, B, A> onA();
+
+  KeysII<A, B, B> onB();
+
+  @Override
+  <N extends Comparable<N>> KeysII<A, B, N> groupByA(Function<A, N> accessor);
+
+  @Override
+  KeysII<A, B, long[]> groupByA(ToLongFunction<A> accessor);
+
+  default Stream<B> streamB() {
+    return StreamSupport.stream(columnB().spliterator(), false);
+  }
+
+  default Stream<B> streamB(CharSequence header) {
+    return StreamSupport.stream(columnB(header).spliterator(), false);
+  }
+
+  <C> ArgsIII<A, B, C> extendC(C... swaggers);
 }

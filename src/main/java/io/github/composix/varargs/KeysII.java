@@ -25,28 +25,13 @@
 package io.github.composix.varargs;
 
 import io.github.composix.math.Ordinal;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.function.LongBinaryOperator;
-import java.util.function.ToLongFunction;
 
-public interface KeysI2<A, N, O> extends KeysI<A, O> {
-  ArgsII<O, N> toArgsII();
+public interface KeysII<A, B, N> extends KeysI<A, N> {
+  KeysII2<A, B, B, N> thenOnB();
 
-  Map<O, N> toMap();
-
-  @Override
-  <P extends Comparable<P>> KeysI3<A, P, O, N> thenByA(
+  <O extends Comparable<O>> KeysII2<A, B, O, N> thenByA2(
     Ordinal col,
-    Function<A, P> accessor
-  );
-
-  @Override
-  KeysI3<A, long[], O, N> thenByA(Ordinal col, ToLongFunction<A> accessor);
-
-  @Override
-  KeysI3<A, long[], O, N> collectA(
-    ToLongFunction<A> accessor,
-    LongBinaryOperator reducer
+    Function<A, O> accessor
   );
 }

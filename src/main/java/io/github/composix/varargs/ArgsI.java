@@ -24,30 +24,63 @@
 
 package io.github.composix.varargs;
 
+import io.github.composix.math.Order;
 import io.github.composix.math.Ordinal;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public interface ArgsI<A> {
-  @SafeVarargs
-  static <T> ArgsI<T> of(T... columnA) {
+  static ArgsI<CharSequence> of(CharSequence... columnA) {
     final Ordinal nothing = Ordinal.A;
-    final Table<T, ?, ?> result = new Table<>(columnA.length);
+    final Table<CharSequence, ?, ?, ?, ?, ?> result = new Table<>(
+      columnA.length
+    );
     nothing.extend(nothing, columnA).export(result, 0, 1);
     return result;
   }
+
+  @SafeVarargs
+  static <T> ArgsI<T> of(T... columnA) {
+    final Ordinal nothing = Ordinal.A;
+    final Table<T, ?, ?, ?, ?, ?> result = new Table<>(columnA.length);
+    nothing.extend(nothing, columnA).export(result, 0, 1);
+    return result;
+  }
+
+  ArgsI<A> andOf(A... columnA);
+
+  ArgsI<A> with(A... columnA);
+
+  <T> ArgsII<A, T> extendB(T... columnB);
+
+  int size();
+
+  int amount();
+
+  Order order();
 
   ArgsI<A> orderByA();
 
   Iterable<A> columnA();
 
-  Stream<A> streamA();
+  Iterable<A> columnA(CharSequence header);
 
   LongStream longStreamA();
+
+  KeysI<A, A> onA();
 
   <N extends Comparable<N>> KeysI<A, N> groupByA(Function<A, N> accessor);
 
   KeysI<A, long[]> groupByA(ToLongFunction<A> accessor);
+
+  default Stream<A> streamA() {
+    return StreamSupport.stream(columnA().spliterator(), false);
+  }
+
+  default Stream<A> streamA(CharSequence header) {
+    return StreamSupport.stream(columnA(header).spliterator(), false);
+  }
 }

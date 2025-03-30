@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,37 +24,33 @@
 
 package io.github.composix.varargs;
 
+import io.github.composix.math.Ordinal;
+import java.util.Collection;
+import java.util.SortedSet;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
 
-import io.github.composix.math.Accessor;
-import io.github.composix.math.ArgsOrdinal;
-import io.github.composix.math.Keys;
-import io.github.composix.math.Ordinal;
+public interface KeysI<A, N> {
+  ArgsI<N> toArgsI();
 
-public interface KeysI<A,K> extends Keys {
-    default <T, KK extends Comparable<KK>> KeysI2<K,KK,A> thenBy(Ordinal col, Function<T, KK> accessor) {
-      final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-      accessObject.accessor(accessor);
-      thenBy(col, accessObject);
-      accessObject.destroy();
-      return (KeysI2<K, KK, A>) this;
-    }
-  
-    default <T> KeysI2<K,long[],A> thenBy(Ordinal col, ToLongFunction<T> accessor) {
-      final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-      accessLong.accessor(accessor);
-      thenBy(col, accessLong);
-      accessLong.destroy();
-      return (KeysI2<K, long[], A>) this;
-    }
+  SortedSet<N> toSet();
 
-    default KeysI2<A,K,long[]> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer) {
-      return (KeysI2<A, K, long[]>) collect(ArgsOrdinal.A, accessor, reducer);
-    }
+  boolean retainAll(Collection<? extends N> rhs);
 
-    <B,KK> ArgsII<A,B[]> joinMany(KeysI<B,KK> rhs);
+  <O extends Comparable<O>> KeysI2<A, O, N> thenByA(
+    Ordinal col,
+    Function<A, O> accessor
+  );
 
-    ArgsI<K> done();
+  KeysI2<A, long[], N> thenByA(Ordinal col, ToLongFunction<A> accessor);
+
+  KeysI2<A, long[], N> collectA(
+    ToLongFunction<A> accessor,
+    LongBinaryOperator reducer
+  );
+
+  <B> ArgsII<A, B> joinOne(KeysI<B, N> rhs);
+
+  <B> ArgsII<A, B[]> joinMany(KeysI<B, N> rhs);
 }
