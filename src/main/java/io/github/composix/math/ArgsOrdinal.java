@@ -60,10 +60,13 @@ public interface ArgsOrdinal extends Cloneable {
             Y = Constants.getInstance().ordinal(24),
             Z = Constants.getInstance().ordinal(25);
 
+    static Object[] OBJECT = new Object[1];
     static Object[] OBJECTS = new Object[0];
     static String[] STRINGS = new String[0];
     static long[] LONGS = new long[0];
     static BigInteger[] INTEGERS = new BigInteger[0];
+
+    static Args EMPTY = new SafeMatrix(0);
 
     Order clone() throws CloneNotSupportedException;
 
@@ -78,11 +81,31 @@ public interface ArgsOrdinal extends Cloneable {
     @Override
     String toString();
 
-    Args extend(int col, int amount, Object... arrays);
+    default Args extend(int col, int amount, Object... arrays) {
+        try {
+            return EMPTY.clone().extend(col, amount, arrays);
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-    <T> Args extend(Ordinal col, T... column);
+    default <T> Args extend(Ordinal col, T... column) {
+        final int length = column.length;
+        if (length > 0) {
+            OBJECT[0] = column;
+            return extend(col.intValue(), length, OBJECT);
+        }
+        throw new IllegalArgumentException("column must not be empty");
+    }
 
-    Args extend(Ordinal col, long... column);
+    default Args extend(Ordinal col, long... column) {
+        final int length = column.length;
+        if (length > 0) {
+            OBJECT[0] = column;
+            return extend(col.intValue(), length, OBJECT);
+        }
+        throw new IllegalArgumentException("column must not be empty");
+    }
 
     default Class<?> typeOf(Ordinal col) {
         return Void.class;

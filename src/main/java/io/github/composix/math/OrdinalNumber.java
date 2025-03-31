@@ -30,11 +30,8 @@ import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 abstract class OrdinalNumber extends Number implements Ordinal {
-    protected static Object[] OBJECT = new Object[1];
-
     static Ordinal[] ORDINALS = Constants.getInstance().ordinals;
 
-    private static final Args EMPTY = new SafeMatrix(0);
     private static final NoSuchElementException NO_SUCH_ELEMENT_EXCEPTION = new NoSuchElementException("Ordinal 0 has no predecessor");
 
     // inherited from Object
@@ -123,33 +120,6 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     }
 
     // general methods on Ordinal
-    @Override
-    public Args extend(int col, int amount, Object... arrays) {
-        try {
-            return EMPTY.clone().extend(col, amount, arrays);
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-    @Override
-    public <T> Args extend(Ordinal col, T... column) {
-        final int length = column.length;
-        if (length > 0) {
-            OBJECT[0] = column;
-            return extend(col.intValue(), length, OBJECT);
-        }
-        throw new IllegalArgumentException("column must not be empty");
-    }
-
-    @Override
-    public Args extend(Ordinal col, long... column) {
-        final int length = column.length;
-        if (length > 0) {
-            OBJECT[0] = column;
-            return extend(col.intValue(), length, OBJECT);
-        }
-        throw new IllegalArgumentException("column must not be empty");
-    }
 
     @Override
     public boolean contains(Ordinal ordinal) {
