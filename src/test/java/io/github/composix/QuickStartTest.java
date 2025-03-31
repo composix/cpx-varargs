@@ -26,6 +26,8 @@ package io.github.composix;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import io.github.composix.apis.Api;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
@@ -44,10 +46,10 @@ class QuickStartTest {
         .andOf("urls",
             "https://petstore.swagger.io/v2/swagger.json",  // Swagger v2 API JSON
             "https://petstore3.swagger.io/api/v3/openapi.json"  // Swagger v3 API JSON
-        )
+        ).withHeaders()
     );
     
-  //@Test
+  @Test
   void testShowListOfCategoryNames() throws IOException {
         // Retrieve all available pets from the API
         ArgsI<Pet> pets = petStoreApi.resource(        

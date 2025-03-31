@@ -31,6 +31,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public interface ArgsII<A, B> extends ArgsI<A> {
+  @Override
+  ArgsII<A, B> withHeaders();
+
   Iterable<B> columnB();
 
   Iterable<B> columnB(CharSequence header) throws NoSuchFieldException;

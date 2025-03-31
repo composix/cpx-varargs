@@ -29,6 +29,9 @@ import java.util.function.ToLongFunction;
 
 public interface ArgsIII<A, B, C> extends ArgsII<A, B> {
   @Override
+  ArgsIII<A, B, C> withHeaders();
+
+  @Override
   KeysIII<A, B, C, A> onA();
 
   @Override

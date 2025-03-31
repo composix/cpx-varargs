@@ -56,6 +56,8 @@ public interface ArgsI<A> {
 
   <T> ArgsII<A, T> extendB(T... columnB);
 
+  ArgsI<A> withHeaders();
+
   int size();
 
   int amount();

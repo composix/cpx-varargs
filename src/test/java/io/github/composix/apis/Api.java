@@ -24,6 +24,12 @@
 
 package io.github.composix.apis;
 
+import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
+import io.github.composix.varargs.ArgsI;
+import io.github.composix.varargs.ArgsIII;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
@@ -38,14 +44,6 @@ import java.util.Spliterators;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
-
-import io.github.composix.varargs.ArgsI;
-import io.github.composix.varargs.ArgsIII;
 
 public final class Api {
 
@@ -98,11 +96,11 @@ public final class Api {
   }
 
   public static URL toUrl(URI url) {
-      try {
-        return url.toURL();
-      } catch (MalformedURLException e) {
-        throw new UncheckedIOException(e);
-      }
+    try {
+      return url.toURL();
+    } catch (MalformedURLException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   public static JsonNode readTree(URL url) {
@@ -118,34 +116,51 @@ public final class Api {
 
   private Api(ArgsI<CharSequence> args) throws NoSuchFieldException {
     // Retrieve the URIs
-    URI[] uris = header(URI[]::new, URI.create("urls"), args.streamA("urls").map(Api::toUri));
+    URI[] uris = combineHeaderWithStream(
+      URI[]::new,
+      URI.create("urls"),
+      args.streamA("urls").map(Api::toUri)
+    );
 
     // Retrieve the Swaggers
-    JsonNode[] swaggers = header(
+    JsonNode[] swaggers = combineHeaderWithStream(
       JsonNode[]::new,
-      new TextNode("swagger"), 
-      Stream.of(uris).map(Api::toUrl).map(Api::readTree)
+      new TextNode("swagger"),
+      Stream.of(uris).skip(1).map(Api::toUrl).map(Api::readTree)
     );
 
     // Get the titles from the swaggers
-    CharSequence[] titles = header(
+    CharSequence[] titles = combineHeaderWithStream(
       CharSequence[]::new,
       "title",
       Stream.of(swaggers).skip(1).map(TITLE::text)
     );
 
     titlesWithUrisAndSwaggers = ArgsI.of(titles)
-    .extendB(uris).extendC(swaggers);
+      .extendB(uris)
+      .extendC(swaggers)
+      .withHeaders();
 
     // retain only selected titles
     titlesWithUrisAndSwaggers.onA().retainAll(args.onA().toSet());
 
     // create the Api resources
-    final Stream<Stream<ApiResource<?>>> resourcesBySwagger = titlesWithUrisAndSwaggers.onB().thenOnC().toMap().entrySet().stream().map(entry -> {
-      return Stream.of(PATHS.properties(entry.getValue())).map(path -> new ApiResource<>(entry.getKey(), path));
-    });
+    final Stream<Stream<ApiResource<?>>> resourcesBySwagger =
+      titlesWithUrisAndSwaggers
+        .onB()
+        .thenOnC()
+        .toMap()
+        .entrySet()
+        .stream()
+        .map(entry -> {
+          return Stream.of(PATHS.properties(entry.getValue())).map(path ->
+            new ApiResource<>(entry.getKey(), path)
+          );
+        });
 
-    resources = Arrays.asList(resourcesBySwagger.flatMap(x -> x).toArray(ApiResource[]::new));
+    resources = Arrays.asList(
+      resourcesBySwagger.flatMap(x -> x).toArray(ApiResource[]::new)
+    );
     if (resources.stream().distinct().count() != resources.size()) {
       throw new IllegalArgumentException("duplicate api resource path");
     }
@@ -164,7 +179,7 @@ public final class Api {
     return resource;
   }
 
-  private static <T> T[] header(
+  private static <T> T[] combineHeaderWithStream(
     IntFunction<T[]> generator,
     T header,
     Stream<T> stream

@@ -38,7 +38,7 @@ import java.util.stream.LongStream;
 
 class Table<A, B, C, P, O, N>
   extends SafeMatrix
-  implements ArgsIII<A, B, C>, KeysII2<A, B, O, N> {
+  implements ArgsIII<A, B, C>, KeysII2<A, B, O, N>, KeysIII<A,B,C,N> {
 
   protected Table(final int ordinal) {
     super(ordinal);
@@ -63,8 +63,13 @@ class Table<A, B, C, P, O, N>
 
   @Override
   public <TC> ArgsIII<A, B, TC> extendC(TC... columnC) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'extendC'");
+    return (ArgsIII<A, B, TC>) extend(C, columnC);
+  }
+
+  @Override
+  public ArgsIII<A,B,C> withHeaders() {
+    super.order().skipHeader();
+    return this;
   }
 
   @Override
@@ -187,6 +192,12 @@ class Table<A, B, C, P, O, N>
   public KeysII2<A, B, B, N> thenOnB() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'thenOnB'");
+  }
+
+  @Override
+  public KeysII2<A, B, C, N> thenOnC() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'thenOnC'");
   }
 
   @Override
