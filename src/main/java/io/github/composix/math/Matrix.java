@@ -99,27 +99,16 @@ public class Matrix extends OrderInt implements Keys, Args {
     throw new IndexOutOfBoundsException("column index exceeds omega");
   }
 
-  private Args extend(final int index, final Object[] arrays, final boolean safe) {
+  private Args extend(
+    final int index,
+    final Object[] arrays,
+    final boolean safe
+  ) {
     final int omega = OMEGA.intValue();
     final int size = ordinal / omega;
     final int length = arrays.length;
     final Object[] argv = argv();
     int target = hashCode() + index;
-    for (int i = 0; i <= length; ++i) {
-      if (argv[mask(target + i)] != null) {
-          if (index + i < size) {
-            if (safe) {
-              try {
-                return ((Matrix) clone()).extend(index, arrays, false);
-              } catch (CloneNotSupportedException e) {
-                throw new IllegalStateException(e);
-              }
-            }
-          } else {
-            throw new IllegalStateException("hash collision");
-          }
-      }
-    }  
     for (int i = 0; i < length; ++i) {
       argv[mask(target++)] = arrays[i];
     }
