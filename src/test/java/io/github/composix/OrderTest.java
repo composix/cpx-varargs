@@ -57,9 +57,9 @@ class OrderTest extends TestCase {
     Stream<String> stream = Stream.of("aap", "noot", "mies");
 
     // VarArgs
-    Args idArgs = D.extend(A, (Object) idArray.clone());
-    Args args = D.extend(A, (Object) array.clone());
-    Args matrix = D.extend(A, idArray.clone(), array.clone());
+    Args idArgs = D.extend(A, idArray.clone());
+    Args args = D.extend(A, array.clone());
+    Args matrix = D.extend(0, 3, idArray.clone(), array.clone());
 
     @BeforeEach
     void sorting() {
