@@ -86,24 +86,26 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Object... arrays
   ) {
     final int omega = OMEGA.intValue();
+    final int length = arrays.length;
+    final Object[] argv = argv();
+    if (!isOrdinal()) {
+      throw new IllegalStateException("extend not allowed after reordering");
+    }
     if (index != ordinal / omega) {
       if (index < omega) {
         throw new IndexOutOfBoundsException(
           "expected to be extended at column: " + ordinal / omega
-        );  
+        );
       }
       throw new IndexOutOfBoundsException("column index exceeds omega");
     }
-
-    final int size = ordinal / omega;
-    final int length = arrays.length;
-    final Object[] argv = argv();
     int target = hashCode() + index;
     for (int i = 0; i < length; ++i) {
       argv[mask(target++)] = arrays[i];
     }
-    ordinal = omega * Math.max(index + length, size);
-    resize(Math.max(ordinal % omega, amount));
+    ordinal = ordinal == 0
+      ? (omega * length) + amount
+      : omega * (index + length) + Math.min(ordinal % omega, amount);
     return this;
   }
 
