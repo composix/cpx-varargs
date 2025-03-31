@@ -78,21 +78,11 @@ public interface ArgsOrdinal extends Cloneable {
     @Override
     String toString();
 
-    <T> Args extend(Ordinal col, T... arrays);
+    Args extend(int col, int amount, Object... arrays);
 
-    default Args extend(Ordinal col, long... array) {
-        return extend(col, (Object) array);
-    }
+    <T> Args extend(Ordinal col, T... column);
 
-    default <T> ArgsI<T> extendA(T... arrays) {
-        extend(A, arrays);
-        return castI();
-    }
-
-    default ArgsI<long[]> extendA(long... array) {
-        extend(A, array);
-        return castI();
-    }
+    Args extend(Ordinal col, long... column);
 
     default Class<?> typeOf(Ordinal col) {
         return Void.class;

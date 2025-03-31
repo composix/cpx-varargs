@@ -80,31 +80,21 @@ public class Matrix extends OrderInt implements Keys, Args {
     return array == null ? Void.class : array.getClass().getComponentType();
   }
 
-  @Override
-  public Args extend(Ordinal col, Object... arrays) {
-    final int omega = OMEGA.intValue();
-    final int index = col.intValue();
-    if (index == ordinal / omega) {
-      if (!arrays[0].getClass().isArray()) {
-        OBJECT[0] = arrays;
-        arrays = OBJECT;
-      }
-      return extend(index, arrays, true);
-    }
-    if (index < omega) {
-      throw new IndexOutOfBoundsException(
-        "expected to be extended at column: " + ordinal / omega
-      );  
-    }
-    throw new IndexOutOfBoundsException("column index exceeds omega");
-  }
-
-  private Args extend(
+  public Args extend(
     final int index,
-    final Object[] arrays,
-    final boolean safe
+    final int amount,
+    final Object... arrays
   ) {
     final int omega = OMEGA.intValue();
+    if (index != ordinal / omega) {
+      if (index < omega) {
+        throw new IndexOutOfBoundsException(
+          "expected to be extended at column: " + ordinal / omega
+        );  
+      }
+      throw new IndexOutOfBoundsException("column index exceeds omega");
+    }
+
     final int size = ordinal / omega;
     final int length = arrays.length;
     final Object[] argv = argv();
@@ -112,13 +102,8 @@ public class Matrix extends OrderInt implements Keys, Args {
     for (int i = 0; i < length; ++i) {
       argv[mask(target++)] = arrays[i];
     }
-
-    int amount = ordinal % omega;
-    for (int i = 0; i < length; ++i) {
-      amount = Math.max(amount, Array.getLength(arrays[i]));
-    }
     ordinal = omega * Math.max(index + length, size);
-    resize(amount);
+    resize(Math.max(ordinal % omega, amount));
     return this;
   }
 

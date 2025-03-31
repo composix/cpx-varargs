@@ -124,18 +124,31 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     // general methods on Ordinal
     @Override
-    public Args extend(Ordinal col, Object... arrays) {
+    public Args extend(int col, int amount, Object... arrays) {
         try {
-            return EMPTY.clone().extend(col, arrays);
+            return EMPTY.clone().extend(col, amount, arrays);
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException(e);
         }
     }
+    @Override
+    public <T> Args extend(Ordinal col, T... column) {
+        final int length = column.length;
+        if (length > 0) {
+            OBJECT[0] = column;
+            return extend(col.intValue(), length, OBJECT);
+        }
+        throw new IllegalArgumentException("column must not be empty");
+    }
 
     @Override
-    public Args extend(Ordinal col, long...array) {
-        OBJECT[0] = array;
-        return extend(col, OBJECT);
+    public Args extend(Ordinal col, long... column) {
+        final int length = column.length;
+        if (length > 0) {
+            OBJECT[0] = column;
+            return extend(col.intValue(), length, OBJECT);
+        }
+        throw new IllegalArgumentException("column must not be empty");
     }
 
     @Override
