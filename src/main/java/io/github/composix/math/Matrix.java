@@ -82,14 +82,21 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public Args extend(Ordinal col, Object... arrays) {
-    if (!OMEGA.contains(col)) {
-      throw new IndexOutOfBoundsException();
+    final int omega = OMEGA.intValue();
+    final int index = col.intValue();
+    if (index == ordinal / omega) {
+      if (!arrays[0].getClass().isArray()) {
+        OBJECT[0] = arrays;
+        arrays = OBJECT;
+      }
+      return extend(index, arrays, true);
     }
-    if (!arrays[0].getClass().isArray()) {
-      OBJECT[0] = arrays;
-      arrays = OBJECT;
+    if (index < omega) {
+      throw new IndexOutOfBoundsException(
+        "expected to be extended at column: " + ordinal / omega
+      );  
     }
-    return extend(col.intValue(), arrays, true);
+    throw new IndexOutOfBoundsException("column index exceeds omega");
   }
 
   private Args extend(final int index, final Object[] arrays, final boolean safe) {
