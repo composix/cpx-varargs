@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 
 public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<Ordinal> {
     static Ordinal of(int index) {
-        return null;
+        return OrdinalNumber.ORDINALS[index];
     }
 
     byte byteValue();
