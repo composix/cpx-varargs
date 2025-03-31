@@ -87,36 +87,33 @@ public interface Args extends ArgsOrdinal, Order {
       final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
       orderBy(col, accessor);
       accessObject.accessor(accessor);
-      groupBy(col, accessObject);
+      final Keys result = groupBy(col, accessObject).keys(col, accessObject);
       accessObject.destroy();
-      return (Keys) this;
+      return result;
     }
   
     default <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
       final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
       orderBy(col, accessor);
       accessLong.accessor(accessor);
-      groupBy(col, accessLong);
+      final Keys result = groupBy(col, accessLong).keys(col, accessor);
       accessLong.destroy();
-      return (Keys) this;
+      return result;
     }
 
     default <T> Keys on(Ordinal col, ToLongFunction<T> accessor) {
         orderBy(col, accessor);
         final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
         accessLong.accessor(accessor);
-        groupBy(col, accessLong);
-        Keys result = ((Keys) this).keys(col, accessLong);
+        final Keys result = groupBy(col, accessLong).keys(col, accessLong);
         accessLong.destroy();
         return result;
     }
 
     default Keys on(Ordinal col) {
         orderBy(col);
-        Class<?> type = typeOf(col);
         Accessor accessor = Accessor.of(typeOf(col));
-        groupBy(col, accessor);
-        Keys result = ((Keys) this).keys(col, accessor);
+        final Keys result = groupBy(col, accessor).keys(col, accessor);
         accessor.destroy();
         return result;
     }
