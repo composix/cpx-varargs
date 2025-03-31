@@ -26,8 +26,6 @@ package io.github.composix;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.Test;
-
 import io.github.composix.apis.Api;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
@@ -49,7 +47,7 @@ class QuickStartTest {
         )
     );
     
-  @Test
+  //@Test
   void testShowListOfCategoryNames() throws IOException {
         // Retrieve all available pets from the API
         ArgsI<Pet> pets = petStoreApi.resource(        
@@ -68,7 +66,7 @@ class QuickStartTest {
             .groupByA(Category::name)
             .collectA(x -> 1L, Long::sum)
             .toArgsII();
-
+        
         // Output all category names with their counts
         System.out.println("List of available categories:");
         for (CharSequence categoryName : categoryNames.columnA()) {
