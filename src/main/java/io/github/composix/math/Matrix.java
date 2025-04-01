@@ -299,16 +299,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Object source = argv(col.intValue());
     final int count = count(amount, source, accessor);
     final Ordinal[] indices = new Ordinal[count];
-    int k = 0;
-    while (argv(--k) != null) {
-      argv(k, null);
-    }
-    k = size();
-    while (argv(k) != null) {
-      argv(k++, null);
+    if (argv(-1) != null) {
+      throw new ConcurrentModificationException("grouping already in progress");
     }
     argv(-1, indices);
-    k = 0;
+    int k = 0;
     accessor.setValueAt(rank(0), source);
     for (int i = 1; i < amount; ++i) {
       if (accessor.compareAt(rank(i), source) < 0) {
