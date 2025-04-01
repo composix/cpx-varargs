@@ -12,6 +12,20 @@
     <artifactId>cpx-varargs</artifactId>
     <version>0.1.1</version>
 
+   <developers>
+        <developer>
+            <id>jmv</id>
+            <name>dr. ir. J. M. Valk</name>
+            <email>jeroen@composix.nl</email>
+            <url>https://composix.blogspot.com</url>
+            <roles>
+                <role>Computer Scientist</role>
+            </roles>
+            <organization>ComPosiX</organization>
+            <organizationUrl>http://composix.github.io</organizationUrl>
+        </developer>
+    </developers>
+
 	<properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>

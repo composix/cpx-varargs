@@ -13,7 +13,7 @@ ComPosiX VarArgs (aka ***cpx-varargs***) is a powerful framework of classes and 
 
 ## Getting Started
 
-To help you get started with cpx-varargs, let's consider an example where you're managing a shop using the [Petstore API](https://petstore3.swagger.io). In this scenario, customers are calling to inquire whether you have pets available in a certain category.
+To help you get started with *cpx-varargs*, let's consider an example where you're managing a shop using the [Petstore API](https://petstore3.swagger.io). In this scenario, customers are calling to inquire whether you have pets available in a certain category.
 
 The first thing you'll need is a list of available categories. Unfortunately, the API doesn't provide a direct resource path to query all categories. However, you can retrieve the categories indirectly by fetching all available pets from [this endpoint](https://petstore.swagger.io/v2/pet/findByStatus?status=available). If you click the link, you'll notice there is a large number of pets listed. Manually collecting all the categories from this data would be a tedious task, which is where *cpx-varargs* comes in handy.
 ```Java
@@ -32,29 +32,27 @@ public class MyPetstore {
         )
     );
     
-    // see also QuickStartTest::testShowListOfCategoryNames
+    // Main method to retrieve and process pet store data
     public static void main(String[] args) throws IOException {
-        // Retrieve all available pets from the API
-        ArgsI<Pet> pets = petStoreApi.resource(        
-            "/pet/findByStatus",  // API endpoint path
-            Pet[].class           // Data transfer object (DTO) for pets        
-        ).get("?status=available");
+    // Retrieve all available pets from the API based on their status
+        ArgsI<Pet> pets = petStoreApi
+        .resource(
+            (CharSequence) "/pet/findByStatus", // API endpoint to fetch pets by status
+            Pet.class                           // Pet class as the DTO
+        )
+        .get("?status=available");              // Fetch pets with the status "available"
 
-        // Group pets by category and count them
-        ArgsI<Category> categories = pets
-            .groupByA(Pet::category)
-            .collectA(x -> 1L, Long::sum);
+        // Extract unique category names from the list of pets
+        ArgsI<String> categoryNames = pets
+            .groupByA(Pet::category)    // get unique categories
+            .collect()                  // collect into ArgsI<Category>
+            .groupByA(Category::name)   // get unique names
+            .collect();                 // collect again
 
-        // Group categories by name and count them
-        ArgsI<String> categoryNames = categories
-            .groupByA(Category::name)
-            .collectA(x -> 1L, Long::sum);
-
-        // Output all category names with their counts
+        // Output all category names
         System.out.println("List of available categories:");
-
-        for (Row row : categoryNames.rows()) {
-            System.out.println(row);
+        for (CharSequence categoryName : categoryNames.columnA()) {
+            System.out.println(categoryName);
         }
     }
 }
