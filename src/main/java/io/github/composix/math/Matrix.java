@@ -392,9 +392,29 @@ public class Matrix extends OrderInt implements Keys, Args {
         )
       );
     } else {
-      throw new IllegalArgumentException();
+      if (!cancel()) {
+        throw new SecurityException("joining only allowed when grouping");
+      };
+      if (!matrix.cancel()) {
+        throw new SecurityException("argument is not grouping");
+      }
+      throw new IllegalArgumentException("mapping is one-to-many");
     }
     return this;
+  }
+
+  private boolean cancel() {
+    final VarArgs varargs = varArgs();
+    final Object[] argv = varargs.argv;
+    final int mask = varargs.mask();
+    int i = hashCode() & mask;
+    if (argv[--i & mask] == null) {
+      return false;
+    }
+    do {
+      argv[i & mask] = null;
+    } while(argv[--i & mask] != null);
+    return true;
   }
 
   @Override
