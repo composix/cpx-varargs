@@ -312,11 +312,10 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
     }
     indices[k] = ORDINALS[amount];
-    return this;
+    return keys(col, accessor);
   }
 
-  @Override
-  public Keys keys(Ordinal col, Accessor accessor) {
+  private Keys keys(Ordinal col, Accessor accessor) {
     final Ordinal[] indices = indices();
     final int count = indices.length;
     final Object source = argv(col.intValue());

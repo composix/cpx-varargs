@@ -30,6 +30,7 @@ public class MyPetstore {
             "https://petstore.swagger.io/v2/swagger.json",  // Swagger v2 API JSON
             "https://petstore3.swagger.io/api/v3/openapi.json"  // Swagger v3 API JSON
         )
+        .withHeaders();
     );
     
     // Main method to retrieve and process pet store data

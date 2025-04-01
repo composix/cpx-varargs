@@ -87,7 +87,7 @@ public interface Args extends ArgsOrdinal, Order {
       final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
       orderBy(col, accessor);
       accessObject.accessor(accessor);
-      final Keys result = groupBy(col, accessObject).keys(col, accessObject);
+      final Keys result = groupBy(col, accessObject);
       accessObject.destroy();
       return result;
     }
@@ -96,7 +96,7 @@ public interface Args extends ArgsOrdinal, Order {
       final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
       orderBy(col, accessor);
       accessLong.accessor(accessor);
-      final Keys result = groupBy(col, accessLong).keys(col, accessor);
+      final Keys result = groupBy(col, accessLong);
       accessLong.destroy();
       return result;
     }
@@ -105,7 +105,7 @@ public interface Args extends ArgsOrdinal, Order {
         orderBy(col, accessor);
         final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
         accessLong.accessor(accessor);
-        final Keys result = groupBy(col, accessLong).keys(col, accessLong);
+        final Keys result = groupBy(col, accessLong);
         accessLong.destroy();
         return result;
     }
@@ -113,7 +113,7 @@ public interface Args extends ArgsOrdinal, Order {
     default Keys on(Ordinal col) {
         orderBy(col);
         Accessor accessor = Accessor.of(typeOf(col));
-        final Keys result = groupBy(col, accessor).keys(col, accessor);
+        final Keys result = groupBy(col, accessor);
         accessor.destroy();
         return result;
     }

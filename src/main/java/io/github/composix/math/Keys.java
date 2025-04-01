@@ -29,8 +29,6 @@ import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
 
 public interface Keys {
-    Keys keys(Ordinal col, Accessor accessor);
-
     void thenBy(Ordinal col, Accessor accessor);
 
     <T> Args collect(Ordinal col, ToLongFunction<T> accessor, LongBinaryOperator reducer);
@@ -38,23 +36,6 @@ public interface Keys {
     Args joinOne(Keys rhs);
 
     Args joinMany(Keys rhs);
-
-    default <T,K extends Comparable<K>> Keys keys(Ordinal col, Function<T,K> accessor) {
-      Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-      accessObject.accessor(accessor);
-      return keys(col, accessObject);  
-    }
-
-    default <T> Keys keys(Ordinal col, ToLongFunction<T> accessor) {
-      Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-      accessLong.accessor(accessor);
-      return keys(col, accessLong);  
-    }
-
-    default Keys keys(Ordinal col) {
-      Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-      return keys(col, accessLong);
-    }
 
     default <T, K extends Comparable<K>> Keys thenBy(Ordinal col, Function<T, K> accessor) {
       final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
