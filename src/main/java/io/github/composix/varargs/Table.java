@@ -28,17 +28,17 @@ import io.github.composix.math.Args;
 import io.github.composix.math.Ordinal;
 import io.github.composix.math.SafeMatrix;
 import io.github.composix.math.VarArgs;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
-class Table<A, B, C, P, O, N>
+class Table<A, B, C, N, O, P>
   extends SafeMatrix
-  implements ArgsIII<A, B, C>, KeysII2<A, B, O, N>, KeysIII<A,B,C,N> {
+  implements ArgsIII<A, B, C>, KeysII2<A, B, N, O>, KeysIII<A, B, C, N> {
 
   protected Table(final int ordinal) {
     super(ordinal);
@@ -67,7 +67,7 @@ class Table<A, B, C, P, O, N>
   }
 
   @Override
-  public ArgsIII<A,B,C> withHeaders() {
+  public ArgsIII<A, B, C> withHeaders() {
     super.order().skipHeader();
     return this;
   }
@@ -132,23 +132,11 @@ class Table<A, B, C, P, O, N>
   }
 
   @Override
-  public KeysIII<A, B, C, long[]> groupByA(final ToLongFunction<A> accessor) {
-    return (KeysIII<A, B, C, long[]>) groupBy(A, accessor);
+  public LongIII<A, B, C> groupByA(final ToLongFunction<A> accessor) {
+    return (LongIII<A, B, C>) groupBy(A, accessor);
   }
 
-  public ArgsI<N> toArgsI() {
-    return toArgs();
-  }
-
-  public ArgsII<N, O> toArgsII() {
-    return toArgs();
-  }
-
-  public ArgsIII<N, O, P> toArgsIII() {
-    return (ArgsIII<N, O, P>) toArgs();
-  }
-
-  private ArgsII<N, O> toArgs() {
+  public ArgsIII<N, O, P> collect() {
     VarArgs varargs = varArgs();
     final int mask = varargs.mask();
     final Object[] argv = varargs.argv;
@@ -164,68 +152,41 @@ class Table<A, B, C, P, O, N>
       result.order().reorder(NATURAL_ORDER);
       result.order().resize(OMEGA.intValue() * index + indices.length);
       export(result, size, index);
-      return (ArgsII<N, O>) result;
+      return (ArgsIII<N, O, P>) result;
     } catch (CloneNotSupportedException e) {
       throw new AssertionError();
     }
   }
 
   @Override
-  public SortedSet<N> toSet() {
+  public List<A> asListA() {
     // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'toSet'");
+    throw new UnsupportedOperationException("Unimplemented method 'asListA'");
   }
 
   @Override
-  public boolean retainAll(Collection<? extends N> rhs) {
+  public KeysII<A, B, N> andByA(Ordinal col, Function<A, N> accessor) {
     // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'retainAll'");
+    throw new UnsupportedOperationException("Unimplemented method 'andByA'");
   }
 
   @Override
-  public <TB> ArgsII<A, TB[]> joinMany(KeysI<TB, N> rhs) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'joinMany'");
-  }
-
-  @Override
-  public KeysII2<A, B, B, N> thenOnB() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'thenOnB'");
-  }
-
-  @Override
-  public KeysII2<A, B, C, N> thenOnC() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'thenOnC'");
-  }
-
-  @Override
-  public <B> ArgsII<A, B> joinOne(KeysI<B, N> rhs) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'joinOne'");
-  }
-
-  @Override
-  public <P extends Comparable<P>> KeysI3<A, P, N, O> thenByA(
+  public <O extends Comparable<O>> KeysII2<A, B, N, O> thenByA(
     Ordinal col,
-    Function<A, P> accessor
+    Function<A, O> accessor
   ) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'thenByA'");
   }
 
   @Override
-  public KeysI3<A, long[], N, O> thenByA(
-    Ordinal col,
-    ToLongFunction<A> accessor
-  ) {
+  public LongII1<A, B, N> thenByA(Ordinal col, ToLongFunction<A> accessor) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'thenByA'");
   }
 
   @Override
-  public KeysI3<A, long[], N, O> collectA(
+  public LongII1<A, B, N> collectA(
     ToLongFunction<A> accessor,
     LongBinaryOperator reducer
   ) {
@@ -234,17 +195,70 @@ class Table<A, B, C, P, O, N>
   }
 
   @Override
-  public Map<N, O> toMap() {
+  public KeysII2<A, B, N, B> thenOnB() {
     // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'toMap'");
+    throw new UnsupportedOperationException("Unimplemented method 'thenOnB'");
   }
 
   @Override
-  public <P extends Comparable<P>> KeysII3<A, B, P, N, O> thenByA2(
+  public <B> ArgsII<A, B> join(KeysI<B, N> rhs) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'join'");
+  }
+
+  @Override
+  public KeysII2<A, B, N, O> andByA2(Ordinal col, Function<A, O> accessor) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'andByA2'");
+  }
+
+  @Override
+  public <P extends Comparable<P>> KeysII3<A, B, N, O, P> thenByA2(
     Ordinal col,
-    Function<A, P> accessor
+    Function<A, O> accessor
   ) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'thenByA2'");
+  }
+
+  @Override
+  public LongII2<A, B, N, O> thenByA2(Ordinal col, ToLongFunction<A> accessor) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'thenByA2'");
+  }
+
+  @Override
+  public LongII2<A, B, N, O> collectA2(
+    ToLongFunction<A> accessor,
+    LongBinaryOperator reducer
+  ) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'collectA2'");
+  }
+
+  @Override
+  public Map<A, B> asMap() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'asMap'");
+  }
+
+  @Override
+  public Map<B, A> asInverseMap() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException(
+      "Unimplemented method 'asInverseMap'"
+    );
+  }
+
+  @Override
+  public <B> ArgsII<A, B> joinMany(Function<N, Stream<B>> rhs) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'joinMany'");
+  }
+
+  @Override
+  public KeysIII2<A, B, C, N, C> andOnC() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'andOnC'");
   }
 }

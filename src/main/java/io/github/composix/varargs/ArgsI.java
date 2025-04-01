@@ -26,6 +26,7 @@ package io.github.composix.varargs;
 
 import io.github.composix.math.Order;
 import io.github.composix.math.Ordinal;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
@@ -49,6 +50,8 @@ public interface ArgsI<A> {
     nothing.extend(nothing, columnA).export(result, 0, 1);
     return result;
   }
+
+  List<A> asListA();
 
   ArgsI<A> andOf(A... columnA);
 
@@ -76,7 +79,7 @@ public interface ArgsI<A> {
 
   <N extends Comparable<N>> KeysI<A, N> groupByA(Function<A, N> accessor);
 
-  KeysI<A, long[]> groupByA(ToLongFunction<A> accessor);
+  LongI<A> groupByA(ToLongFunction<A> accessor);
 
   default Stream<A> streamA() {
     return StreamSupport.stream(columnA().spliterator(), false);

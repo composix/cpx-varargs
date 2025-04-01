@@ -24,5 +24,17 @@
 
 package io.github.composix.varargs;
 
-public interface KeysII3<A, B, N, O, P>
-  extends KeysII2<A, B, N, O>, KeysI3<A, N, O, P> {}
+import io.github.composix.math.Ordinal;
+import java.util.function.LongBinaryOperator;
+import java.util.function.ToLongFunction;
+
+public interface LongI1<A, N> extends LongI<A> {
+  @Override
+  ArgsII<long[], N> collect();
+
+  @Override
+  LongI1<A, N> andByA(Ordinal col, ToLongFunction<A> accessor);
+
+  @Override
+  LongI1<A, N> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer);
+}

@@ -24,6 +24,7 @@
 
 package io.github.composix.varargs;
 
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
@@ -31,6 +32,10 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public interface ArgsII<A, B> extends ArgsI<A> {
+  Map<A, B> asMap();
+
+  Map<B, A> asInverseMap();
+
   @Override
   ArgsII<A, B> withHeaders();
 
@@ -49,7 +54,7 @@ public interface ArgsII<A, B> extends ArgsI<A> {
   <N extends Comparable<N>> KeysII<A, B, N> groupByA(Function<A, N> accessor);
 
   @Override
-  KeysII<A, B, long[]> groupByA(ToLongFunction<A> accessor);
+  LongII<A, B> groupByA(ToLongFunction<A> accessor);
 
   default Stream<B> streamB() {
     return StreamSupport.stream(columnB().spliterator(), false);

@@ -25,6 +25,5 @@
 package io.github.composix.varargs;
 
 public interface KeysIII<A, B, C, N> extends KeysII<A, B, N> {
-  // TODO: return type should be KeysIII2<A,B,C,C,N>
-  KeysII2<A, B, C, N> thenOnC();
+  KeysIII2<A, B, C, N, C> andOnC();
 }

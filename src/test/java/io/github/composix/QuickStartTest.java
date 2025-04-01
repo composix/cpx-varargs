@@ -32,7 +32,6 @@ import io.github.composix.apis.Api;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.varargs.ArgsI;
-import io.github.composix.varargs.ArgsII;
 
 class QuickStartTest {
 
@@ -57,19 +56,14 @@ class QuickStartTest {
             Pet.class           // Data transfer object (DTO) for pets        
         ).get("?status=available");
 
-        // Group pets by category and count them
-        ArgsII<Category, long[]> categories = pets
-            .groupByA(Pet::category)
-            .collectA(x -> 1L, Long::sum)
-            .toArgsII();
-
-        // Group categories by name and count them
-        ArgsII<String, long[]> categoryNames = categories
-            .groupByA(Category::name)
-            .collectA(x -> 1L, Long::sum)
-            .toArgsII();
+        // Extract unique category names from the list of pets
+        ArgsI<String> categoryNames = pets
+            .groupByA(Pet::category) // get unique categories
+            .collect()               // collect into ArgsI<Category>
+            .groupByA(Category::name) // get unique names
+            .collect();                // collect again
         
-        // Output all category names with their counts
+        // Output all category names
         System.out.println("List of available categories:");
         for (CharSequence categoryName : categoryNames.columnA()) {
             System.out.println(categoryName);

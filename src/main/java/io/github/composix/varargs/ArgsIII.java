@@ -45,5 +45,5 @@ public interface ArgsIII<A, B, C> extends ArgsII<A, B> {
   );
 
   @Override
-  KeysIII<A, B, C, long[]> groupByA(ToLongFunction<A> accessor);
+  LongIII<A, B, C> groupByA(ToLongFunction<A> accessor);
 }

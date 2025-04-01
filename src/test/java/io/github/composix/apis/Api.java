@@ -24,19 +24,12 @@
 
 package io.github.composix.apis;
 
-import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
-import io.github.composix.varargs.ArgsI;
-import io.github.composix.varargs.ArgsIII;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Spliterator;
@@ -44,6 +37,15 @@ import java.util.Spliterators;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
+
+import io.github.composix.varargs.ArgsI;
+import io.github.composix.varargs.ArgsII;
+import io.github.composix.varargs.ArgsIII;
 
 public final class Api {
 
@@ -63,14 +65,14 @@ public final class Api {
       return json.at(pointer).asText();
     }
 
-    public CharSequence[] properties(JsonNode json) {
+    public Stream<CharSequence> properties(JsonNode json) {
       return StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(
           json.at(pointer).fieldNames(),
           Spliterator.ORDERED
         ),
         false
-      ).toArray(CharSequence[]::new);
+      );
     }
   }
 
@@ -112,7 +114,7 @@ public final class Api {
   }
 
   private final ArgsIII<CharSequence, URI, JsonNode> titlesWithUrisAndSwaggers;
-  private final List<ApiResource<?>> resources;
+  private final List<ApiResource<Object>> resources;
 
   private Api(ArgsI<CharSequence> args) throws NoSuchFieldException {
     // Retrieve the URIs
@@ -142,30 +144,27 @@ public final class Api {
       .withHeaders();
 
     // retain only selected titles
-    titlesWithUrisAndSwaggers.onA().retainAll(args.onA().toSet());
+    titlesWithUrisAndSwaggers
+      .onA()
+      .collect()
+      .asListA()
+      .retainAll(args.onA().collect().asListA());
+
+    // collect uris/swaggers
+    final ArgsII<URI, JsonNode> urisAndSwaggers = titlesWithUrisAndSwaggers
+      .onB()
+      .andOnC()
+      .collect();
 
     // create the Api resources
-    final Stream<Stream<ApiResource<?>>> resourcesBySwagger =
-      titlesWithUrisAndSwaggers
-        .onB()
-        .thenOnC()
-        .toMap()
-        .entrySet()
-        .stream()
-        .map(entry -> {
-          return Stream.of(PATHS.properties(entry.getValue())).map(path ->
-            new ApiResource<>(entry.getKey(), path)
-          );
-        });
-
-    resources = Arrays.asList(
-      resourcesBySwagger.flatMap(x -> x).toArray(ApiResource[]::new)
-    );
-    if (resources.stream().distinct().count() != resources.size()) {
-      throw new IllegalArgumentException("duplicate api resource path");
-    }
-
-    Collections.sort(resources);
+    resources = urisAndSwaggers
+      .onB()    // on the swagger
+      .joinMany(PATHS::properties)  // join with the resource paths
+      .asInverseMap() // assure each path belongs to a unique API (URI)
+      .entrySet() 
+      .stream()
+      .map(entry -> new ApiResource<>(entry.getValue(), entry.getKey()))
+      .toList();
   }
 
   public final <T> ApiResource<T> resource(CharSequence path, Class<T> dto) {
