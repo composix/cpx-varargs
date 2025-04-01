@@ -25,11 +25,10 @@
 package io.github.composix.math;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,8 +46,8 @@ class KeysTest extends TestCase implements TestData {
   static Order O, P, Q, R, S, T;
   static Order[] EMPTY = new Order[0];
 
-  Args pets;
-  Args orders;
+  Matrix pets, orders;
+  VarArgs petVarArgs, orderVarArgs;
 
   @BeforeAll
   static void beforeAll() {
@@ -71,44 +70,49 @@ class KeysTest extends TestCase implements TestData {
 
   @BeforeEach
   void setUp() {
+    // Given two matrices... 
     pets = new Matrix(8);
     orders = new Matrix(6);
+
+    // ...populated with data from the TestData interface
     PETS.export(pets, 0, 1);
     ORDERS.export(orders, 0, 1);
+
+    // Then the data can be found in the underlying VarArgs
+    petVarArgs = pets.varArgs();
+    orderVarArgs = orders.varArgs();
+    assertAllEquals(
+      all(THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY),
+      petVarArgs.argv[pets.hashCode() & petVarArgs.mask()]
+    );
+    assertAllEquals(
+      all(O, P, Q, R, S, T),
+      orderVarArgs.argv[orders.hashCode() & orderVarArgs.mask()]
+    );
   }
 
   @Test
-  void testGroupBy_PETS() throws NoSuchFieldException {
-    long[] expected = { 1, 12, 15 };
+  void testGroupByCategory() throws NoSuchFieldException {
+    // When grouping pets by category...
+    assertSame(pets, pets.groupBy(A, Pet::category));
+    // ...then the same object provides both the Args and Keys intefaces
 
-    Args petsByCategory = pets
-      .groupBy(A, Pet::category)
-      .keys(A, Pet::category)
-      .collect(A, Pet::id, Long::sum);
+    // Then also the underlying VarArgs... 
+    int mask = petVarArgs.mask(), offset = pets.hashCode() & mask;
+    Object[] argv = petVarArgs.argv;
 
-    // using VarArgs
-    assertArrayEquals(
-      new Category[] {
+    // ...contains the extracted keys
+    assertAllEquals(
+      all(
         new Category(0, "cats"),
         new Category(1, "dogs"),
-        new Category(2, "other"),
-      },
-      petsByCategory.stream(B).toArray(Category[]::new)
+        new Category(2, "other")
+      ),
+      argv[++offset & mask]
     );
-    assertArrayEquals(expected, petsByCategory.longStream(0).toArray());
 
-    // using Streams
-    assertArrayEquals(
-      expected,
-      Stream.of(THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY)
-        .collect(
-          Collectors.groupingBy(Pet::category, Collectors.summingLong(Pet::id))
-        )
-        .values()
-        .stream()
-        .mapToLong(Long::longValue)
-        .toArray()
-    );
+    // And nothing else
+    assertNull(argv[++offset & mask]);
   }
 
   @Test
