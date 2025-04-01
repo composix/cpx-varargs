@@ -28,6 +28,7 @@ import io.github.composix.models.Defaults;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Function;
