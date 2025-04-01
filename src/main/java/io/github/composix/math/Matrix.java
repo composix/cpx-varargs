@@ -321,7 +321,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Object source = argv(col.intValue());
     accessor.setValueAt(rank(0), source);
     final Object keys = accessor.alloc(ORDINALS[count]);
-    argv(index(), keys);
+    argv(-2, keys);
     accessor.assign(0, keys);
     for (int i = 0; ++i < count; ++i) {
       accessor.setValueAt(rank(indices[--i]).intValue(), source);
@@ -393,11 +393,17 @@ public class Matrix extends OrderInt implements Keys, Args {
     } else {
       if (!cancel()) {
         throw new SecurityException("joining only allowed when grouping");
-      };
+      }
       if (!matrix.cancel()) {
         throw new SecurityException("argument is not grouping");
       }
       throw new IllegalArgumentException("mapping is one-to-many");
+    }
+    if (!cancel()) {
+      throw new SecurityException("joining only allowed when grouping");
+    }
+    if (!matrix.cancel()) {
+      throw new SecurityException("argument is not grouping");
     }
     return this;
   }
