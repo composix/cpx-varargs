@@ -119,7 +119,6 @@ class KeysTest extends TestCase implements TestData {
   void testGroupBy_ORDERS() {
     Args ordersByQuantity = orders
       .groupBy(A, Order::quantity)
-      .keys(A, Order::quantity)
       .collect(A, x -> 1L, Long::sum);
   }
 
