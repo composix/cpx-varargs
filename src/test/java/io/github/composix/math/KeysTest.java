@@ -30,15 +30,14 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 class KeysTest extends TestCase implements TestData {
 
@@ -70,7 +69,7 @@ class KeysTest extends TestCase implements TestData {
 
   @BeforeEach
   void setUp() {
-    // Given two matrices... 
+    // Given two matrices...
     pets = new Matrix(8);
     orders = new Matrix(6);
 
@@ -97,29 +96,54 @@ class KeysTest extends TestCase implements TestData {
     assertSame(pets, pets.groupBy(A, Pet::category));
     // ...then the same object provides both the Args and Keys intefaces
 
-    // Then also the underlying VarArgs... 
+    // Then also the underlying VarArgs...
     int mask = petVarArgs.mask(), offset = pets.hashCode() & mask;
     Object[] argv = petVarArgs.argv;
 
-    // ...contains the extracted keys
+    // ...still contains the pets
+    assertAllEquals(
+      all(THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY),
+      petVarArgs.argv[offset & mask]
+    );
+
+    // ...and contains the indices of the groups
+    assertAllEquals(all(C, F, I), argv[--offset & mask]);
+
+    // ...and contains the extracted keys
     assertAllEquals(
       all(
         new Category(0, "cats"),
         new Category(1, "dogs"),
         new Category(2, "other")
       ),
-      argv[++offset & mask]
+      argv[--offset & mask]
     );
 
     // And nothing else
-    assertNull(argv[++offset & mask]);
+    assertNull(argv[--offset & mask]);
   }
 
   @Test
   void testGroupBy_ORDERS() {
-    Args ordersByQuantity = orders
-      .groupBy(A, Order::quantity)
-      .collect(A, x -> 1L, Long::sum);
+    // When grouping orders by quantity...
+    assertSame(orders, orders.groupBy(A, Order::quantity));
+    // ...then the same object provides both the Args and Keys intefaces
+
+    // Then also the underlying VarArgs...
+    int mask = orderVarArgs.mask(), offset = orders.hashCode() & mask;
+    Object[] argv = orderVarArgs.argv;
+
+    // ...still contains the orders
+    assertAllEquals(
+      all(O, P, Q, R, S, T),
+      orderVarArgs.argv[orders.hashCode() & orderVarArgs.mask()]
+    );
+
+    // ...and contains the indices of the groups
+    assertAllEquals(all(D,G), argv[--offset & mask]);
+
+    // ...and contains the extracted quantities
+    assertAllEquals(any(1L,2L), argv[--offset & mask]);
   }
 
   @Test

@@ -386,8 +386,8 @@ public class Matrix extends OrderInt implements Keys, Args {
           matrix.argv(0),
           order(),
           matrix.order(),
-          argv(size()),
-          matrix.argv(matrix.size())
+          argv(-2),
+          matrix.argv(-2)
         )
       );
     } else {
@@ -434,8 +434,8 @@ public class Matrix extends OrderInt implements Keys, Args {
         source.getClass() == CharSequence[].class ? matrix.argv(1) : source,
         order(),
         matrix.order(),
-        argv(size()),
-        matrix.argv(matrix.size()),
+        argv(-2),
+        matrix.argv(-2),
         indices
       )
     );
@@ -602,22 +602,9 @@ public class Matrix extends OrderInt implements Keys, Args {
     return count;
   }
 
-  private int index() {
-    int index = size();
-    while (argv(index) != null) {
-      ++index;
-    }
-    return index;
-  }
-
   private Ordinal[] indices() {
-    int index = 0;
-    if (argv(--index) == null) {
-      return ALL;
-    } else {
-      while (argv(--index) != null);
-      return argv(++index);
-    }
+    final VarArgs varargs = varArgs();
+    return (Ordinal[]) varargs.argv[hashCode() - 1 & varargs.mask()];
   }
 
   private <T> Spliterator.OfLong ofLong(

@@ -63,12 +63,12 @@ public interface TestData extends ArgsOrdinal {
   static Args orders(Ordinal amount) {
     return amount.extend(
       A,
-      new Order(0, 5, 3),
+      new Order(0, 5, 1),
       new Order(1, 1, 1),
-      new Order(2, 6, 2),
-      new Order(3, 2, 3),
-      new Order(4, 4, 4),
-      new Order(5, 5, 5)
+      new Order(2, 6, 1),
+      new Order(3, 2, 2),
+      new Order(4, 4, 2),
+      new Order(5, 5, 2)
     );
   }
 }
