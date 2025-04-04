@@ -804,10 +804,4 @@ public class Matrix extends OrderInt implements Keys, Args {
       target[index] = reducer.applyAsLong(target[index], value);
     };
   }
-
-  @Override
-  public Args done() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'collect'");
-  }
 }
