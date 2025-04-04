@@ -598,6 +598,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     return this;
   }
 
+  @Override
+  public Args done() {
+    return this;
+  }
+
   private Args split(Function<CharSequence, Stream<String>> splitter) {
     if (size() != 1) {
       throw new UnsupportedOperationException("not yet implemented");
