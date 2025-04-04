@@ -1,4 +1,14 @@
 /**
+ * class Matrix
+ *
+ * This class provides the base implementation of the Args and Keys interfaces
+ * for manipulating tabular data. 
+ *
+ * Author: dr. ir. J. M. Valk
+ * Date: April 2025
+ */
+
+/**
  * MIT License
  *
  * Copyright (c) 2025 ComPosiX
@@ -30,6 +40,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
@@ -54,6 +65,8 @@ public class Matrix extends OrderInt implements Keys, Args {
   protected VarArgs varArgs() {
     return VARARGS;
   }
+
+  // from ArgsOrdinal
 
   @Override
   public Ordinal ordinal() {
@@ -110,78 +123,80 @@ public class Matrix extends OrderInt implements Keys, Args {
     return this;
   }
 
+  // from Args interface
+
   @Override
-  public Args select(Order order) {
-    final int omega = OMEGA.intValue(), oldSize = ordinal / omega, newSize =
-      order.ordinal().intValue();
-    if (oldSize < newSize) {
-      throw new IndexOutOfBoundsException();
-    }
-    final Object[] argv = argv();
-    final int hashCode = hashCode(), mask = mask();
-    order.permute(hashCode, mask, argv);
-    for (int i = newSize; i < oldSize; ++i) {
-      argv[(hashCode + i) & mask] = null;
-    }
-    ordinal = newSize * omega + (ordinal % omega);
-    return this;
+  public <T> List<T> column(Ordinal type) {
+    final VarArgs varargs = varArgs();
+    return column(varargs.argv, varargs.offset(hashCode(), type, (byte) 1));
   }
 
   @Override
-  public <T> T getValue(int index) {
-    return OMEGA.getValue(argv(), hashCode() & MASK, index, ordinals);
+  public <T> List<T> column(Ordinal ordinal, int pos) {
+    final VarArgs varargs = varArgs();
+    return column(
+      varargs.argv,
+      varargs.offset(hashCode(), ordinal, (byte) pos)
+    );
   }
 
   @Override
-  public long getLongValue(int index) {
-    return OMEGA.getLongValue(argv(), hashCode() & MASK, index, ordinals);
+  public <T> List<T> column(Class<T> type) throws NoSuchFieldException {
+    final VarArgs varargs = varArgs();
+    return column(
+      varargs.argv,
+      varargs.offset(hashCode(), type, size(), (byte) 1)
+    );
   }
 
   @Override
-  public Comparator<Ordinal> comparator(Ordinal col) {
-    switch (argv(col.intValue())) {
-      case long[] longs:
-        return (lhs,rhs) -> Long.compare(longs[lhs.intValue()], longs[rhs.intValue()]);
+  public <T> List<T> column(Class<T> type, int pos)
+    throws NoSuchFieldException {
+    final VarArgs varargs = varArgs();
+    return column(
+      varargs.argv,
+      varargs.offset(hashCode(), type, size(), (byte) pos)
+    );
+  }
+
+  private <T> List<T> column(Object[] argv, final int offset) {
+    switch (argv[offset]) {
+      case Object[] array:
+        return (List<T>) new ArgsList<>(this, array);
       default:
-        return Comparator.comparing(
-          Fn.of(col::index).intAndThen(this::getValue)
-        );
+        throw new UnsupportedOperationException();
     }
   }
 
   @Override
-  public <T, K extends Comparable<K>> Comparator<Ordinal> comparator(
-    Ordinal ordinal,
-    Function<T, K> accessor
-  ) {
-    final T[] source = argv(ordinal.intValue());
-    return (lhs, rhs) ->
-      accessor
-        .apply(source[lhs.intValue()])
-        .compareTo(accessor.apply(source[rhs.intValue()]));
+  public <T> List<T> column(CharSequence header) throws NoSuchFieldException {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'column'");
   }
 
   @Override
-  public <T> Comparator<Ordinal> comparator(
-    Ordinal ordinal,
-    ToLongFunction<T> accessor
-  ) {
-    final T[] source = argv(ordinal.intValue());
-    return (lhs, rhs) ->
-      Long.compare(
-        accessor.applyAsLong(source[lhs.intValue()]),
-        accessor.applyAsLong(source[rhs.intValue()])
-      );
+  public <T> List<T> column(CharSequence header, Class<T> type)
+    throws NoSuchFieldException {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'column'");
   }
 
   @Override
-  public <T> Iterable<T> column(Ordinal ordinal) {
-    final T[] array = argv(ordinal.intValue());
-    return Arrays.asList(array);
+  public LongStream longStream(int pos) throws NoSuchFieldException {
+    final VarArgs varargs = varArgs();
+    return stream((long[]) varargs.argv[(hashCode() + pos) & varargs.mask()]);
   }
 
   @Override
-  public <T> Iterable<T> column(Ordinal ordinal, CharSequence header)
+  public LongStream longStream(CharSequence header) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException(
+      "Unimplemented method 'longStream'"
+    );
+  }
+
+  @Override
+  public <T> List<T> column(CharSequence header, Ordinal ordinal)
     throws NoSuchFieldException {
     int position = ordinal.intValue();
     T[] array = argv(position);
@@ -208,7 +223,8 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T> Stream<T> stream(Class<T> type, int pos) throws NoSuchFieldException {
+  public <T> Stream<T> stream(Class<T> type, int pos)
+    throws NoSuchFieldException {
     final int size = size() + 1;
     for (int i = 0; i < size; ++i) {
       if (argv(i).getClass() == type.arrayType()) {
@@ -235,56 +251,21 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public LongStream longStream(int pos) throws NoSuchFieldException {
-    final int size = size() + 2;
-    for (int i = 0; i < size; ++i) {
-      if (argv(i).getClass() == long[].class) {
-        i += pos;
-        if (argv(i).getClass() == long[].class) {
-          return longStream(ORDINALS[i + pos]);
-        }
-        throw new NoSuchFieldException();
-      }
-    }
-    throw new NoSuchFieldException();
-  }
-
-  @Override
-  public Ordinal ordinalAt(final Ordinal col, Object value) {
-    if (isOrdinal()) {
-      if (value.getClass() == Long.class) {
-        final int index = Arrays.binarySearch(
-          (long[]) argv(col.intValue()),
-          ((Long) value).longValue()
-        );
-        return index < 0 ? OMEGA : ORDINALS[index];
-      }
-      final int index = Arrays.binarySearch(
-        (Object[]) argv(col.intValue()),
-        value
-      );
-      return index < 0 ? OMEGA : ORDINALS[index];
-    }
-    return ordinalAt(value, (row, key) ->
-      ((Comparable<Object>) Array.get(
-          argv(col.intValue()),
-          ((OrdinalInt) row).ordinal
-        )).compareTo(key)
-    );
-  }
-
-  @Override
   public Args split(Pattern pattern) {
     return split(pattern::splitAsStream);
   }
 
   @Override
-  public <T extends Defaults<T>> Args combine(T defaults)
+  public <T extends Defaults<T>> Args combine(T defaults, int repeat)
     throws NoSuchFieldException {
+    if (repeat != 1) {
+      throw new UnsupportedOperationException();
+    }
     final int omega = OMEGA.intValue();
     final int amount = (ordinal % omega) - 1;
     final T[] result = (T[]) ORDINALS[amount].newInstance(defaults.getClass());
-    CURSOR.position(0, ordinal, hashCode(), varArgs());
+    int offset = 0;
+    CURSOR.position(offset, ordinal, hashCode(), varArgs());
     for (int i = 0; i < amount; ++i) {
       if (!CURSOR.advance(1)) {
         throw new AssertionError();
@@ -292,6 +273,87 @@ public class Matrix extends OrderInt implements Keys, Args {
       result[i] = defaults.combine(CURSOR);
     }
     return A.extend(A, result);
+  }
+
+  @Override
+  public Args parseLong(int repeat) throws NoSuchFieldException {
+    if (repeat < 1) {
+      throw new IllegalArgumentException("must repeat at least once");
+    }
+    final int omega = OMEGA.intValue();
+    final int amount = (ordinal % omega) - 1;
+    int offset = 0;
+    ArgsOrdinal result = A;
+    do {
+      final long[] longs = new long[amount];
+      CURSOR.position(offset++, ordinal, hashCode(), varArgs());
+      for (int i = 0; i < amount; ++i) {
+        if (!CURSOR.advance(1)) {
+          throw new AssertionError();
+        }
+        longs[i] = CURSOR.getLong(0);
+      }
+      result = A.extend(A, longs);
+    } while (--repeat > 0);
+    return (Args) result;
+  }
+
+  @Override
+  public Keys on(Ordinal tpos, int pos) {
+    final VarArgs varargs = varArgs();
+    final int offset = hashCode();
+    Object column = varargs.argv[varargs.offset(offset, tpos, (byte) pos)];
+    varargs.argv[varargs.offset(offset, size())] = column;
+    return this;
+    //orderBy(col);
+    //Accessor accessor = Accessor.of(typeOf(col));
+    //final Keys result = groupBy(col, accessor);
+    //accessor.destroy();
+    //return result;
+  }
+
+  @Override
+  public <T extends Defaults<T>, K extends Comparable<K>> Keys groupBy(
+    Ordinal tpos,
+    Function<T, K> accessor
+  ) {
+    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
+    orderBy(tpos, accessor);
+    accessObject.accessor(accessor);
+    final Keys result = groupBy(tpos, accessObject);
+    accessObject.destroy();
+    return result;
+  }
+
+  @Override
+  public <T extends Defaults<T>> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
+    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
+    orderBy(col, accessor);
+    accessLong.accessor(accessor);
+    final Keys result = groupBy(col, accessLong);
+    accessLong.destroy();
+    return result;
+  }
+
+  public <T, K extends Comparable<K>> Keys _groupBy(
+    Ordinal tpos,
+    Function<T, K> accessor
+  ) {
+    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
+    orderBy(tpos, accessor);
+    accessObject.accessor(accessor);
+    final Keys result = groupBy(tpos, accessObject);
+    accessObject.destroy();
+    return result;
+  }
+
+  public <T> Keys _groupBy(Ordinal col, ToLongFunction<T> accessor) {
+    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
+    orderBy(col, accessor);
+    accessLong.accessor(accessor);
+    final Keys result = groupBy(col, accessLong);
+    accessLong.destroy();
+    return result;
   }
 
   @Override
@@ -329,6 +391,99 @@ public class Matrix extends OrderInt implements Keys, Args {
     }
     return this;
   }
+
+  // deprecated
+
+  @Override
+  public Args select(Order order) {
+    final int omega = OMEGA.intValue(), oldSize = ordinal / omega, newSize =
+      order.ordinal().intValue();
+    if (oldSize < newSize) {
+      throw new IndexOutOfBoundsException();
+    }
+    final Object[] argv = argv();
+    final int hashCode = hashCode(), mask = mask();
+    order.permute(hashCode, mask, argv);
+    for (int i = newSize; i < oldSize; ++i) {
+      argv[(hashCode + i) & mask] = null;
+    }
+    ordinal = newSize * omega + (ordinal % omega);
+    return this;
+  }
+
+  @Override
+  public <T> T getValue(int index) {
+    return OMEGA.getValue(argv(), hashCode() & MASK, index, ordinals);
+  }
+
+  @Override
+  public long getLongValue(int index) {
+    return OMEGA.getLongValue(argv(), hashCode() & MASK, index, ordinals);
+  }
+
+  @Override
+  public Comparator<Ordinal> comparator(Ordinal col) {
+    switch (argv(col.intValue())) {
+      case long[] longs:
+        return (lhs, rhs) ->
+          Long.compare(longs[lhs.intValue()], longs[rhs.intValue()]);
+      default:
+        return Comparator.comparing(
+          Fn.of(col::index).intAndThen(this::getValue)
+        );
+    }
+  }
+
+  @Override
+  public <T, K extends Comparable<K>> Comparator<Ordinal> comparator(
+    Ordinal ordinal,
+    Function<T, K> accessor
+  ) {
+    final T[] source = argv(ordinal.intValue());
+    return (lhs, rhs) ->
+      accessor
+        .apply(source[lhs.intValue()])
+        .compareTo(accessor.apply(source[rhs.intValue()]));
+  }
+
+  @Override
+  public <T> Comparator<Ordinal> comparator(
+    Ordinal ordinal,
+    ToLongFunction<T> accessor
+  ) {
+    final T[] source = argv(ordinal.intValue());
+    return (lhs, rhs) ->
+      Long.compare(
+        accessor.applyAsLong(source[lhs.intValue()]),
+        accessor.applyAsLong(source[rhs.intValue()])
+      );
+  }
+
+  @Override
+  public Ordinal ordinalAt(final Ordinal col, Object value) {
+    if (isOrdinal()) {
+      if (value.getClass() == Long.class) {
+        final int index = Arrays.binarySearch(
+          (long[]) argv(col.intValue()),
+          ((Long) value).longValue()
+        );
+        return index < 0 ? OMEGA : ORDINALS[index];
+      }
+      final int index = Arrays.binarySearch(
+        (Object[]) argv(col.intValue()),
+        value
+      );
+      return index < 0 ? OMEGA : ORDINALS[index];
+    }
+    return ordinalAt(value, (row, key) ->
+      ((Comparable<Object>) Array.get(
+          argv(col.intValue()),
+          ((OrdinalInt) row).ordinal
+        )).compareTo(key)
+    );
+  }
+
+  // from Keys interface
 
   @Override
   public void thenBy(Ordinal col, Accessor accessor) {
@@ -372,7 +527,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public Args joinOne(Keys rhs) {
+  public Keys joinOne(Keys rhs) {
     final Matrix matrix = (Matrix) rhs;
     final Ordinal[] indices = matrix.indices();
     if (indices.length == matrix.amount()) {
@@ -418,12 +573,12 @@ public class Matrix extends OrderInt implements Keys, Args {
     }
     do {
       argv[i & mask] = null;
-    } while(argv[--i & mask] != null);
+    } while (argv[--i & mask] != null);
     return true;
   }
 
   @Override
-  public Args joinMany(Keys rhs) {
+  public Keys joinMany(Keys rhs) {
     final Matrix matrix = (Matrix) rhs;
     final Ordinal[] indices = matrix.indices();
     final Object[] source = matrix.argv(0);
@@ -451,7 +606,9 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Object[] argv = argv();
     int size = 0;
     for (int j = 0; j < amount; ++j) {
-      Iterator<String> iterator = splitter.apply(((CharSequence[]) argv[0])[j]).iterator();
+      Iterator<String> iterator = splitter
+        .apply(((CharSequence[]) argv[0])[j])
+        .iterator();
       int i = 0;
       while (iterator.hasNext()) {
         String item = iterator.next();
@@ -604,7 +761,7 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   private Ordinal[] indices() {
     final VarArgs varargs = varArgs();
-    return (Ordinal[]) varargs.argv[hashCode() - 1 & varargs.mask()];
+    return (Ordinal[]) varargs.argv[(hashCode() - 1) & varargs.mask()];
   }
 
   private <T> Spliterator.OfLong ofLong(
@@ -641,5 +798,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     return value -> {
       target[index] = reducer.applyAsLong(target[index], value);
     };
+  }
+
+  @Override
+  public Args done() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'collect'");
   }
 }

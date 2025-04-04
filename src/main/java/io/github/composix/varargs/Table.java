@@ -84,7 +84,7 @@ class Table<A, B, C, N, O, P>
 
   @Override
   public Iterable<A> columnA(CharSequence header) throws NoSuchFieldException {
-    return column(A, header);
+    return column(header, A);
   }
 
   @Override
@@ -94,7 +94,7 @@ class Table<A, B, C, N, O, P>
 
   @Override
   public Iterable<B> columnB(CharSequence header) throws NoSuchFieldException {
-    return column(B, header);
+    return column(header, B);
   }
 
   @Override
@@ -109,7 +109,7 @@ class Table<A, B, C, N, O, P>
 
   @Override
   public KeysIII<A, B, C, A> onA() {
-    return (KeysIII<A, B, C, A>) on(A);
+    return (KeysIII<A, B, C, A>) on(A, 1);
   }
 
   @Override
@@ -128,12 +128,12 @@ class Table<A, B, C, N, O, P>
   public <KN extends Comparable<KN>> KeysIII<A, B, C, KN> groupByA(
     final Function<A, KN> accessor
   ) {
-    return (KeysIII<A, B, C, KN>) groupBy(A, accessor);
+    return (KeysIII<A, B, C, KN>) _groupBy(A, accessor);
   }
 
   @Override
   public LongIII<A, B, C> groupByA(final ToLongFunction<A> accessor) {
-    return (LongIII<A, B, C>) groupBy(A, accessor);
+    return (LongIII<A, B, C>) _groupBy(A, accessor);
   }
 
   public ArgsIII<N, O, P> collect() {

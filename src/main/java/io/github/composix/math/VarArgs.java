@@ -1,4 +1,14 @@
 /**
+ * class VarArgs
+ *
+ * VarArgs is the main helper class for the class Matrix to implement the Args
+ * and Keys interfaces. It maintains tabular-like data in a varargs kind of way.
+ *
+ * Author: dr. ir. J. M. Valk
+ * Date: April 2025
+ */
+
+/**
  * MIT License
  *
  * Copyright (c) 2025 ComPosiX
@@ -26,6 +36,8 @@ package io.github.composix.math;
 
 public final class VarArgs implements Cloneable{
     public static final VarArgs VARARGS = new VarArgs(Short.SIZE);
+
+    private static IndexOutOfBoundsException OUT_OF_BOUNDS = new IndexOutOfBoundsException("position out of bounds");
 
     public final Object[] argv;
 
@@ -62,6 +74,19 @@ public final class VarArgs implements Cloneable{
         return --result;
     }
 
+    public final int offset(int offset, Ordinal col, byte pos) {
+        return offset(offset, mask(), col.intValue(), pos);
+    }
+
+    public final int offset(int offset, Class<?> type, int size, byte pos) {
+        final int mask = mask();
+        return (offset(offset, mask, type, size) + pos) & mask;
+    }
+
+    public final int offset(int offset, int position) {
+        return (offset + position) & mask();
+    }
+
     final void export(int sourceHash, int size, int targetHash, VarArgs target) {
         export(argv, sourceHash, mask(), target.argv, targetHash, target.mask(), size);
     }
@@ -71,7 +96,46 @@ public final class VarArgs implements Cloneable{
         export(argv, sourceHash, mask, argv, targetHash, mask, size);
     }
 
+    private int offset(int offset, int mask, int index, byte pos) {
+        if (pos < 1) {
+            throw OUT_OF_BOUNDS;
+        }
+        int length;
+        do {
+            final Class<?> type = argv[offset & mask].getClass();
+            length = length(offset, mask, type);
+            offset += length;
+        } while(index-- > 0);
+        if (pos > length) {
+            throw OUT_OF_BOUNDS;
+        }
+        return (offset + --pos) & mask;
+    }
+
+    private int offset(int offset, int mask, Class<?> type, int size) {
+        offset &= mask;
+        if (argv[offset] == type) {
+            return offset;
+        }
+        while (--size > 0 && argv[++offset & mask] != type);
+        if (size > 0) {
+            return offset & mask;
+        }
+        throw new IndexOutOfBoundsException();
+    }
+
+    private int length(int offset, final int mask, final Class<?> type) {
+        int result = 0;
+        while (argv[offset++ & mask].getClass() == type) {
+            ++result;
+        }
+        return result;
+    }
+
     private static final void export(Object source, int sourceHash, int sourceMask, Object target, int targetHash, int targetMask, int size) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("size must be greater than 0");  
+        }
         if (size <= sourceMask && size <= targetMask) {
             final int sourcePos = sourceHash & sourceMask, targetPos = targetHash & targetMask;
             if (sourcePos < ((sourcePos + size) & sourceMask)) {

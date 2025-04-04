@@ -1,4 +1,12 @@
 /**
+ * JUnit Test to demonstrate the retrieval of all available pet categories
+ * from the Swagger Petstore API endpoint /pet/findByStatus.
+ *
+ * Author: dr. ir. J. M. Valk
+ * Date: April 2025
+ */
+
+/**
  * MIT License
  *
  * Copyright (c) 2025 ComPosiX
@@ -24,49 +32,65 @@
 
 package io.github.composix;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
-
 import io.github.composix.apis.Api;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
+import io.github.composix.testing.TestCase;
 import io.github.composix.varargs.ArgsI;
+import java.io.IOException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-class QuickStartTest {
+class QuickStartTest extends TestCase {
 
-    static Api petStoreApi = Api.select(ArgsI
-        // Title for the Swagger Petstore API (OpenAPI 3.0 version)
-        .of("title", "Swagger Petstore - OpenAPI 3.0")  
-        
-        // Alternatively, use the older Swagger Petstore v2 API by uncommenting the next line:
-        // .of("title", "Swagger Petstore")  // Title for the Swagger Petstore v2 API (OpenAPI 2.0)
+  static Api petStoreApi;
 
-        .andOf("urls",
-            "https://petstore.swagger.io/v2/swagger.json",  // Swagger v2 API JSON
-            "https://petstore3.swagger.io/api/v3/openapi.json"  // Swagger v3 API JSON
-        ).withHeaders()
+  @BeforeAll
+  static void setup() {
+    petStoreApi = Api.select(
+      ArgsI.of(
+        "title:",
+        "Swagger Petstore - OpenAPI 3.0" // Title for the Swagger Petstore API (OpenAPI 3.0 version)
+      )
+      
+      // Alternatively, use the older Swagger Petstore v2 API by uncommenting the next line:
+      // .of("title:", "Swagger Petstore")  // Title for the Swagger Petstore v2 API (OpenAPI 2.0)
+
+      .andOf(
+        "url:",
+        "https://petstore.swagger.io/v2/swagger.json", // Swagger v2 API JSON
+        "https://petstore3.swagger.io/api/v3/openapi.json" // Swagger v3 API JSON
+      )
     );
-    
-  @Test
-  void testShowListOfCategoryNames() throws IOException {
-        // Retrieve all available pets from the API
-        ArgsI<Pet> pets = petStoreApi.resource(        
-            (CharSequence) "/pet/findByStatus",  // API endpoint path
-            Pet.class           // Data transfer object (DTO) for pets        
-        ).get("?status=available");
+  }
 
-        // Extract unique category names from the list of pets
-        ArgsI<String> categoryNames = pets
-            .groupByA(Pet::category) // get unique categories
-            .collect()               // collect into ArgsI<Category>
-            .groupByA(Category::name) // get unique names
-            .collect();                // collect again
-        
-        // Output all category names
-        System.out.println("List of available categories:");
-        for (CharSequence categoryName : categoryNames.columnA()) {
-            System.out.println(categoryName);
-        }
+  @Test
+  void testAvailablePetCategories() throws IOException {
+    // Given all available pets from the API based on their status
+    ArgsI<Pet> pets = petStoreApi
+      .resource(
+        (CharSequence) "/pet/findByStatus", // API endpoint to fetch pets by status
+        Pet.class // Pet class as the DTO
+      )
+      .get("?status=available"); // Fetch pets with the status "available"
+
+    // When using grouping to get unique category names from the list of pets
+    ArgsI<String> categoryNames = pets
+      .groupByA(Pet::category) // group by pet category
+      .collect() // collect distinct categories into ArgsI<Category>
+      .groupByA(Category::name) // Group by category name
+      .collect(); // collect again to get the list of distinct category names
+
+    // Then the Stream approach yields the same results
+    assertAllEquals(
+      pets
+        .streamA()
+        .map(Pet::category)
+        .map(Category::name)
+        .distinct()
+        .sorted()
+        .toArray(String[]::new),
+      categoryNames.streamA().toArray(String[]::new)
+    );
   }
 }

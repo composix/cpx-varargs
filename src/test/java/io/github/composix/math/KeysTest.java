@@ -1,4 +1,24 @@
 /**
+ * KeysTest
+ *
+ * This test class contains unit tests for the functionalities provided by the 
+ * {@link io.github.composix.math.Keys} class, specifically focusing on operations 
+ * related to grouping, joining, and sorting tabular data represented as matrices.
+ *
+ * Key Features Tested:
+ * - Grouping operations (e.g., groupBy) on data sets such as {@link Pet} and {@link Order}.
+ * - Joining operations, including both one-to-one joins (joinOne) and many-to-many joins (joinMany).
+ * - The ability to sort and manipulate grouped data using additional sorting criteria (thenBy).
+ * - Verifying the integrity of the underlying {@link VarArgs} data structure after operations.
+ *
+ * The tests ensure that these operations are functioning correctly, including edge cases 
+ * where the data may be empty, improperly matched, or require custom sorting logic.
+ *
+ * Author: dr. ir. J. M. Valk
+ * Date: April 2025
+ */
+
+/**
  * MIT License
  *
  * Copyright (c) 2025 ComPosiX
@@ -140,10 +160,10 @@ class KeysTest extends TestCase implements TestData {
     );
 
     // ...and contains the indices of the groups
-    assertAllEquals(all(D,G), argv[--offset & mask]);
+    assertAllEquals(all(D, G), argv[--offset & mask]);
 
     // ...and contains the extracted quantities
-    assertAllEquals(any(1L,2L), argv[--offset & mask]);
+    assertAllEquals(any(1L, 2L), argv[--offset & mask]);
   }
 
   @Test
@@ -164,16 +184,20 @@ class KeysTest extends TestCase implements TestData {
   @Test
   void testJoinOne() {
     assertThrows(IllegalArgumentException.class, () ->
-      pets.on(A, Pet::id).joinOne(orders.on(A, Order::petId))
+      pets.groupBy(A, Pet::id).joinOne(orders.groupBy(A, Order::petId))
     );
 
-    Args result = orders.on(A, Order::petId).joinOne(pets.on(A, Pet::id));
+    Args result = orders
+      .groupBy(A, Order::petId)
+      .joinOne(pets.groupBy(A, Pet::id))
+      .done();
     result.orderBy(A, Order::id);
     assertTrue(result.isOrdinal());
 
+    
     assertAllSame(
-      orders.stream(A).toArray(Order[]::new),
-      result.stream(A).toArray(Order[]::new)
+      orders.column(A).stream().toArray(Order[]::new),
+      result.column(A).stream().toArray(Order[]::new)
     );
     assertAllSame(
       all(MICKEY, DUCHESS, DONALD, PLUTO, FREY, MICKEY),
@@ -183,7 +207,10 @@ class KeysTest extends TestCase implements TestData {
 
   @Test
   void testJoinMany() {
-    Args result = pets.on(A, Pet::id).joinMany(orders.on(A, Order::petId));
+    Args result = pets
+      .groupBy(A, Pet::id)
+      .joinMany(orders.groupBy(A, Order::petId))
+      .done();
 
     assertAllSame(
       pets.stream(A).toArray(Pet[]::new),

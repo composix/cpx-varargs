@@ -1,4 +1,40 @@
 /**
+ * interface Args
+ *
+ * This interface serves as the foundation for type-safe interfaces such as ArgsI,
+ * ArgsII, etc., which manage tabular data organized into rows and columns.
+ * It conforms to the familiar APIs from the Java Collection Framework and Java Streams,
+ * but empowers them to deal with tabular data.
+ *
+ * Key functionalities include:
+ * - Sorting rows based on a specified column, with support for custom sorting logic via
+ *   an accessor function.
+ * - Grouping and joining data (in conjunction with the Keys interface), facilitating
+ *   more advanced data manipulation.
+ * - Performing SQL-like operations such as filtering, grouping, and joining, akin to
+ *   operations found in SQL queries.
+ * - Splitting columns (e.g., parsing CSV lines) and merging multiple columns into a
+ *   single column, which is often represented as a DTO (Data Transfer Object) for data
+ *   transfer purposes.
+ *
+ * Example usage:
+ * - Sorting rows by a column:
+ *     args.column("age").sort(Comparator.naturalOrder());
+ * - Grouping by column:
+ *     orders.groupBy(Order::petId)
+ *       .collect(Order::amount, Long::sum);
+ * - Joining two tables:
+ *     pets.on("petId")
+ *       .joinMany(orders.on("petId"));
+ * - Splitting cvs lines and combining into DTO:
+ *     args.split(ArgsOrdinal.PATTERN)
+ *       .combine(Pet.DEFAULTS, 1);
+ * 
+ * Author: dr. ir. J. M. Valk
+ * Date: April 2025
+ */
+
+/**
  * MIT License
  *
  * Copyright (c) 2025 ComPosiX
@@ -9,10 +45,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,112 +60,287 @@
 
 package io.github.composix.math;
 
+import io.github.composix.models.Defaults;
 import java.util.Comparator;
-import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.regex.Pattern;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import io.github.composix.models.Defaults;
-
 public interface Args extends ArgsOrdinal, Order {
-    @Override
-    Args clone() throws CloneNotSupportedException;
+  /**
+   * Retrieve the column at the first type position. For example,
+   * column(A) returns the first column, column(B) returns the first
+   * column of type that differs from typeOf(A), column(C) returns
+   * the first column of type that differs from typeOf(B), and so on.
+   *
+   * Note that this method is equivalent to column(tpos, 1).
+   *
+   * @param tpos - the type position of the column
+   * @return a list of values in the column
+   */
+  <T> List<T> column(Ordinal tpos);
 
-    void export(Args target, int offset, int size);
+  /**
+   * Retrieve the column at the pos-th type position. For example,
+   * column(tpos, 2) return the column directly following column(tpos),
+   * column(tpos, 3) returns the column directly following column(tpos, 2), and so on.
+   *
+   * @param tpos - the type position of the column
+   * @param pos - the position within columns of same type
+   * @return a list of values in the column
+   * @throws IndexOutOfBoundsException - if pos is out of bounds
+   */
+  <T> List<T> column(Ordinal type, int pos);
 
-    Args select(Order order);
+  /**
+   * Retrieve the first column of the given type. For example,
+   * column(String.class) returns the first column of type String.
+   *
+   * Note that the type will be an exact match, so column(String.class)
+   * and column(CharSequence.class) will return different columns.
+   *
+   * @param type - the type of the column
+   * @return a list of values in the column
+   * @throws NoSuchFieldException - if no column of the given type exists
+   */
+  <T> List<T> column(Class<T> type) throws NoSuchFieldException;
 
-    <T> T getValue(int index);
+  /**
+   * Retrieve the pos-th column of the given type. For example,
+   * column(String.class, 2) returns the second column of type String.
+   *
+   * Note that the type will be an exact match, so column(String.class, 2)
+   * and column(CharSequence.class, 2) will return different columns.
+   *
+   * @param type - the type of the column
+   * @param pos - the position within columns of same type
+   * @return a list of values in the column
+   * @throws NoSuchFieldException
+   * @throwss IndexOutOfBoundsException - if pos is out of bounds
+   */
+  <T> List<T> column(Class<T> type, int pos) throws NoSuchFieldException;
 
-    default Args getArgsValue(int index) {
-        return (Args) getValue(index);
-    }
+  /**
+   * Retrieve the column with a given header. For example,
+   * column("name") returns the column with the header "name".
+   *
+   * @param header - the header of the column
+   * @return a list of values in the column
+   * @throws NoSuchFieldException - if no column with the given header exists
+   */
+  <T> List<T> column(CharSequence header) throws NoSuchFieldException;
 
-    long getLongValue(int index);
-    
-    Comparator<Ordinal> comparator(Ordinal ordinal);
+  /**
+   * Retrieve the column with a given header, but only if this column
+   * is at a certain type position; otherwise a NoSuchFieldException
+   * will be thrown
+   *
+   * @param header - the header of the column
+   * @return a list of values in the column
+   * @throws NoSuchFieldException - if no column with the given header exists
+   * or this column is not at the given type position
+   */
+  <T> List<T> column(CharSequence header, Ordinal type)
+    throws NoSuchFieldException;
 
-    <T,K extends Comparable<K>> Comparator<Ordinal> comparator(Ordinal ordinal, Function<T,K> accessor);
+  /**
+   * Retrieve the column with a given header, but only if this column is
+   * of a certain type; otherwise a NoSuchFieldException will be thrown
+   *
+   * @param header - the header of the column
+   * @return a list of values in the column
+   * @throws NoSuchFieldException - if no column with the given header exists
+   * or this column is not at the given type position
+   */
+  <T> List<T> column(CharSequence header, Class<T> type)
+    throws NoSuchFieldException;
 
-    <T> Comparator<Ordinal> comparator(Ordinal ordinal, ToLongFunction<T> accessor);
+  /**
+   * Retrieve the pos-th primitive long stream of a column. For example,
+   * longStream(1) returns the long stream of the first column of type long[],
+   * longStream(2) returns the second column of type long[], and so on.
+   *
+   * @param pos - the position within the long columns
+   * @return a LongStream of values in the column
+   * @throws NoSuchFieldException - if no column of the given type exists
+   * @throws IndexOutOfBoundsException - if pos is out of bounds
+   */
+  LongStream longStream(int pos) throws NoSuchFieldException;
 
-    <T> Iterable<T> column(Ordinal ordinal);
+  /**
+   * Retrieve the primitive long stream of a column with a given header.
+   * For example, longStream("name") returns a long stream streaming the values
+   * in the column with the header "name".
+   *
+   * @param header - the header of the column
+   * @return a long stream of values in the column
+   * @throws NoSuchFieldException - if no column with the given header exists
+   * or this column is not of type long[]
+   */
+  LongStream longStream(CharSequence header);
 
-    <T> Iterable<T> column(Ordinal ordinal, CharSequence header) throws NoSuchFieldException;
+  /**
+   * Prepare for joining on a given column; a subsequence join call on the
+   * Keys interface will join on the selected column.
+   *
+   * @param tpos - the type position of the column
+   * @param pos - the position within columns of same type
+   * @return a Keys object for joining
+   * @throws IndexOutOfBoundsException - if pos is out of bounds
+   */
+  Keys on(Ordinal tpos, int pos);
 
-    <T> Stream<T> stream(Ordinal col);
+  /**
+   * Group a DTO column by a given accessor function. This method will
+   * first sort column(tpos) using the given accessor function, and then
+   * apply a grouping on column(tpos) that can be used for futher joining
+   * and collecting using the method in the Keys interface.
+   *
+   * @param tpos - the type position of the column
+   * @param accessor - the accessor function to group by
+   * @return a Keys object prepared with the grouping
+   */
+  default <T extends Defaults<T>, K extends Comparable<K>> Keys groupBy(
+    Ordinal tpos,
+    Function<T, K> accessor
+  ) {
+    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
+    orderBy(tpos, accessor);
+    accessObject.accessor(accessor);
+    final Keys result = groupBy(tpos, accessObject);
+    accessObject.destroy();
+    return result;
+  }
 
-    <T> Stream<T> stream(Class<T> type, int pos) throws NoSuchFieldException;
+  /**
+   * Group a DTO column by a given accessor function. This method will
+   * first sort column(tpos) using the given accessor function, and then
+   * apply a grouping on column(tpos) that can be used for futher joining
+   * and collecting using the method in the Keys interface.
+   *
+   * @param tpos - the type position of the column
+   * @param accessor - the accessor function to group by
+   * @return a Keys object prepared with the grouping
+   */
+  default <T extends Defaults<T>> Keys groupBy(
+    Ordinal col,
+    ToLongFunction<T> accessor
+  ) {
+    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
+    orderBy(col, accessor);
+    accessLong.accessor(accessor);
+    final Keys result = groupBy(col, accessLong);
+    accessLong.destroy();
+    return result;
+  }
 
-    LongStream longStream(Ordinal col);
+  /**
+   * Split a CharSequence column into multiple CharSequence columns based on a given pattern.
+   * For example, split(ArgsOrdinal.PATTERN) will spread a line of csv data over multiple columns.
+   *
+   * Note that, as a side effect, this method reuses the original Args object. This means that the
+   * original lines are no longer available after the call, and are therefore eligible for cleanup
+   * by the garbage collector.
+   *
+   * @param pattern - the pattern to split the column
+   * @return a new Args object with the split columns
+   */
+  Args split(Pattern pattern);
 
-    LongStream longStream(int pos) throws NoSuchFieldException;
+  /**
+   * Combine multiple columns into a single column of a given DTO (Data Transfer Object) type.
+   * This DTO must implement the Defaults interface, and can be provided by given an instance
+   * of defaults values of the DTO.
+   *
+   * @param defaults - the defaults values of the DTO
+   * @param repeat - the number of times to repeat the DTO
+   * @return new Args object with the combined columns
+   * @throws NoSuchFieldException - if the DTO requires a non-existing column
+   * @throws IndexOutOfBoundsException - repeat is out of bounds
+   */
+  <T extends Defaults<T>> Args combine(T defaults, int repeat)
+    throws NoSuchFieldException;
 
-    Ordinal ordinalAt(Ordinal ordinal, Object value);
+  /**
+   * Parse a single CharSequence column into a single primitive long column.
+   *
+   * @param repeat - the number of column to repeat the parsing on
+   * @return a new Args object with the parsed long columns
+   * @throws NoSuchFieldException - if no column of type CharSequence exists
+   * @throws IndexOutOfBoundsException - repeat is out of bounds
+   */
+  Args parseLong(int repeat) throws NoSuchFieldException;
 
-    Args split(Pattern pattern);
+  @Override
+  Args clone() throws CloneNotSupportedException;
 
-    <T extends Defaults<T>> Args combine(T defaults) throws NoSuchFieldException;
+  void export(Args target, int offset, int size);
 
-    Keys groupBy(Ordinal col, Accessor accessor);
+  Args select(Order order);
 
-    default <T> Stream<T> stream(Class<T> type) throws NoSuchFieldException {
-        return stream(type, 0);
-    }
-    
-    default <T, K extends Comparable<K>> Keys groupBy(
-      Ordinal col,
-      Function<T, K> accessor
-    ) {
-      final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-      orderBy(col, accessor);
-      accessObject.accessor(accessor);
-      final Keys result = groupBy(col, accessObject);
-      accessObject.destroy();
-      return result;
-    }
-  
-    default <T> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
-      final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-      orderBy(col, accessor);
-      accessLong.accessor(accessor);
-      final Keys result = groupBy(col, accessLong);
-      accessLong.destroy();
-      return result;
-    }
+  <T> T getValue(int index);
 
-    default <T> Keys on(Ordinal col, ToLongFunction<T> accessor) {
-        orderBy(col, accessor);
-        final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-        accessLong.accessor(accessor);
-        final Keys result = groupBy(col, accessLong);
-        accessLong.destroy();
-        return result;
-    }
+  default Args getArgsValue(int index) {
+    return (Args) getValue(index);
+  }
 
-    default Keys on(Ordinal col) {
-        orderBy(col);
-        Accessor accessor = Accessor.of(typeOf(col));
-        final Keys result = groupBy(col, accessor);
-        accessor.destroy();
-        return result;
-    }
-    
-    default Args orderBy(Ordinal col) {
-        order().reorder(comparator(col));
-        return this;
-    }
+  long getLongValue(int index);
 
-    default <T,K extends Comparable<K>> Args orderBy(Ordinal ordinal, Function<T,K> accessor) {
-        order().reorder(comparator(ordinal, accessor));
-        return this;
-    }
+  Ordinal ordinalAt(Ordinal ordinal, Object value);
 
-    default <T> Args orderBy(Ordinal ordinal, ToLongFunction<T> accessor) {
-        order().reorder(comparator(ordinal, accessor));
-        return this;
-    }
+  @Deprecated
+  Comparator<Ordinal> comparator(Ordinal ordinal);
+
+  @Deprecated
+  <T, K extends Comparable<K>> Comparator<Ordinal> comparator(
+    Ordinal ordinal,
+    Function<T, K> accessor
+  );
+
+  @Deprecated
+  <T> Comparator<Ordinal> comparator(
+    Ordinal ordinal,
+    ToLongFunction<T> accessor
+  );
+
+  @Deprecated
+  <T> Stream<T> stream(Ordinal col);
+
+  @Deprecated
+  <T> Stream<T> stream(Class<T> type, int pos) throws NoSuchFieldException;
+
+  @Deprecated
+  LongStream longStream(Ordinal col);
+
+  @Deprecated
+  Keys groupBy(Ordinal col, Accessor accessor);
+
+  @Deprecated
+  default <T> Stream<T> stream(Class<T> type) throws NoSuchFieldException {
+    return stream(type, 0);
+  }
+
+  @Deprecated
+  default Args orderBy(Ordinal col) {
+    order().reorder(comparator(col));
+    return this;
+  }
+
+  @Deprecated
+  default <T, K extends Comparable<K>> Args orderBy(
+    Ordinal ordinal,
+    Function<T, K> accessor
+  ) {
+    order().reorder(comparator(ordinal, accessor));
+    return this;
+  }
+
+  @Deprecated
+  default <T> Args orderBy(Ordinal ordinal, ToLongFunction<T> accessor) {
+    order().reorder(comparator(ordinal, accessor));
+    return this;
+  }
 }

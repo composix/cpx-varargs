@@ -1,9 +1,10 @@
 /**
- * interface Keys
- *
- * This interface augments the Args interface with methods for collecting, joining
- * and further grouping.
- *
+ * class ArgsList
+ * 
+ * This class provides a list implementation that is immutable in terms of its
+ * contents, but the order of the elements can be changed by modifying the sort 
+ * order based on the associated matrix's ordinals.
+ * 
  * Author: dr. ir. J. M. Valk
  * Date: April 2025
  */
@@ -34,43 +35,27 @@
 
 package io.github.composix.math;
 
-import java.util.function.Function;
-import java.util.function.LongBinaryOperator;
-import java.util.function.ToLongFunction;
+import java.util.AbstractList;
 
-public interface Keys {
-  Args done();
+public class ArgsList<E> extends AbstractList<E> {
+    final Matrix matrix;
+    final E[] source;
 
-  <T> Args collect(
-    Ordinal col,
-    ToLongFunction<T> accessor,
-    LongBinaryOperator reducer
-  );
+    ArgsList(Matrix matrix, E[] source) {
+        this.matrix = matrix;
+        this.source = source;
+    }
 
-  Keys joinOne(Keys rhs);
+    @Override
+    public int size() {
+        return matrix.amount();
+    }
 
-  Keys joinMany(Keys rhs);
+    @Override
+    public E get(int index) {
+        final int i = matrix.ordinals[index].intValue();
+        return source[i];
+    }
 
-  Keys on(Ordinal col, int pos);
-
-  void thenBy(Ordinal col, Accessor accessor);
-
-  default <T, K extends Comparable<K>> Keys thenBy(
-    Ordinal col,
-    Function<T, K> accessor
-  ) {
-    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-    accessObject.accessor(accessor);
-    thenBy(col, accessObject);
-    accessObject.destroy();
-    return this;
-  }
-
-  default <T> Keys thenBy(Ordinal col, ToLongFunction<T> accessor) {
-    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-    accessLong.accessor(accessor);
-    thenBy(col, accessLong);
-    accessLong.destroy();
-    return this;
-  }
+    // TODO: override the sort method to sort the elements based on the ordinals
 }
