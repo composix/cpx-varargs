@@ -33,7 +33,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import io.github.composix.math.Args;
-import io.github.composix.math.Row;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.models.examples.Tag;
@@ -87,24 +86,25 @@ public class PetstoreCsvTest
 
     Args categories = petstore
       .getArgsValue(B.index(A))
-      .combine(Category.DEFAULTS);
+      .combine(Category.DEFAULTS, 1);
 
-    Args tags = petstore.getArgsValue(B.index(E)).combine(Tag.DEFAULTS);
+    Args tags = petstore.getArgsValue(B.index(E)).combine(Tag.DEFAULTS, 1);
 
     Args tagging = petstore
-      .getArgsValue(B.index(D))
-      .on(B, Row::parseLong)
-      .joinOne(tags.on(A, Tag::id));
+      .getArgsValue(B.index(D)).parseLong(1)
+      .on(B, 1)
+      .joinOne(tags.groupBy(A, Tag::id))
+      .done();
 
     Args pets = petstore
       .getArgsValue(B.index(B))
-      .on(D, Row::parseLong)
-      .joinOne(categories.on(A, Category::id))
-      .on(A, Row::parseLong)
-      .joinMany(tagging.on(A, Row::parseLong))
-      .on(A, Row::parseLong)
-      .joinMany(photoUrls.on(A, Row::parseLong))
-      .combine(Pet.DEFAULTS);
+      .on(A, 4)
+      .joinOne(categories.groupBy(A, Category::id))
+      .on(A, 1)
+      .joinMany(tagging.on(A, 1))
+      .joinMany(photoUrls.on(A, 1))
+      .done()
+      .combine(Pet.DEFAULTS, 1);
 
     assertAllEquals(
       io.github.composix.math.TestData.pets(I).stream(A).toArray(Pet[]::new),
