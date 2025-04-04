@@ -126,10 +126,15 @@ public final class VarArgs implements Cloneable{
 
     private int length(int offset, final int mask, final Class<?> type) {
         int result = 0;
-        while (argv[offset++ & mask].getClass() == type) {
+        while (typeOf(offset++ & mask) == type) {
             ++result;
         }
         return result;
+    }
+
+    private Class<?> typeOf(int offset) {
+        final Object array = argv[offset];
+        return array == null ? Void.class : array.getClass();
     }
 
     private static final void export(Object source, int sourceHash, int sourceMask, Object target, int targetHash, int targetMask, int size) {
