@@ -100,11 +100,11 @@ public final class VarArgs implements Cloneable{
         if (pos < 1) {
             throw OUT_OF_BOUNDS;
         }
-        int length;
+        int length = 0;
         do {
+            offset += length;
             final Class<?> type = argv[offset & mask].getClass();
             length = length(offset, mask, type);
-            offset += length;
         } while(index-- > 0);
         if (pos > length) {
             throw OUT_OF_BOUNDS;
