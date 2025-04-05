@@ -276,25 +276,31 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public Args parseLong(int repeat) throws NoSuchFieldException {
+  public Args parseLong(final int repeat) throws NoSuchFieldException {
     if (repeat < 1) {
       throw new IllegalArgumentException("must repeat at least once");
     }
     final int omega = OMEGA.intValue();
+    final int size = ordinal / omega;
+    if (repeat > size) {
+      throw new IndexOutOfBoundsException();
+    }
     final int amount = (ordinal % omega) - 1;
-    int offset = 0;
+    final VarArgs varargs = varArgs();
+    final Object[] argv = varargs.argv;
+    final int mask = varargs.mask();
+    int offset = hashCode() & mask;
     ArgsOrdinal result = A;
-    do {
-      final long[] longs = new long[amount];
-      CURSOR.position(offset++, ordinal, hashCode(), varArgs());
-      for (int i = 0; i < amount; ++i) {
-        if (!CURSOR.advance(1)) {
-          throw new AssertionError();
-        }
-        longs[i] = CURSOR.getLong(0);
+    for (int i = 0; i < repeat; ++i) {
+      final CharSequence[] source = (CharSequence[]) argv[offset++ & mask];
+      final long[] target = new long[amount];
+      for (int j = 0; j < amount; ++j) {
+        target[j] = Long.parseLong(source[rank(j)].toString());
       }
-      result = A.extend(A, longs);
-    } while (--repeat > 0);
+      result = A.extend(A, target);
+    }
+    final VarArgs varargs2 = ((Matrix) result).varArgs();
+    varargs.export(offset, size - repeat, result.hashCode() + repeat, varargs2);
     return (Args) result;
   }
 
@@ -326,7 +332,10 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T extends Defaults<T>> Keys groupBy(Ordinal col, ToLongFunction<T> accessor) {
+  public <T extends Defaults<T>> Keys groupBy(
+    Ordinal col,
+    ToLongFunction<T> accessor
+  ) {
     final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
     orderBy(col, accessor);
     accessLong.accessor(accessor);
