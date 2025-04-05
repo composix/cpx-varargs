@@ -38,9 +38,10 @@ import io.github.composix.models.examples.Pet;
 import io.github.composix.models.examples.Tag;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.TestData;
+import io.github.composix.testing.testdata.PetstoreTestData;
 
 public class PetstoreCsvTest
-  extends TestCase {
+  extends TestCase implements PetstoreTestData {
 
   static TestData testData;
 
@@ -107,7 +108,7 @@ public class PetstoreCsvTest
       .combine(Pet.DEFAULTS, 1);
 
     assertAllEquals(
-      io.github.composix.math.TestData.pets(I).stream(A).toArray(Pet[]::new),
+      PETS.stream(A).toArray(Pet[]::new),
       pets.stream(A).toArray(Pet[]::new)
     );
   }

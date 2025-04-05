@@ -50,65 +50,14 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.github.composix.models.examples.Category;
-import io.github.composix.models.examples.Order;
-import io.github.composix.models.examples.Pet;
-import io.github.composix.testing.TestCase;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class KeysTest extends TestCase implements TestData {
+import io.github.composix.models.examples.Category;
+import io.github.composix.models.examples.Order;
+import io.github.composix.models.examples.Pet;
 
-  static Pet THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY;
-  static Order O, P, Q, R, S, T;
-  static Order[] EMPTY = new Order[0];
-
-  Matrix pets, orders;
-  VarArgs petVarArgs, orderVarArgs;
-
-  @BeforeAll
-  static void beforeAll() {
-    THOMAS = PETS.getValue(0);
-    DUCHESS = PETS.getValue(1);
-    PLUTO = PETS.getValue(2);
-    FRANK = PETS.getValue(3);
-    FREY = PETS.getValue(4);
-    MICKEY = PETS.getValue(5);
-    DONALD = PETS.getValue(6);
-    GOOFY = PETS.getValue(7);
-
-    O = ORDERS.getValue(0);
-    P = ORDERS.getValue(1);
-    Q = ORDERS.getValue(2);
-    R = ORDERS.getValue(3);
-    S = ORDERS.getValue(4);
-    T = ORDERS.getValue(5);
-  }
-
-  @BeforeEach
-  void setUp() {
-    // Given two matrices...
-    pets = new Matrix(8);
-    orders = new Matrix(6);
-
-    // ...populated with data from the TestData interface
-    PETS.export(pets, 0, 1);
-    ORDERS.export(orders, 0, 1);
-
-    // Then the data can be found in the underlying VarArgs
-    petVarArgs = pets.varArgs();
-    orderVarArgs = orders.varArgs();
-    assertAllEquals(
-      all(THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY),
-      petVarArgs.argv[pets.hashCode() & petVarArgs.mask()]
-    );
-    assertAllEquals(
-      all(O, P, Q, R, S, T),
-      orderVarArgs.argv[orders.hashCode() & orderVarArgs.mask()]
-    );
-  }
+class KeysTest extends PetstoreTestCase {
 
   @Test
   void testGroupByCategory() throws NoSuchFieldException {

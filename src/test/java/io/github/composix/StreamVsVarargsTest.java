@@ -24,20 +24,21 @@
 
 package io.github.composix;
 
-import io.github.composix.math.TestData;
-import io.github.composix.models.examples.Category;
-import io.github.composix.models.examples.Pet;
-import io.github.composix.testing.TestCase;
-import io.github.composix.varargs.ArgsI;
-import io.github.composix.varargs.ArgsII;
-
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class StreamVsVarargsTest extends TestCase implements TestData {
+import io.github.composix.models.examples.Category;
+import io.github.composix.models.examples.Pet;
+import io.github.composix.testing.TestCase;
+import io.github.composix.testing.testdata.PetstoreTestData;
+import io.github.composix.varargs.ArgsI;
+import io.github.composix.varargs.ArgsII;
+
+class StreamVsVarargsTest extends TestCase implements PetstoreTestData {
 
   ArgsI<Pet> pets;
 
