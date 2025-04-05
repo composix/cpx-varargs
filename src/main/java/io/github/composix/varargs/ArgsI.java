@@ -33,22 +33,20 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public interface ArgsI<A> {
+import io.github.composix.math.Args;
+
+public interface ArgsI<A> extends Args {
   static ArgsI<CharSequence> of(CharSequence... columnA) {
-    final Ordinal nothing = Ordinal.A;
     final Table<CharSequence, ?, ?, ?, ?, ?> result = new Table<>(
       columnA.length
     );
-    nothing.extend(nothing, columnA).export(result, 0, 1);
-    return result;
+    return (ArgsI<CharSequence>) result.extend(A, columnA);
   }
 
   @SafeVarargs
   static <T> ArgsI<T> of(T... columnA) {
-    final Ordinal nothing = Ordinal.A;
     final Table<T, ?, ?, ?, ?, ?> result = new Table<>(columnA.length);
-    nothing.extend(nothing, columnA).export(result, 0, 1);
-    return result;
+    return (ArgsI<T>) result.extend(A, columnA);
   }
 
   List<A> asListA();
