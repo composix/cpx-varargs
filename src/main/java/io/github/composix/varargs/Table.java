@@ -151,7 +151,7 @@ class Table<A, B, C, N, O, P>
       index -= size - 1;
       result.order().reorder(NATURAL_ORDER);
       result.order().resize(OMEGA.intValue() * index + indices.length);
-      export(result, size, index);
+      export(result, (byte) size, index);
       return (ArgsIII<N, O, P>) result;
     } catch (CloneNotSupportedException e) {
       throw new AssertionError();

@@ -35,6 +35,6 @@ class TestMatrix extends SafeMatrix {
 
     private TestMatrix(Args args) {
         super(0);
-        args.export(this, 0, args.size());
+        args.export(this, (byte) 0, args.size());
     }
 }

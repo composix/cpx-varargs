@@ -37,8 +37,6 @@ package io.github.composix.math;
 public final class VarArgs implements Cloneable{
     public static final VarArgs VARARGS = new VarArgs(Short.SIZE);
 
-    private static IndexOutOfBoundsException OUT_OF_BOUNDS = new IndexOutOfBoundsException("position out of bounds");
-
     public final Object[] argv;
 
     VarArgs(final int bits) {
@@ -83,7 +81,7 @@ public final class VarArgs implements Cloneable{
         return (offset(offset, mask, type, size) + pos) & mask;
     }
 
-    public final int offset(int offset, int position) {
+    public final int offset(int offset, byte position) {
         return (offset + position) & mask();
     }
 
@@ -97,8 +95,8 @@ public final class VarArgs implements Cloneable{
     }
 
     private int offset(int offset, int mask, int index, byte pos) {
-        if (pos < 1) {
-            throw OUT_OF_BOUNDS;
+        if (pos < 0) {
+            return -1;
         }
         int length = 0;
         do {
@@ -106,10 +104,10 @@ public final class VarArgs implements Cloneable{
             final Class<?> type = argv[offset & mask].getClass();
             length = length(offset, mask, type);
         } while(index-- > 0);
-        if (pos > length) {
-            throw OUT_OF_BOUNDS;
+        if (pos >= length) {
+            return -1;
         }
-        return (offset + --pos) & mask;
+        return (offset + pos) & mask;
     }
 
     private int offset(int offset, int mask, Class<?> type, int size) {

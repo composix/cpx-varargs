@@ -2,7 +2,7 @@
  * class Matrix
  *
  * This class provides the base implementation of the Args and Keys interfaces
- * for manipulating tabular data. 
+ * for manipulating tabular data.
  *
  * Author: dr. ir. J. M. Valk
  * Date: April 2025
@@ -79,8 +79,8 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public void export(Args target, int offset, int size) {
-    varArgs().export(hashCode() + offset, size, target.hashCode());
+  public void export(Args target, byte position, int size) {
+    varArgs().export(hashCode() + position, size, target.hashCode());
   }
 
   @Override
@@ -128,7 +128,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   @Override
   public <T> List<T> column(Ordinal type) {
     final VarArgs varargs = varArgs();
-    return column(varargs.argv, varargs.offset(hashCode(), type, (byte) 1));
+    return column(varargs.argv, varargs.offset(hashCode(), type, (byte) 0));
   }
 
   @Override
@@ -136,7 +136,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final VarArgs varargs = varArgs();
     return column(
       varargs.argv,
-      varargs.offset(hashCode(), ordinal, (byte) pos)
+      varargs.offset(hashCode(), ordinal, (byte) --pos)
     );
   }
 
@@ -145,7 +145,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final VarArgs varargs = varArgs();
     return column(
       varargs.argv,
-      varargs.offset(hashCode(), type, size(), (byte) 1)
+      varargs.offset(hashCode(), type, size(), (byte) 0)
     );
   }
 
@@ -155,7 +155,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final VarArgs varargs = varArgs();
     return column(
       varargs.argv,
-      varargs.offset(hashCode(), type, size(), (byte) pos)
+      varargs.offset(hashCode(), type, size(), (byte) --pos)
     );
   }
 
@@ -302,8 +302,8 @@ public class Matrix extends OrderInt implements Keys, Args {
   public Keys on(Ordinal tpos, int pos) {
     final VarArgs varargs = varArgs();
     final int offset = hashCode();
-    Object column = varargs.argv[varargs.offset(offset, tpos, (byte) pos)];
-    varargs.argv[varargs.offset(offset, size())] = column;
+    Object column = varargs.argv[varargs.offset(offset, tpos, (byte) --pos)];
+    varargs.argv[varargs.offset(offset, (byte) size())] = column;
     return this;
     //orderBy(col);
     //Accessor accessor = Accessor.of(typeOf(col));

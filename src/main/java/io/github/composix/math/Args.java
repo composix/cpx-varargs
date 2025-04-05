@@ -277,7 +277,7 @@ public interface Args extends ArgsOrdinal, Order {
   @Override
   Args clone() throws CloneNotSupportedException;
 
-  void export(Args target, int offset, int size);
+  void export(Args target, byte position, int size);
 
   Args select(Order order);
 
