@@ -24,8 +24,6 @@
 
 package io.github.composix.varargs;
 
-import io.github.composix.math.Order;
-import io.github.composix.math.Ordinal;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
@@ -58,12 +56,6 @@ public interface ArgsI<A> extends Args {
   <T> ArgsII<A, T> extendB(T... columnB);
 
   ArgsI<A> withHeaders();
-
-  int size();
-
-  int amount();
-
-  Order order();
 
   ArgsI<A> orderByA();
 
