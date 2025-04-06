@@ -141,7 +141,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T> List<T> column(Class<T> type) throws NoSuchFieldException {
+  public <T> List<T> column(Class<T> type) {
     final VarArgs varargs = varArgs();
     return column(
       varargs.argv,
@@ -150,8 +150,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T> List<T> column(Class<T> type, int pos)
-    throws NoSuchFieldException {
+  public <T> List<T> column(Class<T> type, int pos) {
     final VarArgs varargs = varArgs();
     return column(
       varargs.argv,
@@ -169,7 +168,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T> List<T> column(CharSequence header) throws NoSuchFieldException {
+  public List<CharSequence> column(CharSequence header) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'column'");
   }
@@ -182,7 +181,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public LongStream longStream(int pos) throws NoSuchFieldException {
+  public LongStream longStream(int pos) {
     final VarArgs varargs = varArgs();
     return stream((long[]) varargs.argv[(hashCode() + pos) & varargs.mask()]);
   }
@@ -256,52 +255,63 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T extends Defaults<T>> Args combine(T defaults, int repeat)
-    throws NoSuchFieldException {
+  public <T extends Defaults<T>> Args combine(final T defaults, int pos, final int repeat) {
+    final int omega = OMEGA.intValue();
+    final int offset = offset();
+    final int index = omega * --pos;
+    final int size = ordinal / omega;
+    if (pos < 0 || pos >= size) {
+      throw new IndexOutOfBoundsException();
+    }
     if (repeat != 1) {
       throw new UnsupportedOperationException();
     }
-    final int omega = OMEGA.intValue();
     final int amount = (ordinal % omega) - 1;
     final T[] result = (T[]) ORDINALS[amount].newInstance(defaults.getClass());
-    int offset = 0;
-    CURSOR.position(offset, ordinal, hashCode(), varArgs());
+    final VarArgs varargs = varArgs();
+    CURSOR.position(index, ordinal, offset & varargs.mask(), varargs);
     for (int i = 0; i < amount; ++i) {
       if (!CURSOR.advance(1)) {
         throw new AssertionError();
       }
       result[i] = defaults.combine(CURSOR);
     }
-    return A.extend(A, result);
+    varargs.declare(offset + size, result);
+    ordinal += omega;
+    return this;
   }
 
   @Override
-  public Args parseLong(final int repeat) throws NoSuchFieldException {
-    if (repeat < 1) {
-      throw new IllegalArgumentException("must repeat at least once");
-    }
+  public Args parse(Class<?> type, final int pos, final int repeat) {
     final int omega = OMEGA.intValue();
     final int size = ordinal / omega;
-    if (repeat > size) {
+    if (pos < 1 || pos > size) {
       throw new IndexOutOfBoundsException();
+    }
+    if (repeat < 1 || size < repeat) {
+      throw new IndexOutOfBoundsException("repeat must be from 1 to size");
     }
     final int amount = (ordinal % omega) - 1;
     final VarArgs varargs = varArgs();
     final Object[] argv = varargs.argv;
     final int mask = varargs.mask();
-    int offset = hashCode() & mask;
-    ArgsOrdinal result = A;
+    int offset = offset();
     for (int i = 0; i < repeat; ++i) {
       final CharSequence[] source = (CharSequence[]) argv[offset++ & mask];
-      final long[] target = new long[amount];
-      for (int j = 0; j < amount; ++j) {
-        target[j] = Long.parseLong(source[rank(j)].toString());
+      Object result;
+      if (type == long.class) {
+        long[] target = new long[amount];
+        for (int j = 0; j < amount; ++j) {
+          target[j] = Long.parseLong(source[rank(j)].toString());
+        }
+        result = target;
+      } else {
+        throw new UnsupportedOperationException();
       }
-      result = A.extend(A, target);
+      varargs.declare(offset() + size, result);
+      ordinal += omega;
     }
-    final VarArgs varargs2 = ((Matrix) result).varArgs();
-    varargs.export(offset, size - repeat, result.hashCode() + repeat, varargs2);
-    return (Args) result;
+    return this;
   }
 
   @Override
@@ -610,6 +620,10 @@ public class Matrix extends OrderInt implements Keys, Args {
   @Override
   public Args done() {
     return this;
+  }
+
+  protected int offset() {
+    return hashCode();
   }
 
   private Args split(Function<CharSequence, Stream<String>> splitter) {

@@ -104,9 +104,10 @@ public interface Args extends ArgsOrdinal, Order {
    *
    * @param type - the type of the column
    * @return a list of values in the column
-   * @throws NoSuchFieldException - if no column of the given type exists
+   * @throws IndexOutOfBoundsException - if pos is out of bounds
+   * this includes the case when the given type doesn't exist
    */
-  <T> List<T> column(Class<T> type) throws NoSuchFieldException;
+  <T> List<T> column(Class<T> type);
 
   /**
    * Retrieve the pos-th column of the given type. For example,
@@ -118,30 +119,29 @@ public interface Args extends ArgsOrdinal, Order {
    * @param type - the type of the column
    * @param pos - the position within columns of same type
    * @return a list of values in the column
-   * @throws NoSuchFieldException
    * @throwss IndexOutOfBoundsException - if pos is out of bounds
+   * this includes the case when the given type doesn't exist
    */
-  <T> List<T> column(Class<T> type, int pos) throws NoSuchFieldException;
+  <T> List<T> column(Class<T> type, int pos);
 
   /**
-   * Retrieve the column with a given header. For example,
+   * Retrieve the text-based column with a given header. For example,
    * column("name") returns the column with the header "name".
    *
    * @param header - the header of the column
    * @return a list of values in the column
    * @throws NoSuchFieldException - if no column with the given header exists
    */
-  <T> List<T> column(CharSequence header) throws NoSuchFieldException;
+  List<CharSequence> column(CharSequence header) throws NoSuchFieldException;
 
   /**
-   * Retrieve the column with a given header, but only if this column
-   * is at a certain type position; otherwise a NoSuchFieldException
-   * will be thrown
+   * Retrieve the column with a given header, but only if this column is
+   * of a certain type; otherwise a NoSuchFieldException will be thrown
    *
    * @param header - the header of the column
    * @return a list of values in the column
    * @throws NoSuchFieldException - if no column with the given header exists
-   * or this column is not at the given type position
+   * or it is not of the given type
    */
   <T> List<T> column(CharSequence header, Ordinal type)
     throws NoSuchFieldException;
@@ -153,7 +153,7 @@ public interface Args extends ArgsOrdinal, Order {
    * @param header - the header of the column
    * @return a list of values in the column
    * @throws NoSuchFieldException - if no column with the given header exists
-   * or this column is not at the given type position
+   * or it is not of the given type
    */
   <T> List<T> column(CharSequence header, Class<T> type)
     throws NoSuchFieldException;
@@ -165,10 +165,9 @@ public interface Args extends ArgsOrdinal, Order {
    *
    * @param pos - the position within the long columns
    * @return a LongStream of values in the column
-   * @throws NoSuchFieldException - if no column of the given type exists
    * @throws IndexOutOfBoundsException - if pos is out of bounds
    */
-  LongStream longStream(int pos) throws NoSuchFieldException;
+  LongStream longStream(int pos);
 
   /**
    * Retrieve the primitive long stream of a column with a given header.
@@ -256,23 +255,22 @@ public interface Args extends ArgsOrdinal, Order {
    * of defaults values of the DTO.
    *
    * @param defaults - the defaults values of the DTO
+   * @param pos - position of the text-based column where to start
    * @param repeat - the number of times to repeat the DTO
    * @return new Args object with the combined columns
-   * @throws NoSuchFieldException - if the DTO requires a non-existing column
-   * @throws IndexOutOfBoundsException - repeat is out of bounds
+   * @throws IndexOutOfBoundsException - pos or repeat is out of bounds
    */
-  <T extends Defaults<T>> Args combine(T defaults, int repeat)
-    throws NoSuchFieldException;
+  <T extends Defaults<T>> Args combine(T defaults, int pos, int repeat);
 
   /**
    * Parse a single CharSequence column into a single primitive long column.
    *
+   * @param pos - position of the text-based column where to start
    * @param repeat - the number of column to repeat the parsing on
    * @return a new Args object with the parsed long columns
-   * @throws NoSuchFieldException - if no column of type CharSequence exists
-   * @throws IndexOutOfBoundsException - repeat is out of bounds
+   * @throws IndexOutOfBoundsException - pos or repeat is out of bounds
    */
-  Args parseLong(int repeat) throws NoSuchFieldException;
+  Args parse(Class<?> type, int pos, int repeat);
 
   @Override
   Args clone() throws CloneNotSupportedException;
