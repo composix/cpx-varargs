@@ -24,14 +24,6 @@
 
 package io.github.composix;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URISyntaxException;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import io.github.composix.math.Args;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
@@ -39,9 +31,14 @@ import io.github.composix.models.examples.Tag;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.TestData;
 import io.github.composix.testing.testdata.PetstoreTestData;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class PetstoreCsvTest
-  extends TestCase implements PetstoreTestData {
+public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
 
   static TestData testData;
 
@@ -53,7 +50,8 @@ public class PetstoreCsvTest
   @Test
   void testCSV()
     throws IOException, CloneNotSupportedException, NoSuchFieldException {
-    Args petstore = F.extend(A,
+    Args petstore = F.extend(
+      A,
       "categories.csv",
       "petstore.csv",
       "photoUrls.csv",
@@ -83,17 +81,21 @@ public class PetstoreCsvTest
         .toArray(Args[]::new)
     );
 
-    Args photoUrls = petstore.getArgsValue(B.index(C));
+    Args photoUrls = petstore
+      .getArgsValue(B.index(C))
+      .parse(long.class, 1, 1)
+      .parse(String.class, 2, 1);
 
     Args categories = petstore
       .getArgsValue(B.index(A))
-      .combine(Category.DEFAULTS, 1);
+      .combine(Category.DEFAULTS, 1, 1);
 
-    Args tags = petstore.getArgsValue(B.index(E)).combine(Tag.DEFAULTS, 1);
+    Args tags = petstore.getArgsValue(B.index(E)).combine(Tag.DEFAULTS, 1, 1);
 
     Args tagging = petstore
-      .getArgsValue(B.index(D)).parseLong(1)
-      .on(B, 1)
+      .getArgsValue(B.index(D))
+      .parse(long.class, 1, 2)
+      .on(A, 1)
       .joinOne(tags.groupBy(A, Tag::id))
       .done();
 
@@ -105,7 +107,7 @@ public class PetstoreCsvTest
       .joinMany(tagging.on(A, 1))
       .joinMany(photoUrls.on(A, 1))
       .done()
-      .combine(Pet.DEFAULTS, 1);
+      .combine(Pet.DEFAULTS, 1, 1);
 
     assertAllEquals(
       PETS.stream(A).toArray(Pet[]::new),
