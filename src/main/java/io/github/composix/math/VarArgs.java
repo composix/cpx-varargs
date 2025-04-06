@@ -72,6 +72,14 @@ public final class VarArgs implements Cloneable{
         return --result;
     }
 
+    public final boolean declare(final int offset, final Object value) {
+        if (argv[offset] != null) {
+          return false;
+        }
+        argv[offset] = value;
+        return true;
+    }
+
     public final int offset(int offset, Ordinal col, byte pos) {
         return offset(offset, mask(), col.intValue(), pos);
     }

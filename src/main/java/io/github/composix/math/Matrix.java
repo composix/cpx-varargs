@@ -276,7 +276,9 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
       result[i] = defaults.combine(CURSOR);
     }
-    varargs.declare(offset + size, result);
+    if (!varargs.declare(offset + size, result)) {
+      throw new AssertionError();
+    }
     ordinal += omega;
     return this;
   }
@@ -308,7 +310,9 @@ public class Matrix extends OrderInt implements Keys, Args {
       } else {
         throw new UnsupportedOperationException();
       }
-      varargs.declare(offset() + size, result);
+      if (!varargs.declare(offset() + size, result)) {
+        throw new AssertionError();
+      }
       ordinal += omega;
     }
     return this;
