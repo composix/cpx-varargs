@@ -260,13 +260,13 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int offset = offset();
     final int index = omega * --pos;
     final int size = ordinal / omega;
+    final int amount = Math.min(ordinal % omega, ordinals.length);
     if (pos < 0 || pos >= size) {
       throw new IndexOutOfBoundsException();
     }
     if (repeat != 1) {
       throw new UnsupportedOperationException();
     }
-    final int amount = (ordinal % omega) - 1;
     final T[] result = (T[]) ORDINALS[amount].newInstance(defaults.getClass());
     final VarArgs varargs = varArgs();
     CURSOR.position(index, ordinal, offset & varargs.mask(), varargs);
@@ -286,14 +286,15 @@ public class Matrix extends OrderInt implements Keys, Args {
   @Override
   public Args parse(Class<?> type, final int pos, final int repeat) {
     final int omega = OMEGA.intValue();
-    final int size = ordinal / omega;
+    int size = ordinal / omega;
+    final int amount = ordinal % omega;
+    final int skip = Math.max(0, amount - ordinals.length);
     if (pos < 1 || pos > size) {
       throw new IndexOutOfBoundsException();
     }
     if (repeat < 1 || size < repeat) {
       throw new IndexOutOfBoundsException("repeat must be from 1 to size");
     }
-    final int amount = (ordinal % omega) - 1;
     final VarArgs varargs = varArgs();
     final Object[] argv = varargs.argv;
     final int mask = varargs.mask();
@@ -303,14 +304,18 @@ public class Matrix extends OrderInt implements Keys, Args {
       Object result;
       if (type == long.class) {
         long[] target = new long[amount];
-        for (int j = 0; j < amount; ++j) {
+        for (int j = skip; j < amount; ++j) {
           target[j] = Long.parseLong(source[rank(j)].toString());
         }
+        result = target;
+      } else if (type == String.class) {
+        String[] target = new String[amount];
+        System.arraycopy(source, 0, target, 0, amount);
         result = target;
       } else {
         throw new UnsupportedOperationException();
       }
-      if (!varargs.declare(offset() + size, result)) {
+      if (!varargs.declare(offset() + size++, result)) {
         throw new AssertionError();
       }
       ordinal += omega;

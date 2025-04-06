@@ -96,16 +96,18 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
       .getArgsValue(B.index(D))
       .parse(long.class, 1, 2)
       .on(A, 1)
-      .joinOne(tags.groupBy(A, Tag::id))
+      .joinOne(tags.groupBy(B, Tag::id))
       .done();
 
     Args pets = petstore
       .getArgsValue(B.index(B))
-      .on(A, 4)
-      .joinOne(categories.groupBy(A, Category::id))
-      .on(A, 1)
-      .joinMany(tagging.on(A, 1))
-      .joinMany(photoUrls.on(A, 1))
+      .parse(long.class, 1, 1)
+      .parse(long.class, 4, 1)
+      .on(B, 2)
+      .joinOne(categories.groupBy(B, Category::id))
+      .on(B, 1)
+      .joinMany(tagging.on(B, 1))
+      .joinMany(photoUrls.on(B, 1))
       .done()
       .combine(Pet.DEFAULTS, 1, 1);
 
