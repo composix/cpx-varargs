@@ -31,7 +31,7 @@ public record Tag(long id, String name) implements Defaults<Tag> {
     public static Tag DEFAULTS = new Tag(0, null).defaults();
 
     @Override
-    public Tag combine(Row row) throws NoSuchFieldException {
+    public Tag combine(Row row) {
         return new Tag(
             row.getLong(0),
             row.get(1).toString()

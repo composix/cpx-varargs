@@ -33,33 +33,33 @@ public interface Row {
 
     Object get(Ordinal kind, int pos);
 
-    <T> T get(Class<T> type, int pos) throws NoSuchFieldException;
+    <T> T get(Class<T> type, int pos);
 
-    <T> List<T> getMany(Class<T> type, int pos) throws NoSuchFieldException;
+    <T> List<T> getMany(Class<T> type, int pos);
 
-    long getLong(int pos) throws NoSuchFieldException;
+    long getLong(int pos);
     
-    default CharSequence get(int pos) throws NoSuchFieldException {
+    default CharSequence get(int pos) {
         try {
             return (CharSequence) get(ArgsOrdinal.A, pos);
         } catch(ClassCastException e) {
-            throw new NoSuchFieldException();
+            throw new IndexOutOfBoundsException();
         }
     }
 
-    default <T> T get(Class<T> type) throws NoSuchFieldException {
+    default <T> T get(Class<T> type) {
         return get(type, 0);
     }
 
-    default <T> List<T> getMany(Class<T> type) throws NoSuchFieldException {
+    default <T> List<T> getMany(Class<T> type) {
         return getMany(type, 0);
     }
 
-    default <E extends Enum<E>> E getEnum(Class<E> type, int pos) throws NoSuchFieldException {
+    default <E extends Enum<E>> E getEnum(Class<E> type, int pos) {
         return (E) Enum.valueOf(type, get(pos).toString());
     }
 
-    default <E extends Enum<E>> E getENUM(Class<E> type, int pos) throws NoSuchFieldException {
+    default <E extends Enum<E>> E getENUM(Class<E> type, int pos) {
         return (E) Enum.valueOf(type, get(pos).toString().toUpperCase());
     }
 }

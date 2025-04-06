@@ -49,7 +49,7 @@ public record Pet(long id, String name, Status status, Category category, List<T
     }
     
     @Override
-    public Pet combine(Row row) throws NoSuchFieldException {
+    public Pet combine(Row row) {
         return new Pet(
             row.getLong(0),
             row.get(1).toString(),
