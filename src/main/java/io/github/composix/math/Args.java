@@ -29,7 +29,7 @@
  * - Splitting cvs lines and combining into DTO:
  *     args.split(ArgsOrdinal.PATTERN)
  *       .combine(Pet.DEFAULTS, 1);
- * 
+ *
  * Author: dr. ir. J. M. Valk
  * Date: April 2025
  */
@@ -202,17 +202,10 @@ public interface Args extends ArgsOrdinal, Order {
    * @param accessor - the accessor function to group by
    * @return a Keys object prepared with the grouping
    */
-  default <T extends Defaults<T>, K extends Comparable<K>> Keys groupBy(
+  <T extends Defaults<T>, K extends Comparable<K>> Keys groupBy(
     Ordinal tpos,
     Function<T, K> accessor
-  ) {
-    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-    orderBy(tpos, accessor);
-    accessObject.accessor(accessor);
-    final Keys result = groupBy(tpos, accessObject);
-    accessObject.destroy();
-    return result;
-  }
+  );
 
   /**
    * Group a DTO column by a given accessor function. This method will
@@ -224,17 +217,7 @@ public interface Args extends ArgsOrdinal, Order {
    * @param accessor - the accessor function to group by
    * @return a Keys object prepared with the grouping
    */
-  default <T extends Defaults<T>> Keys groupBy(
-    Ordinal col,
-    ToLongFunction<T> accessor
-  ) {
-    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-    orderBy(col, accessor);
-    accessLong.accessor(accessor);
-    final Keys result = groupBy(col, accessLong);
-    accessLong.destroy();
-    return result;
-  }
+  <T extends Defaults<T>> Keys groupBy(Ordinal col, ToLongFunction<T> accessor);
 
   /**
    * Split a CharSequence column into multiple CharSequence columns based on a given pattern.
@@ -312,9 +295,6 @@ public interface Args extends ArgsOrdinal, Order {
 
   @Deprecated
   LongStream longStream(Ordinal col);
-
-  @Deprecated
-  Keys groupBy(Ordinal col, Accessor accessor);
 
   @Deprecated
   default <T> Stream<T> stream(Class<T> type) throws NoSuchFieldException {

@@ -255,12 +255,17 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T extends Defaults<T>> Args combine(final T defaults, int pos, final int repeat) {
+  public <T extends Defaults<T>> Args combine(
+    final T defaults,
+    int pos,
+    final int repeat
+  ) {
     final int omega = OMEGA.intValue();
-    final int offset = offset();
     final int index = omega * --pos;
-    final int size = ordinal / omega;
-    final int amount = Math.min(ordinal % omega, ordinals.length);
+    final int amount = ordinal % omega;
+    final int skip = Math.max(0, amount - ordinals.length);
+    final int offset = offset();
+    int size = ordinal / omega;
     if (pos < 0 || pos >= size) {
       throw new IndexOutOfBoundsException();
     }
@@ -270,13 +275,13 @@ public class Matrix extends OrderInt implements Keys, Args {
     final T[] result = (T[]) ORDINALS[amount].newInstance(defaults.getClass());
     final VarArgs varargs = varArgs();
     CURSOR.position(index, ordinal, offset & varargs.mask(), varargs);
-    for (int i = 0; i < amount; ++i) {
+    for (int j = skip; j < amount; ++j) {
       if (!CURSOR.advance(1)) {
         throw new AssertionError();
       }
-      result[i] = defaults.combine(CURSOR);
+      result[j] = defaults.combine(CURSOR);
     }
-    if (!varargs.declare(offset + size, result)) {
+    if (!varargs.declare(offset + size++, result)) {
       throw new AssertionError();
     }
     ordinal += omega;
@@ -286,9 +291,10 @@ public class Matrix extends OrderInt implements Keys, Args {
   @Override
   public Args parse(Class<?> type, final int pos, final int repeat) {
     final int omega = OMEGA.intValue();
-    int size = ordinal / omega;
     final int amount = ordinal % omega;
     final int skip = Math.max(0, amount - ordinals.length);
+    int offset = offset();
+    int size = ordinal / omega;
     if (pos < 1 || pos > size) {
       throw new IndexOutOfBoundsException();
     }
@@ -298,7 +304,6 @@ public class Matrix extends OrderInt implements Keys, Args {
     final VarArgs varargs = varArgs();
     final Object[] argv = varargs.argv;
     final int mask = varargs.mask();
-    int offset = offset();
     for (int i = 0; i < repeat; ++i) {
       final CharSequence[] source = (CharSequence[]) argv[offset++ & mask];
       Object result;
@@ -342,52 +347,43 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal tpos,
     Function<T, K> accessor
   ) {
-    final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-    orderBy(tpos, accessor);
-    accessObject.accessor(accessor);
-    final Keys result = groupBy(tpos, accessObject);
-    accessObject.destroy();
-    return result;
+    return _groupBy(tpos, accessor);
   }
 
   @Override
   public <T extends Defaults<T>> Keys groupBy(
-    Ordinal col,
+    Ordinal tpos,
     ToLongFunction<T> accessor
   ) {
-    final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-    orderBy(col, accessor);
-    accessLong.accessor(accessor);
-    final Keys result = groupBy(col, accessLong);
-    accessLong.destroy();
-    return result;
+    return _groupBy(tpos, accessor);
   }
 
-  public <T, K extends Comparable<K>> Keys _groupBy(
+  protected <T, K extends Comparable<K>> Keys _groupBy(
     Ordinal tpos,
     Function<T, K> accessor
   ) {
     final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
-    orderBy(tpos, accessor);
+    reorder(comparator(tpos, accessor));
     accessObject.accessor(accessor);
-    final Keys result = groupBy(tpos, accessObject);
+    final Keys result = groupBy(tpos, accessObject, argv(tpos.intValue()));
     accessObject.destroy();
     return result;
   }
 
-  public <T> Keys _groupBy(Ordinal col, ToLongFunction<T> accessor) {
+  protected <T> Keys _groupBy(Ordinal tpos, ToLongFunction<T> accessor) {
     final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-    orderBy(col, accessor);
+    final VarArgs varargs = varArgs();
+    final Object[] source = (Object[]) varargs.argv[varargs.offset(offset(), tpos, (byte) 0)];
+    final Comparator<Object> comparator = (Comparator<Object>) Comparator.comparingLong(accessor);
+    reorder((lhs,rhs) -> comparator.compare(source[lhs.intValue()], source[rhs.intValue()]));
     accessLong.accessor(accessor);
-    final Keys result = groupBy(col, accessLong);
+    final Keys result = groupBy(tpos, accessLong, source);
     accessLong.destroy();
     return result;
   }
 
-  @Override
-  public Keys groupBy(Ordinal col, Accessor accessor) {
+  private Keys groupBy(Ordinal col, Accessor accessor, final Object source) {
     final int amount = amount();
-    final Object source = argv(col.intValue());
     final int count = count(amount, source, accessor);
     final Ordinal[] indices = new Ordinal[count];
     if (argv(-1) != null) {
@@ -402,13 +398,12 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
     }
     indices[k] = ORDINALS[amount];
-    return keys(col, accessor);
+    return keys(col, accessor, source);
   }
 
-  private Keys keys(Ordinal col, Accessor accessor) {
+  private Keys keys(Ordinal col, Accessor accessor, final Object source) {
     final Ordinal[] indices = indices();
     final int count = indices.length;
-    final Object source = argv(col.intValue());
     accessor.setValueAt(rank(0), source);
     final Object keys = accessor.alloc(ORDINALS[count]);
     argv(-2, keys);
