@@ -19,10 +19,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,138 +34,202 @@
 
 package io.github.composix.math;
 
-public final class VarArgs implements Cloneable{
-    public static final VarArgs VARARGS = new VarArgs(Short.SIZE);
+public final class VarArgs implements Cloneable {
 
-    public final Object[] argv;
+  public static final VarArgs VARARGS = new VarArgs(Short.SIZE);
 
-    VarArgs(final int bits) {
-        argv = new Object[1 << bits];
-    }
+  private static final IndexOutOfBoundsException OUT_OF_BOUNDS = new IndexOutOfBoundsException();
 
-    public final VarArgs clone() {
-        final int mask = mask();
-        int size = 0, offset = hashCode();
-        boolean flag = true;
-        while(argv[offset++] != null) {
-            ++size;
-            if (offset > mask) {
-                if (flag) {
-                    offset = 0;
-                    flag = false;
-                } else {
-                    throw new IndexOutOfBoundsException("mask exceeded");
-                }
-            }
-        }
-        try {
-            VarArgs result = (VarArgs) super.clone();
-            export(hashCode(), size, result.hashCode());
-            return result;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
-    }
+  public final Object[] argv;
 
-    public final int mask() {
-        int result = argv.length;
-        return --result;
-    }
+  VarArgs(final int bits) {
+    argv = new Object[1 << bits];
+  }
 
-    public final boolean declare(final int offset, final Object value) {
-        if (argv[offset] != null) {
-          return false;
-        }
-        argv[offset] = value;
-        return true;
-    }
-
-    public final int offset(int offset, Ordinal col, byte pos) {
-        return offset(offset, mask(), col.intValue(), pos);
-    }
-
-    public final int offset(int offset, Class<?> type, int size, byte pos) {
-        final int mask = mask();
-        return (offset(offset, mask, type, size) + pos) & mask;
-    }
-
-    public final int offset(int offset, byte position) {
-        return (offset + position) & mask();
-    }
-
-    final void export(int sourceHash, int size, int targetHash, VarArgs target) {
-        export(argv, sourceHash, mask(), target.argv, targetHash, target.mask(), size);
-    }
-
-    final void export(int sourceHash, int size, int targetHash) {
-        final int mask = mask();
-        export(argv, sourceHash, mask, argv, targetHash, mask, size);
-    }
-
-    private int offset(int offset, int mask, int index, byte pos) {
-        if (pos < 0) {
-            return -1;
-        }
-        int length = 0;
-        do {
-            offset += length;
-            final Class<?> type = argv[offset & mask].getClass();
-            length = length(offset, mask, type);
-        } while(index-- > 0);
-        if (pos >= length) {
-            return -1;
-        }
-        return (offset + pos) & mask;
-    }
-
-    private int offset(int offset, int mask, Class<?> type, int size) {
-        offset &= mask;
-        if (argv[offset] == type) {
-            return offset;
-        }
-        while (--size > 0 && argv[++offset & mask] != type);
-        if (size > 0) {
-            return offset & mask;
-        }
-        throw new IndexOutOfBoundsException();
-    }
-
-    private int length(int offset, final int mask, final Class<?> type) {
-        int result = 0;
-        while (typeOf(offset++ & mask) == type) {
-            ++result;
-        }
-        return result;
-    }
-
-    private Class<?> typeOf(int offset) {
-        final Object array = argv[offset];
-        return array == null ? Void.class : array.getClass();
-    }
-
-    private static final void export(Object source, int sourceHash, int sourceMask, Object target, int targetHash, int targetMask, int size) {
-        if (size <= 0) {
-            throw new IllegalArgumentException("size must be greater than 0");  
-        }
-        if (size <= sourceMask && size <= targetMask) {
-            final int sourcePos = sourceHash & sourceMask, targetPos = targetHash & targetMask;
-            if (sourcePos < ((sourcePos + size) & sourceMask)) {
-                if (targetPos < ((targetPos + size) & targetMask)) {
-                    System.arraycopy(source, sourcePos, target, targetPos, size);
-                } else {
-                    System.arraycopy(source, sourcePos, target, targetPos, targetMask - targetPos + 1);
-                    System.arraycopy(source, sourcePos + targetMask - targetPos + 1, target, 0, size - targetMask + targetPos - 1);
-                }
-            } else {
-                if (targetPos < ((targetPos + size) & targetMask)) {
-                    System.arraycopy(source, sourcePos, target, targetPos, sourceMask - sourcePos + 1);
-                    System.arraycopy(source, 0, target, sourceMask - sourcePos + 1, size - sourceMask + sourcePos - 1);
-                } else {
-                    throw new UnsupportedOperationException();
-                }
-            }    
+  public VarArgs clone() {
+    final int mask = mask();
+    int size = 0, offset = hashCode();
+    boolean flag = true;
+    while (argv[offset++] != null) {
+      ++size;
+      if (offset > mask) {
+        if (flag) {
+          offset = 0;
+          flag = false;
         } else {
-            throw new IndexOutOfBoundsException("size exceeds mask");
+          throw new IndexOutOfBoundsException("mask exceeded");
         }
+      }
     }
+    try {
+      VarArgs result = (VarArgs) super.clone();
+      export(hashCode(), size, result.hashCode());
+      return result;
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError();
+    }
+  }
+
+  public int mask() {
+    int result = argv.length;
+    return --result;
+  }
+
+  public byte position(final int offset, final int mask, int index, byte pos) {
+    if (pos < 0) {
+      throw OUT_OF_BOUNDS;
+    }
+    int i = offset;
+    Object value = argv[i];
+    if (value == null) {
+      throw OUT_OF_BOUNDS;
+    }
+    Class<?> type = value.getClass();
+    if (!type.isArray()) {
+      throw OUT_OF_BOUNDS;
+    }
+    while (index-- > 0) {
+      final Class<?> expected = type;
+      while((value = argv[++i & mask]) != null && expected == (type = value.getClass()));
+      if (value == null || !type.isArray()) {
+        throw OUT_OF_BOUNDS;
+      }
+    }
+    while(pos-- > 0) {
+      if ((value = argv[++i & mask]) == null || value.getClass() != type) {
+        throw OUT_OF_BOUNDS;
+      }
+    }
+    return (byte) (i - offset);
+  }
+  
+  public byte position(final int offset, final int mask, Class<?> type, byte pos) {
+    Object value;
+    int i = offset;
+    while ((value = argv[i++]) != null) {
+      if (value.getClass() == type) {
+        while(pos-- > 0) {
+          if ((value = argv[i++ & mask]) == null || value.getClass() != type) {
+            throw OUT_OF_BOUNDS;
+          }
+        }
+        return (byte) (i - offset);    
+      }
+    }
+    throw OUT_OF_BOUNDS;
+  }
+
+  public byte position(
+    final int offset,
+    final int mask,
+    final CharSequence header
+  ) {
+    int i = offset;
+    Object value = argv[i++];
+    if (value == null || value.getClass() != CharSequence[].class) {
+      throw OUT_OF_BOUNDS;
+    }
+    while(!value.equals(header)) {
+      value = argv[i++ & mask];
+      if (value == null || value.getClass() != CharSequence[].class) {
+        throw OUT_OF_BOUNDS;
+      }
+    }
+    return (byte) (i - offset);
+  }
+
+  public final byte length(final int offset, int mask) {
+    int i = offset;
+    Object value = argv[i++];
+    Class<?> type = value.getClass();
+    if (type.isArray()) {
+      while((value = argv[i++ & mask]) != null && value.getClass() == type);
+      return (byte) (i - offset);
+    }
+    throw OUT_OF_BOUNDS;
+  }
+
+  public boolean declare(int offset, final Object value) {
+    if (argv[offset] != null) {
+      return false;
+    }
+    argv[offset] = value;
+    return true;
+  }
+
+  final void export(int sourceHash, int size, int targetHash, VarArgs target) {
+    export(
+      argv,
+      sourceHash,
+      mask(),
+      target.argv,
+      targetHash,
+      target.mask(),
+      size
+    );
+  }
+
+  final void export(int sourceHash, int size, int targetHash) {
+    final int mask = mask();
+    export(argv, sourceHash, mask, argv, targetHash, mask, size);
+  }
+
+  private static final void export(
+    Object source,
+    int sourceHash,
+    int sourceMask,
+    Object target,
+    int targetHash,
+    int targetMask,
+    int size
+  ) {
+    if (size <= 0) {
+      throw new IllegalArgumentException("size must be greater than 0");
+    }
+    if (size <= sourceMask && size <= targetMask) {
+      final int sourcePos = sourceHash & sourceMask, targetPos =
+        targetHash & targetMask;
+      if (sourcePos < ((sourcePos + size) & sourceMask)) {
+        if (targetPos < ((targetPos + size) & targetMask)) {
+          System.arraycopy(source, sourcePos, target, targetPos, size);
+        } else {
+          System.arraycopy(
+            source,
+            sourcePos,
+            target,
+            targetPos,
+            targetMask - targetPos + 1
+          );
+          System.arraycopy(
+            source,
+            sourcePos + targetMask - targetPos + 1,
+            target,
+            0,
+            size - targetMask + targetPos - 1
+          );
+        }
+      } else {
+        if (targetPos < ((targetPos + size) & targetMask)) {
+          System.arraycopy(
+            source,
+            sourcePos,
+            target,
+            targetPos,
+            sourceMask - sourcePos + 1
+          );
+          System.arraycopy(
+            source,
+            0,
+            target,
+            sourceMask - sourcePos + 1,
+            size - sourceMask + sourcePos - 1
+          );
+        } else {
+          throw new UnsupportedOperationException();
+        }
+      }
+    } else {
+      throw new IndexOutOfBoundsException("size exceeds mask");
+    }
+  }
 }

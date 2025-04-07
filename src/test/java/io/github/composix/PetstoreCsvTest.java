@@ -95,7 +95,7 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
     Args tagging = petstore
       .getArgsValue(B.index(D))
       .parse(long.class, 1, 2)
-      .on(A, 1)
+      .on(B, 2)
       .joinOne(tags.groupBy(B, Tag::id))
       .done();
 
