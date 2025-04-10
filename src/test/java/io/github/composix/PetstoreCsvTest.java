@@ -83,33 +83,37 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
 
     Args photoUrls = petstore
       .getArgsValue(B.index(C))
-      .parse(long.class, 1, 1)
-      .parse(String.class, 2, 1);
+      .fk("petId:", L)
+      .attr("photoUrl:", S);
 
     Args categories = petstore
       .getArgsValue(B.index(A))
-      .combine(Category.DEFAULTS, 1, 1);
+      .pk("id: ", L)
+      .attr("name:", S)
+      .combine(Category.DEFAULTS);
 
-    Args tags = petstore.getArgsValue(B.index(E)).combine(Tag.DEFAULTS, 1, 1);
+    Args tags = petstore
+      .getArgsValue(B.index(E))
+      .pk("tagId:", L)
+      .attr("name:", S)
+      .combine(Tag.DEFAULTS, 1, 1);
 
     Args tagging = petstore
       .getArgsValue(B.index(D))
-      .parse(long.class, 1, 2)
-      .on(B, 2)
-      .joinOne(tags.groupBy(B, Tag::id))
-      .done();
+      .fk("petId: ", L)
+      .fk("tagId:", L)
+      .joinOne(tags);
 
     Args pets = petstore
       .getArgsValue(B.index(B))
-      .parse(long.class, 1, 1)
-      .parse(long.class, 4, 1)
-      .on(B, 2)
-      .joinOne(categories.groupBy(B, Category::id))
-      .on(B, 1)
-      .joinMany(tagging.on(B, 1))
-      .joinMany(photoUrls.on(B, 1))
-      .done()
-      .combine(Pet.DEFAULTS, 1, 1);
+      .pk("id:", L)
+      .fk("categoryId:", L)
+      .attr("name:", S)
+      .attr("status", S)
+      .joinOne(categories)
+      .joinMany(tagging)
+      .joinMany(photoUrls)
+      .combine(Pet.DEFAULTS);
 
     assertAllEquals(
       PETS.stream(A).toArray(Pet[]::new),

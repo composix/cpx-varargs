@@ -109,7 +109,8 @@ class Table<A, B, C, N, O, P>
 
   @Override
   public KeysIII<A, B, C, A> onA() {
-    return (KeysIII<A, B, C, A>) on(A, 1);
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'onA'");
   }
 
   @Override

@@ -40,6 +40,10 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
 
     long longValue();
 
+    int size(int ord);
+
+    int amount(int ord);
+    
     int index(Ordinal row);
 
     Ordinal column();

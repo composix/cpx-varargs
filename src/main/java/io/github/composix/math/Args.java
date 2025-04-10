@@ -81,7 +81,7 @@ public interface Args extends ArgsOrdinal, Order {
    * @param tpos - the type position of the column
    * @return a list of values in the column
    */
-  <T> List<T> column(Ordinal tpos);
+  <T> List<T> column(Ordinal type);
 
   /**
    * Retrieve the column at the pos-th type position. For example,
@@ -94,35 +94,6 @@ public interface Args extends ArgsOrdinal, Order {
    * @throws IndexOutOfBoundsException - if pos is out of bounds
    */
   <T> List<T> column(Ordinal type, int pos);
-
-  /**
-   * Retrieve the first column of the given type. For example,
-   * column(String.class) returns the first column of type String.
-   *
-   * Note that the type will be an exact match, so column(String.class)
-   * and column(CharSequence.class) will return different columns.
-   *
-   * @param type - the type of the column
-   * @return a list of values in the column
-   * @throws IndexOutOfBoundsException - if pos is out of bounds
-   * this includes the case when the given type doesn't exist
-   */
-  <T> List<T> column(Class<T> type);
-
-  /**
-   * Retrieve the pos-th column of the given type. For example,
-   * column(String.class, 2) returns the second column of type String.
-   *
-   * Note that the type will be an exact match, so column(String.class, 2)
-   * and column(CharSequence.class, 2) will return different columns.
-   *
-   * @param type - the type of the column
-   * @param pos - the position within columns of same type
-   * @return a list of values in the column
-   * @throwss IndexOutOfBoundsException - if pos is out of bounds
-   * this includes the case when the given type doesn't exist
-   */
-  <T> List<T> column(Class<T> type, int pos);
 
   /**
    * Retrieve the text-based column with a given header. For example,
@@ -190,7 +161,31 @@ public interface Args extends ArgsOrdinal, Order {
    * @return a Keys object for joining
    * @throws IndexOutOfBoundsException - if pos is out of bounds
    */
-  Keys on(Ordinal tpos, int pos);
+
+  <T extends Defaults<T>> Args primaryKey(Ordinal tpos, ToLongFunction<T> accessor);
+
+    /**
+   * Prepare for joining on a given column; a subsequence join call on the
+   * Keys interface will join on the selected column.
+   *
+   * @param tpos - the type position of the column
+   * @param pos - the position within columns of same type
+   * @return a Keys object for joining
+   * @throws IndexOutOfBoundsException - if pos is out of bounds
+   */
+
+  <T extends Defaults<T>> Args foreignKey(Ordinal tpos, ToLongFunction<T> accessor);
+
+  Args pk(CharSequence name, Ordinal type);
+
+  Args fk(CharSequence name, Ordinal type);
+
+  Args attr(CharSequence name, Ordinal type);
+
+  Args joinOne(Args rhs);
+
+  Args joinMany(Args rhs);
+
 
   /**
    * Group a DTO column by a given accessor function. This method will
@@ -244,6 +239,7 @@ public interface Args extends ArgsOrdinal, Order {
    * @throws IndexOutOfBoundsException - pos or repeat is out of bounds
    */
   <T extends Defaults<T>> Args combine(T defaults, int pos, int repeat);
+  <T extends Defaults<T>> Args combine(T defaults);
 
   /**
    * Parse a single CharSequence column into a single primitive long column.
@@ -255,6 +251,8 @@ public interface Args extends ArgsOrdinal, Order {
    */
   Args parse(Class<?> type, int pos, int repeat);
 
+  void clear();
+  
   @Override
   Args clone() throws CloneNotSupportedException;
 

@@ -114,4 +114,14 @@ class OrdinalInt extends OrdinalNumber implements Order {
     public int amount() {
         return ordinal % OMEGA.intValue();
     }
+
+    @Override
+    public int size(int ord) {
+        return ord / ordinal;
+    }
+
+    @Override
+    public int amount(int ord) {
+        return ord % ordinal;
+    }
 }

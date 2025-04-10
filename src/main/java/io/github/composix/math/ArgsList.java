@@ -1,10 +1,14 @@
 /**
  * class ArgsList
- * 
- * This class provides a list implementation that is immutable in terms of its
- * contents, but the order of the elements can be changed by modifying the sort 
- * order based on the associated matrix's ordinals.
- * 
+ *
+ * The ArgsList interface provides a list- and setview on the columns provided
+ * by the Args interface. The listview presents the values in a given column
+ * (without the optional header) ordered according the current ordering as set
+ * by the Args::orderBy method. The listview is backed by the tabular structure,
+ * so sorting the list using List::sort changes the row ordering on the underlying
+ * tabular data. Vice versa, changing the order using Args::orderBy will appear as
+ * a changed ordering of the elements in the list view.
+ *
  * Author: dr. ir. J. M. Valk
  * Date: April 2025
  */
@@ -35,27 +39,12 @@
 
 package io.github.composix.math;
 
-import java.util.AbstractList;
+import java.util.List;
+import java.util.RandomAccess;
 
-public class ArgsList<E> extends AbstractList<E> {
-    final Matrix matrix;
-    final E[] source;
+interface ArgsList<E> extends List<E>, RandomAccess {
 
-    ArgsList(Matrix matrix, E[] source) {
-        this.matrix = matrix;
-        this.source = source;
-    }
+    long getLong(int index);
 
-    @Override
-    public int size() {
-        return matrix.amount();
-    }
-
-    @Override
-    public E get(int index) {
-        final int i = matrix.ordinals[index].intValue();
-        return source[i];
-    }
-
-    // TODO: override the sort method to sort the elements based on the ordinals
+    ArgsSet<E> asArgsSet();
 }

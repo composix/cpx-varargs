@@ -34,16 +34,37 @@
 
 package io.github.composix.math;
 
-public final class VarArgs implements Cloneable {
+import java.util.AbstractList;
+
+public final class VarArgs extends AbstractList<ArgsIndexList<?>> implements Cloneable {
 
   public static final VarArgs VARARGS = new VarArgs(Short.SIZE);
 
   private static final IndexOutOfBoundsException OUT_OF_BOUNDS = new IndexOutOfBoundsException();
 
   public final Object[] argv;
+  private final ArgsIndexList[] columns;
 
   VarArgs(final int bits) {
     argv = new Object[1 << bits];
+    columns = new ArgsIndexList[1 << bits];
+  }
+
+  @Override
+  public int size() {
+    return argv.length;
+  }
+
+  @Override
+  public ArgsIndexList<?> get(int index) {
+    return columns[index];
+  }
+
+  @Override
+  public ArgsIndexList<?> set(int index, ArgsIndexList<?> value) {
+    ArgsIndexList<?> result = columns[index];
+    columns[index] = value;
+    return result;
   }
 
   public VarArgs clone() {

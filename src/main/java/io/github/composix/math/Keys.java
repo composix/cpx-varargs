@@ -47,12 +47,6 @@ public interface Keys {
     LongBinaryOperator reducer
   );
 
-  Keys joinOne(Keys rhs);
-
-  Keys joinMany(Keys rhs);
-
-  Keys on(Ordinal col, int pos);
-
   void thenBy(Ordinal col, Accessor accessor);
 
   default <T, K extends Comparable<K>> Keys thenBy(

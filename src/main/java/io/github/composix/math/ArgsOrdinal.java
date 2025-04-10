@@ -25,6 +25,7 @@
 package io.github.composix.math;
 
 import java.math.BigInteger;
+import java.net.URI;
 import java.util.regex.Pattern;
 
 import io.github.composix.varargs.ArgsI;
@@ -60,6 +61,35 @@ public interface ArgsOrdinal extends Cloneable {
             Y = Constants.getInstance().ordinal(24),
             Z = Constants.getInstance().ordinal(25);
 
+    static Class<?>[] TYPES = new Class[] {
+        boolean.class, // A
+        byte.class, // B
+        char.class, // C
+        short.class, // D
+        boolean[].class, // E
+        byte[].class, // F
+        char[].class, // G
+        short[].class, // H
+        int.class, // I
+        int[].class, // J
+        long[].class, // K
+        long.class, // L
+        null, // M
+        null, // N
+        null, // O
+        null, // P
+        null, // Q
+        null, // R
+        String.class, // S
+        null, // T
+        URI.class, // U
+        null, // V
+        null, // W
+        null, // X
+        null, // Y
+        null // Z
+    };
+    
     static Object[] OBJECT = new Object[1];
     static Object[] OBJECTS = new Object[0];
     static String[] STRINGS = new String[0];
@@ -81,9 +111,9 @@ public interface ArgsOrdinal extends Cloneable {
     @Override
     String toString();
 
-    default Args extend(int col, int amount, Object... arrays) {
+    default Args extend(int col, int amount, int offset, int length, Object... arrays) {
         try {
-            return EMPTY.clone().extend(col, amount, arrays);
+            return EMPTY.clone().extend(col, amount, offset, length, arrays);
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
@@ -93,7 +123,7 @@ public interface ArgsOrdinal extends Cloneable {
         final int length = column.length;
         if (length > 0) {
             OBJECT[0] = column;
-            return extend(col.intValue(), length, OBJECT);
+            return extend(col.intValue(), length, 0, 1, OBJECT);
         }
         throw new IllegalArgumentException("column must not be empty");
     }
@@ -102,7 +132,7 @@ public interface ArgsOrdinal extends Cloneable {
         final int length = column.length;
         if (length > 0) {
             OBJECT[0] = column;
-            return extend(col.intValue(), length, OBJECT);
+            return extend(col.intValue(), length, 0, 1, OBJECT);
         }
         throw new IllegalArgumentException("column must not be empty");
     }

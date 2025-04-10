@@ -56,7 +56,7 @@ class IntroductionTest extends TestCase {
     // VarArgs
     Args idArgs = D.extend(A, idArray);
     Args args = D.extend(A, array);
-    Args matrix = D.extend(0, 3, idArray, array);
+    Args matrix = D.extend(0, 3, 0, 2, idArray, array);
 
     @Test
     void testGetValue() {

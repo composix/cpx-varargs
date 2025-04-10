@@ -59,7 +59,7 @@ class OrderTest extends TestCase {
     // VarArgs
     Args idArgs = D.extend(A, idArray.clone());
     Args args = D.extend(A, array.clone());
-    Args matrix = D.extend(0, 3, idArray.clone(), array.clone());
+    Args matrix = D.extend(0, 3, 0, 2, idArray.clone(), array.clone());
 
     @BeforeEach
     void sorting() {

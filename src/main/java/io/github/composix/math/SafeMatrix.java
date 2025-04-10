@@ -46,13 +46,6 @@ public class SafeMatrix extends Matrix {
   }
 
   @Override
-  public void export(Args target, byte position, int size) {
-    final int amount = target.ordinal().intValue();
-    varArgs().export(position, size, target.hashCode(), ((Matrix) target).varArgs());
-    target.order().resize(OMEGA.intValue() * size + amount);
-  }
-
-  @Override
   public int hashCode() {
     return 0;
   }

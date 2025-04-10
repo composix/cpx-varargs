@@ -1,8 +1,8 @@
 /**
  * KeysTest
  *
- * This test class contains unit tests for the functionalities provided by the 
- * {@link io.github.composix.math.Keys} class, specifically focusing on operations 
+ * This test class contains unit tests for the functionalities provided by the
+ * {@link io.github.composix.math.Keys} class, specifically focusing on operations
  * related to grouping, joining, and sorting tabular data represented as matrices.
  *
  * Key Features Tested:
@@ -11,7 +11,7 @@
  * - The ability to sort and manipulate grouped data using additional sorting criteria (thenBy).
  * - Verifying the integrity of the underlying {@link VarArgs} data structure after operations.
  *
- * The tests ensure that these operations are functioning correctly, including edge cases 
+ * The tests ensure that these operations are functioning correctly, including edge cases
  * where the data may be empty, improperly matched, or require custom sorting logic.
  *
  * Author: dr. ir. J. M. Valk
@@ -47,15 +47,12 @@ package io.github.composix.math;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 class KeysTest extends PetstoreTestCase {
 
@@ -63,7 +60,7 @@ class KeysTest extends PetstoreTestCase {
   void testGroupByCategory() throws NoSuchFieldException {
     // When grouping pets by category...
     assertSame(pets, pets.groupBy(A, Pet::category));
-    // ...then the same object provides both the Args and Keys intefaces
+    // ...then the same object provides both the Args and Keys interfaces
 
     // Then also the underlying VarArgs...
     int mask = petVarArgs.mask(), offset = pets.hashCode() & mask;
@@ -76,7 +73,10 @@ class KeysTest extends PetstoreTestCase {
     );
 
     // ...and contains the indices of the groups
-    assertAllEquals(all(C, F, I), argv[--offset & mask]);
+    assertAllEquals(
+      all(C, F, I),
+      ((Index) argv[--offset & mask]).toArray(Ordinal[]::new)
+    );
 
     // ...and contains the extracted keys
     assertAllEquals(
@@ -109,7 +109,10 @@ class KeysTest extends PetstoreTestCase {
     );
 
     // ...and contains the indices of the groups
-    assertAllEquals(all(D, G), argv[--offset & mask]);
+    assertAllEquals(
+      all(D, G),
+      ((Index) argv[--offset & mask]).toArray(Ordinal[]::new)
+    );
 
     // ...and contains the extracted quantities
     assertAllEquals(any(1L, 2L), argv[--offset & mask]);
@@ -127,47 +130,6 @@ class KeysTest extends PetstoreTestCase {
         .collect(A, Pet::id, Long::sum)
         .longStream(B)
         .toArray()
-    );
-  }
-
-  @Test
-  void testJoinOne() {
-    assertThrows(IllegalArgumentException.class, () ->
-      pets.groupBy(A, Pet::id).joinOne(orders.groupBy(A, Order::petId))
-    );
-
-    Args result = orders
-      .groupBy(A, Order::petId)
-      .joinOne(pets.groupBy(A, Pet::id))
-      .done();
-    result.orderBy(A, Order::id);
-    assertTrue(result.isOrdinal());
-
-    
-    assertAllSame(
-      orders.column(A).stream().toArray(Order[]::new),
-      result.column(A).stream().toArray(Order[]::new)
-    );
-    assertAllSame(
-      all(MICKEY, DUCHESS, DONALD, PLUTO, FREY, MICKEY),
-      result.stream(B).toArray(Pet[]::new)
-    );
-  }
-
-  @Test
-  void testJoinMany() {
-    Args result = pets
-      .groupBy(A, Pet::id)
-      .joinMany(orders.groupBy(A, Order::petId))
-      .done();
-
-    assertAllSame(
-      pets.stream(A).toArray(Pet[]::new),
-      result.stream(A).toArray(Pet[]::new)
-    );
-    assertAllEquals(
-      all(EMPTY, all(P), all(R), EMPTY, all(S), all(O, T), all(Q), EMPTY),
-      result.stream(B).toArray(Order[][]::new)
     );
   }
 }
