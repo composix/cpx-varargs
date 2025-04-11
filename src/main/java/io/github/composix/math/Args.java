@@ -176,11 +176,11 @@ public interface Args extends ArgsOrdinal, Order {
 
   <T extends Defaults<T>> Args foreignKey(Ordinal tpos, ToLongFunction<T> accessor);
 
-  Args pk(CharSequence name, Ordinal type);
+  Args pk(CharSequence name, Ordinal type) throws NoSuchFieldException;
 
-  Args fk(CharSequence name, Ordinal type);
+  Args fk(CharSequence name, Ordinal type) throws NoSuchFieldException;
 
-  Args attr(CharSequence name, Ordinal type);
+  Args attr(CharSequence name, Ordinal type) throws NoSuchFieldException;
 
   Args joinOne(Args rhs);
 

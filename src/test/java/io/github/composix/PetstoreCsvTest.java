@@ -36,21 +36,23 @@ import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
 
   static TestData testData;
 
+  Args petstore;
+
   @BeforeAll
   static void beforeAll() throws IOException, URISyntaxException {
     testData = DEFAULT.testData("src/test/resources/", Optional.empty());
   }
 
-  @Test
-  void testCSV()
-    throws IOException, CloneNotSupportedException, NoSuchFieldException {
-    Args petstore = F.extend(
+  @BeforeEach
+  void beforeEach() {
+    petstore = F.extend(
       A,
       "categories.csv",
       "petstore.csv",
@@ -79,7 +81,12 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
           }
         })
         .toArray(Args[]::new)
-    );
+    );    
+  }
+
+  @Test
+  void testCSV()
+    throws IOException, CloneNotSupportedException, NoSuchFieldException {
 
     Args photoUrls = petstore
       .getArgsValue(B.index(C))
@@ -88,7 +95,7 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
 
     Args categories = petstore
       .getArgsValue(B.index(A))
-      .pk("id: ", L)
+      .pk("id:", L)
       .attr("name:", S)
       .combine(Category.DEFAULTS);
 

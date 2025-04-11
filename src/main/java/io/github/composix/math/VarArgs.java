@@ -146,17 +146,11 @@ public final class VarArgs extends AbstractList<ArgsIndexList<?>> implements Clo
     final CharSequence header
   ) {
     int i = offset;
-    Object value = argv[i++];
-    if (value == null || value.getClass() != CharSequence[].class) {
-      throw OUT_OF_BOUNDS;
+    CharSequence[] value = (CharSequence[]) argv[i++];
+    while(!value[0].equals(header)) {
+      value = (CharSequence[]) argv[i++ & mask];
     }
-    while(!value.equals(header)) {
-      value = argv[i++ & mask];
-      if (value == null || value.getClass() != CharSequence[].class) {
-        throw OUT_OF_BOUNDS;
-      }
-    }
-    return (byte) (i - offset);
+    return (byte) (--i - offset);
   }
 
   public final byte length(final int offset, int mask) {

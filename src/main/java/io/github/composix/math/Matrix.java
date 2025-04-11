@@ -363,6 +363,9 @@ public class Matrix extends OrderInt implements Keys, Args {
     ToLongFunction<T> accessor
   ) {
     pk = _groupBy(tpos, accessor);
+    if (pk.array.length != pk.indices.size()) {
+      throw new IllegalArgumentException("column has duplicates");
+    }
     return this;
   }
 
@@ -373,6 +376,65 @@ public class Matrix extends OrderInt implements Keys, Args {
   ) {
     fk = _groupBy(tpos, accessor);
     return this;
+  }
+
+  @Override
+  public Args pk(CharSequence name, Ordinal type) throws NoSuchFieldException {
+    pk = (ArgsLongSet) attribute(name, type);
+    if (pk.array.length != pk.indices.size()) {
+      throw new IllegalArgumentException("column has duplicates");
+    }
+    return this;
+  }
+
+  @Override
+  public Args fk(CharSequence name, Ordinal type) throws NoSuchFieldException {
+    fk = (ArgsLongSet) attribute(name, type);
+    return this;
+  }
+
+  @Override
+  public Args attr(CharSequence name, Ordinal type)
+    throws NoSuchFieldException {
+    attribute(name, type);
+    return this;
+  }
+
+  private ArgsSet<?> attribute(CharSequence name, Ordinal type)
+    throws NoSuchFieldException {
+    if (ordinals == ORDINALS) {
+      throw new NoSuchFieldException(name.toString());
+    }
+    final VarArgs varargs = varArgs();
+    final int mask = varargs.mask(), offset = offset() & mask;
+    final CharSequence[] attr = (CharSequence[]) varargs.argv[(offset +
+        varargs.position(offset, mask, name)) &
+      mask];
+    int length = attr.length;
+    switch (type.intValue()) {
+      case 11:
+        long[] longs = new long[length];
+        for (int i = 1; i < length; ++i) {
+          longs[i] = Long.parseLong(attr[i].toString());
+        }
+        if (--length != ordinals.length) {
+          throw new AssertionError();
+        }
+        varargs.argv[(offset + target++) & mask] = longs;
+        return groupBy(longs);
+      case 18:
+        String[] strings = new String[length];
+        for (int i = 1; i < length; ++i) {
+          strings[i] = (String) attr[i];
+        }
+        if (--length != ordinals.length) {
+          throw new AssertionError();
+        }
+        varargs.argv[(offset + target++) & mask] = strings;
+        return groupBy(type, strings);
+      default:
+        throw new UnsupportedOperationException();
+    }
   }
 
   protected <T, K extends Comparable<K>> ArgsObjSet<T> _groupBy(
@@ -416,24 +478,22 @@ public class Matrix extends OrderInt implements Keys, Args {
     return result;
   }
 
-  private void groupBy(final Object[] source) {
-    final VarArgs varargs = varArgs();
-    final int mask = varargs.mask(), offset = offset() & mask;
+  private <T> ArgsObjSet<T> groupBy(Ordinal type, final T[] source) {
     Accessor accessor = Accessor.of(typeOf(source));
     reorder((lhs, rhs) ->
-      ((Comparable<Object>) source[lhs.intValue()]).compareTo(
-          source[rhs.intValue()]
-        )
+      ((Comparable<T>) source[lhs.intValue()]).compareTo(source[rhs.intValue()])
     );
-    // TODO: create ArgsShortList
     Index indices = groupBy(accessor, source);
-    keys(accessor, source, indices);
+    ArgsObjSet<T> result = new ArgsObjSet<>(
+      type,
+      indices,
+      (T[]) keys(accessor, source, indices)
+    );
     accessor.destroy();
+    return result;
   }
 
   private ArgsLongSet groupBy(final long[] source) {
-    final VarArgs varargs = varArgs();
-    final int mask = varargs.mask(), offset = offset() & mask;
     Accessor accessor = Accessor.of(typeOf(source));
     reorder((lhs, rhs) ->
       Long.compare(source[lhs.intValue()], source[rhs.intValue()])
@@ -451,7 +511,6 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int amount = amount();
     final int count = count(amount, source, accessor);
     final Index indices = Index.of(count, amount);
-    //final Ordinal[] indices = new Ordinal[count];
     int k = 0;
     accessor.setValueAt(rank(0), source);
     for (int i = 1; i < amount; ++i) {
@@ -715,10 +774,11 @@ public class Matrix extends OrderInt implements Keys, Args {
           ++size;
           argv[i] = new CharSequence[amount];
         }
-        ((CharSequence[]) argv[i++])[j] = item;
+        ((CharSequence[]) argv[i++])[j] = j == 0 ? item + ":" : item;
       }
     }
-    ordinal = ++size * OMEGA.intValue() + amount;
+    target = (byte) ++size;
+    ordinal = target * OMEGA.intValue() + amount;
     // TODO: operation now has side effects on the original matrix
     return this;
   }
@@ -908,23 +968,5 @@ public class Matrix extends OrderInt implements Keys, Args {
   public <T extends Defaults<T>> Args combine(T defaults) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'combine'");
-  }
-
-  @Override
-  public Args pk(CharSequence name, Ordinal type) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'pk'");
-  }
-
-  @Override
-  public Args fk(CharSequence name, Ordinal type) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'fk'");
-  }
-
-  @Override
-  public Args attr(CharSequence name, Ordinal type) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'attr'");
   }
 }
