@@ -298,19 +298,4 @@ public interface Args extends ArgsOrdinal, Order {
   default <T> Stream<T> stream(Class<T> type) throws NoSuchFieldException {
     return stream(type, 0);
   }
-
-  @Deprecated
-  default <T, K extends Comparable<K>> Args orderBy(
-    Ordinal ordinal,
-    Function<T, K> accessor
-  ) {
-    order().reorder(comparator(ordinal, accessor));
-    return this;
-  }
-
-  @Deprecated
-  default <T> Args orderBy(Ordinal ordinal, ToLongFunction<T> accessor) {
-    order().reorder(comparator(ordinal, accessor));
-    return this;
-  }
 }
