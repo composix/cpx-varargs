@@ -30,8 +30,6 @@ import java.util.stream.Stream;
 public interface MutableOrder extends Order {
     void resize(int ordinal);
     
-    void skipHeader();
-    
     void reorder(Comparator<Ordinal> comparator);
 
     void reorder(Comparator<Ordinal> comparator, int fromIndex, int toIndex);

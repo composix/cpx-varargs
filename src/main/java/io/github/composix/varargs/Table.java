@@ -150,8 +150,8 @@ class Table<A, B, C, N, O, P>
     try {
       Args result = clone();
       index -= size - 1;
-      result.order().reorder(NATURAL_ORDER);
-      result.order().resize(OMEGA.intValue() * index + indices.length);
+      //result.order().reorder(NATURAL_ORDER);
+      //result.order().resize(OMEGA.intValue() * index + indices.length);
       export(result, (byte) size, index);
       return (ArgsIII<N, O, P>) result;
     } catch (CloneNotSupportedException e) {

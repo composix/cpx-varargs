@@ -122,9 +122,9 @@ class IntroductionTest extends TestCase {
 
     @Test
     void testOrder() {
-        assertSame(idArgs, idArgs.order());
-        assertSame(args, args.order());
-        assertSame(matrix, matrix.order());
+        assertSame(idArgs, idArgs.ordinal().order());
+        assertSame(args, args.ordinal().order());
+        assertSame(matrix, matrix.ordinal().order());
     }
 
     @Test

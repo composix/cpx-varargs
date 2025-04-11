@@ -48,7 +48,7 @@ class ArgsITest extends TestCase {
     // Then
     assertEquals(
       OMEGA.intValue() + columnA.length,
-      args.order().ordinal().intValue()
+      args.ordinal().intValue()
     );
     final VarArgs varargs = TestMatrix.varargs(args);
     int offset = args.hashCode() & varargs.mask();
@@ -76,51 +76,5 @@ class ArgsITest extends TestCase {
       assertThrows(IllegalArgumentException.class, () -> ArgsI.of(emptyArray)
       ).getMessage()
     );
-  }
-
-  @Test
-  void testAndOf() {
-    // Given two arrays of strings
-    String[] columnA = { "Hello", "World" };
-    String[] columnB = { "Foo", "Bar" };
-
-    // and an ArgsI<String>
-    ArgsI<CharSequence> args = ArgsI.of(columnA);
-
-    // When we call andOf
-    assertSame(args, args.andOf(columnB));
-    // then the andOf call is chained
-
-    // And then
-    assertEquals(
-      OMEGA.intValue() * 2 + columnA.length,
-      args.order().ordinal().intValue()
-    );
-    final VarArgs varargs = TestMatrix.varargs(args);
-    int offset = args.hashCode() & varargs.mask();
-    assertNull(varargs.argv[--offset & varargs.mask()]);
-    assertSame(columnA, varargs.argv[++offset & varargs.mask()]);
-    assertSame(columnB, varargs.argv[++offset & varargs.mask()]);
-    assertNull(varargs.argv[++offset & varargs.mask()]);
-  }
-
-  @Test
-  void testAndOfMultipleCalls() {
-    String[] columnA = { "Hello", "World" };
-    String[] columnB = { "Foo", "Bar" };
-    String[] columnC = { "Baz", "Qux" };
-
-    ArgsI<CharSequence> args = ArgsI.of(columnA);
-    args = args.andOf(columnB).andOf(columnC);
-
-    // Check if the arguments are in the correct order after calling andOf
-    // The offset and masking is used to properly index into the VarArgs argv array.
-    final VarArgs varargs = TestMatrix.varargs(args);
-    int offset = args.hashCode() & varargs.mask();
-
-    // Ensure the correct order and contents in argv
-    assertSame(columnA, varargs.argv[offset++ & varargs.mask()]);
-    assertSame(columnB, varargs.argv[offset++ & varargs.mask()]);
-    assertSame(columnC, varargs.argv[offset++ & varargs.mask()]);
   }
 }

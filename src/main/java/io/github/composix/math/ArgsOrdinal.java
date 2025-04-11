@@ -100,14 +100,6 @@ public interface ArgsOrdinal extends Cloneable {
 
     Order clone() throws CloneNotSupportedException;
 
-    default MutableOrder order() {
-        try {
-            return (MutableOrder) clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     String toString();
 

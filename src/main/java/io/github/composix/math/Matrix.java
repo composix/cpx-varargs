@@ -777,7 +777,8 @@ public class Matrix extends OrderInt implements Keys, Args {
         ((CharSequence[]) argv[i++])[j] = j == 0 ? item + ":" : item;
       }
     }
-    target = (byte) ++size;
+    source = target = (byte) ++size;
+    skipHeader();
     ordinal = target * OMEGA.intValue() + amount;
     // TODO: operation now has side effects on the original matrix
     return this;

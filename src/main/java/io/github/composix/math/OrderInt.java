@@ -104,7 +104,6 @@ class OrderInt extends OrdinalInt implements MutableOrder {
         }
     }
 
-    @Override
     public void skipHeader() {
         if (ordinals == ORDINALS) {
             ordinals = copyOf(ORDINALS, 1);
