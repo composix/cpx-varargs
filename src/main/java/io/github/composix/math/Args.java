@@ -300,12 +300,6 @@ public interface Args extends ArgsOrdinal, Order {
   }
 
   @Deprecated
-  default Args orderBy(Ordinal col) {
-    order().reorder(comparator(col));
-    return this;
-  }
-
-  @Deprecated
   default <T, K extends Comparable<K>> Args orderBy(
     Ordinal ordinal,
     Function<T, K> accessor

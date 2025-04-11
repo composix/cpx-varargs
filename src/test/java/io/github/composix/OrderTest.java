@@ -79,9 +79,9 @@ class OrderTest extends TestCase {
         assertArrayEquals(array, stream.sorted().toArray());
 
         // VarArgs
-        idArgs.orderBy(A);
-        args.orderBy(A);
-        matrix.orderBy(B); 
+        idArgs.column(A).sort(null);
+        args.column(A).sort(null);
+        matrix.column(B).sort(null); 
     }
 
     @Test

@@ -37,6 +37,7 @@
 package io.github.composix.math;
 
 import java.util.AbstractList;
+import java.util.Comparator;
 
 class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
 
@@ -103,5 +104,36 @@ class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
   public ArgsSet<E> asArgsSet() {
     return (ArgsSet<E>) elements;
   }
-  // TODO: override the sort method to sort the elements based on the ordinals
+
+  @Override
+  public void sort(Comparator<? super E> comparator) {
+    if (elements.indices() == null) {
+      switch (elements) {
+        case ArgsLongSet longSet:
+          if (comparator != null) {
+            throw new UnsupportedOperationException();
+          }
+          matrix.reorder((lhs, rhs) ->
+            Long.compare(
+              longSet.array[lhs.intValue()],
+              longSet.array[rhs.intValue()]
+            )
+          );
+          break;
+        case ArgsObjSet<?> objSet:
+          if (comparator != null) {
+            throw new UnsupportedOperationException();
+          }
+          matrix.reorder((lhs, rhs) ->
+            ((String) objSet.array[lhs.intValue()]).compareTo(
+                (String) objSet.array[rhs.intValue()]
+              )
+          );
+          break;
+        default:
+          throw new UnsupportedOperationException();
+      }
+    }
+    // TODO: override the sort method to sort the elements based on the ordinals
+  }
 }
