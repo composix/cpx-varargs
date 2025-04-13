@@ -68,10 +68,6 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
     <T> T copyOf(T array, int offset);
 
     default MutableOrder order() {
-        try {
-            return (MutableOrder) clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        return new OrderInt(intValue());
     }
 }

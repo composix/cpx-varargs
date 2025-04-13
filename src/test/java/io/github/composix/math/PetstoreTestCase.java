@@ -40,6 +40,11 @@ class PetstoreTestCase extends TestCase implements PetstoreTestData {
   Matrix pets, orders;
   VarArgs petVarArgs, orderVarArgs;
 
+  @Override
+  public Args clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
+  }
+
   @BeforeAll
   static void beforeAll() {
     THOMAS = PETS.getValue(0);

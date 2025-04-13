@@ -34,13 +34,16 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     private static final NoSuchElementException NO_SUCH_ELEMENT_EXCEPTION = new NoSuchElementException("Ordinal 0 has no predecessor");
 
-    // inherited from Object
+    // from ArgsOrdinal
+
     @Override
-    public Order clone() throws CloneNotSupportedException {
-        if (this instanceof MutableOrder) {
-            return (Order) super.clone();
+    public Args clone() throws CloneNotSupportedException {
+        switch(this) {
+            case Args args:
+                return (Args) super.clone();
+            default:
+                return new SafeMatrix(intValue());
         }
-        return new OrderInt(intValue());
     }
 
     @Override

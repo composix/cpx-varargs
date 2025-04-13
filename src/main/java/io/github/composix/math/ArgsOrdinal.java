@@ -96,16 +96,16 @@ public interface ArgsOrdinal extends Cloneable {
     static long[] LONGS = new long[0];
     static BigInteger[] INTEGERS = new BigInteger[0];
 
-    static Args EMPTY = new SafeMatrix(0);
-
-    Order clone() throws CloneNotSupportedException;
-
+    default Args clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
+    }
+    
     @Override
     String toString();
 
     default Args extend(int col, int amount, int offset, int length, Object... arrays) {
         try {
-            return EMPTY.clone().extend(col, amount, offset, length, arrays);
+            return clone().extend(col, amount, offset, length, arrays);
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }

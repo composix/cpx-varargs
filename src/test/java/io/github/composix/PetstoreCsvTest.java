@@ -45,6 +45,11 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
 
   Args petstore;
 
+  @Override
+  public Args clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
+  }
+
   @BeforeAll
   static void beforeAll() throws IOException, URISyntaxException {
     testData = DEFAULT.testData("src/test/resources/", Optional.empty());

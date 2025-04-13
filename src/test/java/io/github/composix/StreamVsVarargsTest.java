@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.github.composix.math.Args;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
@@ -41,6 +42,11 @@ import io.github.composix.varargs.ArgsII;
 class StreamVsVarargsTest extends TestCase implements PetstoreTestData {
 
   ArgsI<Pet> pets;
+
+  @Override
+  public Args clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
+  }
 
   @BeforeEach
   void beforeEach() {
