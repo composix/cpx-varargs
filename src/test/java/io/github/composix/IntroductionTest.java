@@ -54,7 +54,7 @@ class IntroductionTest extends TestCase {
     Stream<String> stream = Stream.of("aap", "noot", "mies");
 
     // VarArgs
-    Args idArgs = D.extend(A, idArray);
+    Args idArgs = D.extendLong(idArray);
     Args args = D.extend(A, array);
     Args matrix = D.extend(0, 3, 0, 2, idArray, array);
 
