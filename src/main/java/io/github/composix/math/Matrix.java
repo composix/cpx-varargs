@@ -729,18 +729,15 @@ public class Matrix extends OrderInt implements Keys, Args {
   @Override
   public Args joinMany(Args rhs) {
     final Matrix matrix = (Matrix) rhs;
-    final Ordinal[] indices = matrix.indices();
     final Object[] source = matrix.argv(0);
     argv(
       size(),
       surjection(
-        indices(),
         source.getClass() == CharSequence[].class ? matrix.argv(1) : source,
-        order(),
-        matrix.order(),
-        argv(-2),
-        matrix.argv(-2),
-        indices
+        this,
+        matrix,
+        pk,
+        matrix.fk
       )
     );
     ordinal += OMEGA.intValue();
@@ -817,15 +814,14 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   private static Object[] surjection(
-    final Ordinal[] indices,
     Object[] source,
     Order lhsOrder,
     Order rhsOrder,
-    long[] lhs,
-    long[] rhs,
-    final Ordinal[] rhsIndices
+    ArgsLongSet lhs,
+    ArgsLongSet rhs
   ) {
-    final int l = indices.length, n = rhsIndices.length;
+    final Index indices = lhs.indices, rhsIndices = rhs.indices;
+    final int l = indices.size(), n = rhsIndices.size();
     int j = 0, k = 0, m = -1;
     Class<?> componentType = source.getClass();
     if (componentType == CharSequence[].class) {
@@ -837,11 +833,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     componentType = componentType.getComponentType();
     final Object empty = Array.newInstance(componentType, 0);
     for (int i = 0; i < l; ++i) {
-      long value = lhs[i];
-      while (++m < n && rhs[m] < value);
-      final int limit = indices[i].intValue();
-      if (m < n && rhs[m] == value) {
-        final int length = rhsIndices[m].intValue() - k;
+      long value = lhs.getLong(i);
+      while (++m < n && rhs.getLong(m) < value);
+      final int limit = indices.getInt(i);
+      if (m < n && rhs.getLong(m) == value) {
+        final int length = rhsIndices.getInt(m) - k;
         while (j < limit) {
           Object[] values = (Object[]) Array.newInstance(componentType, length);
           for (int index = 0; index < length; ++index) {
@@ -967,7 +963,6 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public <T extends Defaults<T>> Args combine(T defaults) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'combine'");
+    return combine(defaults, source + 1, 1);
   }
 }
