@@ -67,8 +67,8 @@ class PetstoreTestCase extends TestCase implements PetstoreTestData {
   @BeforeEach
   void setUp() {
     // Given two matrices...
-    pets = new SafeMatrix(8);
-    orders = new Matrix(6);
+    pets = new SafeMatrix(0);
+    orders = new SafeMatrix(0);
 
     // ...populated with data from the TestData interface
     PETS.export(pets, (byte) 0, 1);
