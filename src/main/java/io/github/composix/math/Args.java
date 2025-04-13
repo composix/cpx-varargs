@@ -69,7 +69,7 @@ import java.util.regex.Pattern;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-public interface Args extends ArgsOrdinal, Order {
+public interface Args extends ArgsOrdinal, MutableOrder {
   /**
    * Retrieve the column at the first type position. For example,
    * column(A) returns the first column, column(B) returns the first
