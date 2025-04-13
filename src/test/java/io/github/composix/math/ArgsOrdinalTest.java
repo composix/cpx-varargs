@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,124 +25,92 @@
 package io.github.composix.math;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class ArgsOrdinalTest {
-    static Ordinal[] ORDINALS;
-    static OrdinalInt OMEGA, A, B, C, D;
-    static OrderInt omega, a, b, c, d;
+class ArgsOrdinalTest implements ArgsOrdinal {
 
-    @BeforeAll
-    static void beforeAll() throws CloneNotSupportedException {
-        ORDINALS = OrdinalNumber.ORDINALS;
-        OMEGA = (OrdinalInt) ArgsOrdinal.OMEGA;
-        A = (OrdinalInt) ArgsOrdinal.A;
-        B = (OrdinalInt) ArgsOrdinal.B;
-        C = (OrdinalInt) ArgsOrdinal.C;
-        D = (OrdinalInt) ArgsOrdinal.D;
-        omega = (OrderInt) OMEGA.clone();
-        a = (OrderInt) A.clone();
-        b = (OrderInt) B.clone();
-        c = (OrderInt) C.clone();
-        d = (OrderInt) D.clone();
-    }
+  static String MESSAGE =
+    "class io.github.composix.math.ArgsOrdinalTest cannot be cast to class io.github.composix.math.Args (io.github.composix.math.ArgsOrdinalTest and io.github.composix.math.Args are in unnamed module of loader 'app')";
 
-    @Test
-    void testOmega() throws CloneNotSupportedException {
-        assertSame(ORDINALS[-Short.MIN_VALUE], OMEGA);
-        assertSame(OrdinalInt.class, OMEGA.getClass());
-        assertEquals(-Short.MIN_VALUE, OMEGA.ordinal);
-    }
+  static Ordinal[] ORDINALS;
 
-    @Test
-    void testAlphabet() {
-        assertSame(ORDINALS[0], A);
-        assertSame(ORDINALS[1], B);
-        assertSame(ORDINALS[2], C);
-        assertSame(ORDINALS[3], D);
-        assertSame(OrdinalInt.class, A.getClass());
-        assertSame(OrdinalInt.class, B.getClass());
-        assertSame(OrdinalInt.class, C.getClass());
-        assertSame(OrdinalInt.class, D.getClass());
-        assertEquals(0, A.ordinal);
-        assertEquals(1, B.ordinal);
-        assertEquals(2, C.ordinal);
-        assertEquals(3, D.ordinal);
-    }
+  @BeforeAll
+  static void beforeAll() throws CloneNotSupportedException {
+    ORDINALS = OrdinalNumber.ORDINALS;
+  }
 
-    @Test
-    void testClone() throws CloneNotSupportedException {
-        assertSame(OrderInt.class, a.getClass());
-        assertSame(OrderInt.class, b.getClass());
-        assertSame(OrderInt.class, c.getClass());
-        assertSame(OrderInt.class, d.getClass());
-        assertNotSame(a, A.clone());
-        assertNotSame(a, a.clone());
-        assertNotSame(b, B.clone());
-        assertNotSame(b, b.clone());
-        assertNotSame(c, C.clone());
-        assertNotSame(c, c.clone());
-        assertNotSame(d, D.clone());
-        assertNotSame(d, d.clone());
-        assertEquals(0, a.ordinal);
-        assertEquals(1, b.ordinal);
-        assertEquals(2, c.ordinal);
-        assertEquals(3, d.ordinal);
-        assertSame(ORDINALS, a.ordinals);
-        assertSame(ORDINALS, b.ordinals);
-        assertSame(ORDINALS, c.ordinals);
-        assertSame(ORDINALS, d.ordinals);
-    }
+  @Test
+  void testOMEGA() {
+    assertSame(ORDINALS[-Short.MIN_VALUE], OMEGA);
+  }
 
-    @Test
-    void testOrder() {
-        assertSame(omega, omega.order());
-        assertSame(a, a.order());
-        assertSame(b, b.order());
-        assertSame(c, c.order());
-        assertSame(d, d.order());
+  @Test
+  void testABCDEFGHIJKLMNOPQRSTUVWXYZ() {
+    assertSame(ORDINALS[0], A);
+    assertSame(ORDINALS[1], B);
+    assertSame(ORDINALS[2], C);
+    assertSame(ORDINALS[3], D);
+    assertSame(ORDINALS[4], E);
+    assertSame(ORDINALS[5], F);
+    assertSame(ORDINALS[6], G);
+    assertSame(ORDINALS[7], H);
+    assertSame(ORDINALS[8], I);
+    assertSame(ORDINALS[9], J);
+    assertSame(ORDINALS[10], K);
+    assertSame(ORDINALS[11], L);
+    assertSame(ORDINALS[12], M);
+    assertSame(ORDINALS[13], N);
+    assertSame(ORDINALS[14], O);
+    assertSame(ORDINALS[15], P);
+    assertSame(ORDINALS[16], Q);
+    assertSame(ORDINALS[17], R);
+    assertSame(ORDINALS[18], S);
+    assertSame(ORDINALS[19], T);
+    assertSame(ORDINALS[20], U);
+    assertSame(ORDINALS[21], V);
+    assertSame(ORDINALS[22], W);
+    assertSame(ORDINALS[23], X);
+    assertSame(ORDINALS[24], Y);
+    assertSame(ORDINALS[25], Z);
+  }
 
-        assertNotSame(OMEGA, OMEGA.order());
-        assertNotSame(omega, OMEGA.order());
-        assertNotSame(A, A.order());
-        assertNotSame(a, A.order());
-        assertNotSame(B, B.order());
-        assertNotSame(b, B.order());
-        assertNotSame(C, C.order());
-        assertNotSame(c, C.order());
-        assertNotSame(D, D.order());
-        assertNotSame(d, D.order());
+  @Test
+  void testTYPES() {
+    assertSame(Class[].class, TYPES.getClass());
+    assertEquals(26, TYPES.length);
+  }
 
-        assertSame(OMEGA, omega.ordinal());
-        assertSame(A, a.ordinal());
-        assertSame(B, b.ordinal());
-        assertSame(C, c.ordinal());
-        assertSame(D, d.ordinal());
-    }
+  @Test
+  void testClone() {
+    assertEquals(
+      MESSAGE,
+      assertThrows(ClassCastException.class, () -> clone()).getMessage()
+    );
+  }
 
-    @Test
-    void testToString() {
-        assertEquals("32768", OMEGA.toString());
-        assertEquals("0", A.toString());
-        assertEquals("1", B.toString());
-        assertEquals("2", C.toString());
-        assertEquals("3", D.toString());
-        for (int i = 0; i < 1 - Short.MIN_VALUE; ++i) {
-            assertEquals(Integer.toString(i), ORDINALS[i].toString());
-        }
-    }
+  @Test
+  void testExtend() {
+    assertEquals(
+      MESSAGE,
+      assertThrows(ClassCastException.class, () -> extend(0, 0, 0, 0)
+      ).getMessage()
+    );
+    assertEquals(
+      MESSAGE,
+      assertThrows(ClassCastException.class, () -> extend(A, "")).getMessage()
+    );
+    assertEquals(
+      MESSAGE,
+      assertThrows(ClassCastException.class, () -> extend(A, 0L)).getMessage()
+    );
+  }
 
-    @Test
-    void testExtend() {
-        long[] expected = {0, 1, 2, 3};
-        Matrix matrix  = (Matrix) OMEGA.extend(A, expected);
-        assertEquals(0, matrix.hashCode());
-        assertSame(expected, matrix.varArgs().argv[0]);
-        assertEquals(ORDINALS, matrix.ordinals);
-        assertEquals(OMEGA.intValue() + 4, matrix.ordinal);
-    }
+  @Override
+  public Args clone() throws CloneNotSupportedException {
+    return (Args) super.clone();
+  }
 }
