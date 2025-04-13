@@ -59,25 +59,25 @@ public interface ArgsOrdinal extends Cloneable {
             W = Constants.getInstance().ordinal(22),
             X = Constants.getInstance().ordinal(23),
             Y = Constants.getInstance().ordinal(24),
-            Z = Constants.getInstance().ordinal(25);
+            Z = Constants.getInstance().ordinal(25),
+            AA = Z.next(),
+            AB = AA.next(),
+            AC = AB.next(),
+            AD = AC.next(),
+            AE = AD.next(),
+            AF = AE.next(),
+            AG = AF.next(),
+            AH = AG.next(),
+            AI = AH.next(),
+            AJ = AI.next(),
+            AK = AJ.next(),
+            AL = AK.next(),
+            AM = AL.next(),
+            AN = AM.next(),
+            AO = AN.next(),
+            AP = AO.next();
 
     static Class<?>[] TYPES = new Class[] {
-        boolean.class, // A
-        byte.class, // B
-        char.class, // C
-        short.class, // D
-        boolean[].class, // E
-        byte[].class, // F
-        char[].class, // G
-        short[].class, // H
-        int.class, // I
-        int[].class, // J
-        long[].class, // K
-        long.class, // L
-        null, // M
-        null, // N
-        null, // O
-        null, // P
         null, // Q
         null, // R
         String.class, // S
@@ -87,7 +87,23 @@ public interface ArgsOrdinal extends Cloneable {
         null, // W
         null, // X
         null, // Y
-        null // Z
+        null, // Z
+        boolean.class, // AA
+        byte.class, // AB
+        char.class, // AC
+        short.class, // AD
+        boolean[].class, // AE
+        byte[].class, // AF
+        char[].class, // AG
+        short[].class, // AH
+        int.class, // AI
+        int[].class, // AJ
+        long[].class, // AK
+        long.class, // AL
+        null, // AM
+        null, // AN
+        null, // AO
+        null // AP
     };
     
     static Object[] OBJECT = new Object[1];
@@ -120,11 +136,11 @@ public interface ArgsOrdinal extends Cloneable {
         throw new IllegalArgumentException("column must not be empty");
     }
 
-    default Args extend(Ordinal col, long... column) {
+    default Args extendLong(long... column) {
         final int length = column.length;
         if (length > 0) {
             OBJECT[0] = column;
-            return extend(col.intValue(), length, 0, 1, OBJECT);
+            return extend(AL.intValue(), length, 0, 1, OBJECT);
         }
         throw new IllegalArgumentException("column must not be empty");
     }

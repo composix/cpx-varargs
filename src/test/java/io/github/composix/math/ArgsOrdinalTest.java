@@ -105,7 +105,7 @@ class ArgsOrdinalTest implements ArgsOrdinal {
     );
     assertEquals(
       MESSAGE,
-      assertThrows(ClassCastException.class, () -> extend(A, 0L)).getMessage()
+      assertThrows(ClassCastException.class, () -> extendLong(0L)).getMessage()
     );
   }
 
