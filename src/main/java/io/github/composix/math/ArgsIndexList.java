@@ -127,14 +127,20 @@ class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
           );
           break;
         case ArgsObjSet<?> objSet:
-          if (comparator != null) {
-            throw new UnsupportedOperationException();
-          }
-          matrix.reorder((lhs, rhs) ->
-            ((String) objSet.array[lhs.intValue()]).compareTo(
-                (String) objSet.array[rhs.intValue()]
+          if (comparator == null) {
+            matrix.reorder((lhs, rhs) ->
+              ((String) objSet.array[lhs.intValue()]).compareTo(
+                  (String) objSet.array[rhs.intValue()]
+                )
+            );
+          } else {
+            matrix.reorder((lhs, rhs) ->
+              comparator.compare(
+                (E) objSet.array[lhs.intValue()],
+                (E) objSet.array[rhs.intValue()]
               )
-          );
+            );
+          }
           break;
         default:
           throw new UnsupportedOperationException();
