@@ -140,7 +140,7 @@ public interface ArgsOrdinal extends Cloneable {
         final int length = column.length;
         if (length > 0) {
             OBJECT[0] = column;
-            return extend(AL.intValue(), length, 0, 1, OBJECT);
+            return extend(0, length, 0, 1, OBJECT);
         }
         throw new IllegalArgumentException("column must not be empty");
     }
