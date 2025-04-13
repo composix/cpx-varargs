@@ -29,7 +29,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 class OrdinalInt extends OrdinalNumber implements Order {
-    int ordinal;
+    protected int ordinal;
 
     OrdinalInt(int ordinal) {
         this.ordinal = ordinal;
