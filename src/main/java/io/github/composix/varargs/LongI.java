@@ -29,8 +29,7 @@ import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
 
 public interface LongI<A> {
-  ArgsI<long[]> collect();
+  ArgsI<long[]> longs();
   LongI<A> andByA(Ordinal col, ToLongFunction<A> accessor);
   LongI<A> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer);
-  <B> ArgsII<A, B> join(LongI<B> rhs);
 }

@@ -24,105 +24,41 @@
 
 package io.github.composix.varargs;
 
-import io.github.composix.math.Args;
-import io.github.composix.math.Ordinal;
-import io.github.composix.math.SafeMatrix;
-import io.github.composix.math.VarArgs;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
+
+import io.github.composix.math.Args;
+import io.github.composix.math.ArgsList;
+import io.github.composix.math.Ordinal;
+import io.github.composix.math.SafeMatrix;
+import io.github.composix.math.VarArgs;
 
 class Table<A, B, C, N, O, P>
   extends SafeMatrix
-  implements ArgsIII<A, B, C>, KeysII2<A, B, N, O>, KeysIII<A, B, C, N> {
+  implements Chars,ArgsIII<A, B, C>, KeysII2<A, B, N, O>, KeysIII<A, B, C, N>, LongII2<A,B,N,O> {
 
-  protected Table(final int ordinal) {
+  Table(final int ordinal) {
     super(ordinal);
   }
 
+  // from Chars interface 
+  
   @Override
-  public ArgsI<A> andOf(A... columnA) {
-    extend(Ordinal.of(size()), columnA);
+  public Chars andOf(CharSequence... column) {
+    extend(A, column);
     return this;
   }
 
   @Override
-  public ArgsI<A> with(A... columnA) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'with'");
-  }
-
-  @Override
-  public <T> ArgsII<A, T> extendB(T... columnB) {
-    return (ArgsII<A, T>) extend(B, columnB);
-  }
-
-  @Override
-  public <TC> ArgsIII<A, B, TC> extendC(TC... columnC) {
-    return (ArgsIII<A, B, TC>) extend(C, columnC);
-  }
-
-  @Override
-  public ArgsIII<A, B, C> withHeaders() {
-    super.order().skipHeader();
+  public Chars with(CharSequence... column) {
+    if (column.length != OMEGA.amount(ordinal)) {
+      throw new IllegalArgumentException(
+        "invalid number of rows: " + column.length + " != " + OMEGA.amount(ordinal)
+      );
+    }
+    extend(A, column);
     return this;
-  }
-
-  @Override
-  public ArgsI<A> orderByA() {
-    return (ArgsI<A>) orderBy(A);
-  }
-
-  @Override
-  public Iterable<A> columnA() {
-    return column(A);
-  }
-
-  @Override
-  public Iterable<A> columnA(CharSequence header) throws NoSuchFieldException {
-    return column(header, A);
-  }
-
-  @Override
-  public Iterable<B> columnB() {
-    return column(B);
-  }
-
-  @Override
-  public Iterable<B> columnB(CharSequence header) throws NoSuchFieldException {
-    return column(header, B);
-  }
-
-  @Override
-  public LongStream longStreamA() {
-    return longStream(A);
-  }
-
-  @Override
-  public LongStream longStreamB() {
-    return longStream(B);
-  }
-
-  @Override
-  public KeysIII<A, B, C, A> onA() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'onA'");
-  }
-
-  @Override
-  public KeysIII<A, B, C, B> onB() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'onB'");
-  }
-
-  @Override
-  public KeysIII<A, B, C, C> onC() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'onC'");
   }
 
   @Override
@@ -136,6 +72,8 @@ class Table<A, B, C, N, O, P>
   public LongIII<A, B, C> groupByA(final ToLongFunction<A> accessor) {
     return (LongIII<A, B, C>) _groupBy(A, accessor);
   }
+
+  // from the Keys interface
 
   public ArgsIII<N, O, P> collect() {
     VarArgs varargs = varArgs();
@@ -157,12 +95,6 @@ class Table<A, B, C, N, O, P>
     } catch (CloneNotSupportedException e) {
       throw new AssertionError();
     }
-  }
-
-  @Override
-  public List<A> asListA() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'asListA'");
   }
 
   @Override
@@ -191,20 +123,13 @@ class Table<A, B, C, N, O, P>
     ToLongFunction<A> accessor,
     LongBinaryOperator reducer
   ) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'collectA'");
+    return (LongII1<A, B, N>) collect(A, accessor, reducer);
   }
 
   @Override
   public KeysII2<A, B, N, B> thenOnB() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'thenOnB'");
-  }
-
-  @Override
-  public <B> ArgsII<A, B> join(KeysI<B, N> rhs) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'join'");
   }
 
   @Override
@@ -238,28 +163,67 @@ class Table<A, B, C, N, O, P>
   }
 
   @Override
-  public Map<A, B> asMap() {
+  public LongI1<A, N> andByA(Ordinal col, ToLongFunction<A> accessor) {
     // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'asMap'");
+    throw new UnsupportedOperationException("Unimplemented method 'andByA'");
   }
 
   @Override
-  public Map<B, A> asInverseMap() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException(
-      "Unimplemented method 'asInverseMap'"
-    );
+  public ArgsIII<long[], N, O> longs() {
+    throw new UnsupportedOperationException("Unimplemented method 'longs'");
   }
 
   @Override
-  public <B> ArgsII<A, B> joinMany(Function<N, Stream<B>> rhs) {
+  public ArgsList<B> columnB(int pos) {
     // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'joinMany'");
+    throw new UnsupportedOperationException("Unimplemented method 'columnB'");
   }
 
   @Override
-  public KeysIII2<A, B, C, N, C> andOnC() {
+  public ArgsList<A> columnA(int pos) {
     // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'andOnC'");
+    throw new UnsupportedOperationException("Unimplemented method 'columnA'");
+  }
+
+  @Override
+  public <B> ArgsII<A, B> joinManyB(ArgsI<B> rhs) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'joinManyB'");
+  }
+
+  @Override
+  public Chars attrInteger(CharSequence header) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'attrInteger'");
+  }
+
+  @Override
+  public Chars attrString(CharSequence header) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'attrString'");
+  }
+
+  @Override
+  public Chars attrURI(CharSequence header) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'attrURI'");
+  }
+
+  @Override
+  public Attr attr() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'attr'");
+  }
+
+  @Override
+  public <X> AttrI<X> attrX(Class<X> typeX) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'attrX'");
+  }
+
+  @Override
+  public <X, Y> AttrII<X, Y> attrXY(Class<X> typeX, Class<Y> typeY) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'attrXY'");
   }
 }

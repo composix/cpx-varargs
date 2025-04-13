@@ -24,17 +24,15 @@
 
 package io.github.composix.varargs;
 
-import io.github.composix.math.Ordinal;
-import java.util.function.LongBinaryOperator;
-import java.util.function.ToLongFunction;
+import java.net.URI;
+import java.util.function.BiFunction;
 
-public interface LongI1<A, N> extends LongI<A> {
-  @Override
-  ArgsII<long[], N> longs();
+import io.github.composix.math.ArgsList;
 
-  @Override
-  LongI1<A, N> andByA(Ordinal col, ToLongFunction<A> accessor);
+public interface AttrII<X, Y> extends AttrI<X> {
+    AttrII<X,Y> mapUSY(int posA, int posC, BiFunction<URI,String,Y> mapping);
 
-  @Override
-  LongI1<A, N> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer);
+    ArgsList<X> columnX(int pos);
+
+    ArgsList<Y> columnY(int pos);
 }

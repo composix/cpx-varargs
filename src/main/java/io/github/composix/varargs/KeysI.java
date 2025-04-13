@@ -24,11 +24,11 @@
 
 package io.github.composix.varargs;
 
-import io.github.composix.math.Ordinal;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
-import java.util.stream.Stream;
+
+import io.github.composix.math.Ordinal;
 
 public interface KeysI<A, N> {
   ArgsI<N> collect();
@@ -43,8 +43,4 @@ public interface KeysI<A, N> {
   LongI1<A, N> thenByA(Ordinal col, ToLongFunction<A> accessor);
 
   LongI1<A, N> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer);
-
-  <B> ArgsII<A, B> join(KeysI<B, N> rhs);
-
-  <B> ArgsII<A, B> joinMany(Function<N, Stream<B>> rhs);
 }

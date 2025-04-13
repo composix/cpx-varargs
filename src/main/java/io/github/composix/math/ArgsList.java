@@ -39,12 +39,22 @@
 
 package io.github.composix.math;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.RandomAccess;
+import java.util.stream.LongStream;
 
-interface ArgsList<E> extends List<E>, RandomAccess {
+public interface ArgsList<E> extends List<E>, RandomAccess {
+  long getLong(int index);
 
-    long getLong(int index);
+  LongStream longStream();
 
-    ArgsSet<E> asArgsSet();
+  ArgsSet<E> asArgsSet();
+
+  default int binarySearch(Object item) {
+    return Collections.binarySearch(
+      (List<? extends Comparable<? super Comparable<?>>>) this,
+      (Comparable<?>) item
+    );
+  }
 }

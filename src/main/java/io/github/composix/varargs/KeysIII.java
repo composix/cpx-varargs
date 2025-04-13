@@ -24,6 +24,4 @@
 
 package io.github.composix.varargs;
 
-public interface KeysIII<A, B, C, N> extends KeysII<A, B, N> {
-  KeysIII2<A, B, C, N, C> andOnC();
-}
+public interface KeysIII<A, B, C, N> extends KeysII<A, B, N> {}

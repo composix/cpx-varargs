@@ -89,10 +89,6 @@ class OrderTest extends TestCase {
         assertTrue(idArgs.isOrdinal());
         assertFalse(args.isOrdinal());
         assertFalse(matrix.isOrdinal());
-
-        assertTrue(idArgs.order().isOrdinal());
-        assertFalse(args.order().isOrdinal());
-        assertFalse(matrix.order().isOrdinal());
     }
 
     @Test

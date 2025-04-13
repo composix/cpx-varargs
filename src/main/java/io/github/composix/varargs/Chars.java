@@ -24,17 +24,34 @@
 
 package io.github.composix.varargs;
 
-import io.github.composix.math.Ordinal;
-import java.util.function.LongBinaryOperator;
-import java.util.function.ToLongFunction;
+import io.github.composix.math.ArgsOrdinal;
 
-public interface LongI1<A, N> extends LongI<A> {
-  @Override
-  ArgsII<long[], N> longs();
+public interface Chars extends ArgsOrdinal {
+  /**
+   * Creates a text-based vector (as Chars instance) from a column of strings. A text-based
+   * column may optionally specify a header for the column by a first element that
+   * ends with a colon. The header is used to identify the column in the table.
+   *
+   * @param columnA - text-based column to turn into a vector
+   * @return - text-based column as a vector (i.e. a table with one column)
+   */
+  static Chars of(CharSequence... column) {
+    return (Chars) new Table<>(1).extend(A, column);
+  }
 
-  @Override
-  LongI1<A, N> andByA(Ordinal col, ToLongFunction<A> accessor);
+  Chars andOf(CharSequence... column);
 
-  @Override
-  LongI1<A, N> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer);
+  Chars with(CharSequence... column);
+
+  Chars attrInteger(CharSequence header);
+
+  Chars attrString(CharSequence header);
+
+  Chars attrURI(CharSequence header);
+
+  Attr attr();
+
+  <X> AttrI<X> attrX(Class<X> typeX);
+
+  <X,Y> AttrII<X,Y> attrXY(Class<X> typeX, Class<Y> typeY);
 }

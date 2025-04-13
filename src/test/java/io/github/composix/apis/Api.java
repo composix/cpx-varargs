@@ -26,26 +26,20 @@ package io.github.composix.apis;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.function.IntFunction;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
 
-import io.github.composix.varargs.ArgsI;
-import io.github.composix.varargs.ArgsII;
-import io.github.composix.varargs.ArgsIII;
+import io.github.composix.math.ArgsList;
+import io.github.composix.varargs.AttrI;
+import io.github.composix.varargs.Chars;
 
 public final class Api {
 
@@ -61,11 +55,11 @@ public final class Api {
       this.pointer = pointer;
     }
 
-    public CharSequence text(JsonNode json) {
+    public String text(JsonNode json) {
       return json.at(pointer).asText();
     }
 
-    public Stream<CharSequence> properties(JsonNode json) {
+    public Stream<String> properties(JsonNode json) {
       return StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(
           json.at(pointer).fieldNames(),
@@ -81,7 +75,7 @@ public final class Api {
 
   public static final ObjectMapper MAPPER = new ObjectMapper();
 
-  public static final Api select(ArgsI<CharSequence> args) {
+  public static final Api select(Chars args) {
     try {
       return new Api(args);
     } catch (NoSuchFieldException e) {
@@ -97,78 +91,42 @@ public final class Api {
     }
   }
 
-  public static URL toUrl(URI url) {
+  public static JsonNode readTree(URI uri) {
     try {
-      return url.toURL();
-    } catch (MalformedURLException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  public static JsonNode readTree(URL url) {
-    try {
-      return MAPPER.readTree(url);
+      return MAPPER.readTree(uri.toURL());
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
   }
 
-  private final ArgsIII<CharSequence, URI, JsonNode> titlesWithUrisAndSwaggers;
-  private final List<ApiResource<Object>> resources;
+  private final ArgsList<ApiResource> resources;
 
-  private Api(ArgsI<CharSequence> args) throws NoSuchFieldException {
-    // Retrieve the URIs
-    URI[] uris = combineHeaderWithStream(
-      URI[]::new,
-      URI.create("urls"),
-      args.streamA("urls").map(Api::toUri)
-    );
+  private Api(Chars args) throws NoSuchFieldException {
+    // Retrieve the Swaggers...
+    final AttrI<JsonNode> urisSwaggersTitles = args
+      .attrURI("url:") // get the URLs
+      .attrXY(JsonNode.class, ApiResource.class) // custom attribute type X = JsonNode
+      .mapUX(1, Api::readTree)
+      // read swagggers from URLs
+      .mapXS(1, TITLE::text); // get the titles
 
-    // Retrieve the Swaggers
-    JsonNode[] swaggers = combineHeaderWithStream(
-      JsonNode[]::new,
-      new TextNode("swagger"),
-      Stream.of(uris).skip(1).map(Api::toUrl).map(Api::readTree)
-    );
+    // ...and retain only selected titles
+    urisSwaggersTitles
+      .stringColumn(1)
+      .retainAll(args.attrString("title:").attr().stringColumn(-1));
 
-    // Get the titles from the swaggers
-    CharSequence[] titles = combineHeaderWithStream(
-      CharSequence[]::new,
-      "title",
-      Stream.of(swaggers).skip(1).map(TITLE::text)
-    );
-
-    titlesWithUrisAndSwaggers = ArgsI.of(titles)
-      .extendB(uris)
-      .extendC(swaggers)
-      .withHeaders();
-
-    // retain only selected titles
-    titlesWithUrisAndSwaggers
-      .onA()
-      .collect()
-      .asListA()
-      .retainAll(args.onA().collect().asListA());
-
-    // collect uris/swaggers
-    final ArgsII<URI, JsonNode> urisAndSwaggers = titlesWithUrisAndSwaggers
-      .onB()
-      .andOnC()
-      .collect();
-
-    // create the Api resources
-    resources = urisAndSwaggers
-      .onB()    // on the swagger
-      .joinMany(PATHS::properties)  // join with the resource paths
-      .asInverseMap() // assure each path belongs to a unique API (URI)
-      .entrySet() 
-      .stream()
-      .map(entry -> new ApiResource<>(entry.getValue(), entry.getKey()))
-      .toList();
+    // create the Api resources...
+    resources = urisSwaggersTitles
+      // ...add the resource paths
+      .flatMapXS(1, PATHS::properties)
+      .attrY(ApiResource.class)
+      .mapUSY(1, 2, ApiResource::new)
+      .columnY(1);
+    // TODO: ...assure unique resource path by mapping paths to URIs
   }
 
   public final <T> ApiResource<T> resource(CharSequence path, Class<T> dto) {
-    final int index = Collections.binarySearch(resources, path);
+    final int index = resources.binarySearch(path);
     if (index < 0) {
       throw new IllegalArgumentException("resource path not found");
     }
@@ -176,13 +134,5 @@ public final class Api {
     final ApiResource<T> resource = (ApiResource<T>) resources.get(index);
     resource.dtoClass = dto;
     return resource;
-  }
-
-  private static <T> T[] combineHeaderWithStream(
-    IntFunction<T[]> generator,
-    T header,
-    Stream<T> stream
-  ) {
-    return Stream.concat(Stream.of(header), stream).toArray(generator);
   }
 }

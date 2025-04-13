@@ -30,7 +30,7 @@ import java.util.function.ToLongFunction;
 
 public interface LongI2<A, N, O> extends LongI1<A, N> {
   @Override
-  ArgsIII<long[], N, O> collect();
+  ArgsIII<long[], N, O> longs();
 
   @Override
   LongI1<A, N> andByA(Ordinal col, ToLongFunction<A> accessor);

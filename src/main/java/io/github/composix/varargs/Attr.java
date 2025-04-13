@@ -24,17 +24,29 @@
 
 package io.github.composix.varargs;
 
-import io.github.composix.math.Ordinal;
-import java.util.function.LongBinaryOperator;
-import java.util.function.ToLongFunction;
+import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
+import java.util.function.IntToLongFunction;
+import java.util.function.IntUnaryOperator;
+import java.util.function.LongFunction;
+import java.util.function.LongPredicate;
+import java.util.function.LongToIntFunction;
+import java.util.function.LongUnaryOperator;
 
-public interface LongI1<A, N> extends LongI<A> {
-  @Override
-  ArgsII<long[], N> longs();
+public interface Attr extends Cols {
+  Chars mapIB(int i, IntPredicate mapping);
 
-  @Override
-  LongI1<A, N> andByA(Ordinal col, ToLongFunction<A> accessor);
+  Chars mapII(int i, IntUnaryOperator mapping);
 
-  @Override
-  LongI1<A, N> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer);
+  Chars mapIL(int i, IntToLongFunction mapping);
+
+  Chars mapIS(int i, IntFunction<String> mapping);
+
+  Chars mapLB(int l, LongPredicate mapping);
+
+  Chars mapLI(int l, LongToIntFunction mapping);
+
+  Chars mapLL(int i, LongUnaryOperator mapping);
+
+  Chars mapLS(int i, LongFunction<String> mapping);
 }

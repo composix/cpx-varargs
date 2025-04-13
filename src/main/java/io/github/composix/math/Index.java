@@ -26,6 +26,7 @@ package io.github.composix.math;
 
 import java.util.AbstractList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 interface Index extends List<Ordinal> {
   static Index of(int length) {
@@ -46,6 +47,10 @@ interface Index extends List<Ordinal> {
   int getInt(int index);
 
   void setInt(int index, int ord);
+
+  default IntStream intStream() {
+    return IntStream.range(0, size()).map(this::getInt);
+  }
 
   static final class ByteIndex extends AbstractList<Ordinal> implements Index {
 

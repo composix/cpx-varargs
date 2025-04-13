@@ -24,58 +24,25 @@
 
 package io.github.composix.varargs;
 
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-import io.github.composix.math.Args;
+import io.github.composix.math.ArgsList;
+import io.github.composix.math.ArgsOrdinal;
 
-public interface ArgsI<A> extends Args {
-  static ArgsI<CharSequence> of(CharSequence... columnA) {
-    final Table<CharSequence, ?, ?, ?, ?, ?> result = new Table<>(
-      columnA.length
-    );
-    return (ArgsI<CharSequence>) result.extend(A, columnA);
+public interface ArgsI<A> extends ArgsOrdinal {
+  static <A> ArgsI<A> of(A... columnA) {
+    if (columnA.getClass() == CharSequence[].class) {
+      throw new IllegalArgumentException("use Chars.of() for CharSequence");
+    }
+    return (ArgsI<A>) new Table<>(0).extend(A, columnA);
   }
 
-  @SafeVarargs
-  static <T> ArgsI<T> of(T... columnA) {
-    final Table<T, ?, ?, ?, ?, ?> result = new Table<>(columnA.length);
-    return (ArgsI<T>) result.extend(A, columnA);
-  }
-
-  List<A> asListA();
-
-  ArgsI<A> andOf(A... columnA);
-
-  ArgsI<A> with(A... columnA);
-
-  <T> ArgsII<A, T> extendB(T... columnB);
-
-  ArgsI<A> withHeaders();
-
-  ArgsI<A> orderByA();
-
-  Iterable<A> columnA();
-
-  Iterable<A> columnA(CharSequence header) throws NoSuchFieldException;
-
-  LongStream longStreamA();
-
-  KeysI<A, A> onA();
+  ArgsList<A> columnA(int pos);
 
   <N extends Comparable<N>> KeysI<A, N> groupByA(Function<A, N> accessor);
 
   LongI<A> groupByA(ToLongFunction<A> accessor);
 
-  default Stream<A> streamA() {
-    return StreamSupport.stream(columnA().spliterator(), false);
-  }
-
-  default Stream<A> streamA(CharSequence header) throws NoSuchFieldException {
-    return StreamSupport.stream(columnA(header).spliterator(), false);
-  }
+  <B> ArgsII<A,B> joinManyB(ArgsI<B> rhs);
 }

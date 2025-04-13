@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import io.github.composix.math.Args;
 import io.github.composix.math.VarArgs;
 import io.github.composix.testing.TestCase;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class ArgsITest extends TestCase {
     // Then
     assertEquals(
       OMEGA.intValue() + columnA.length,
-      args.ordinal().intValue()
+      ((Args) args).ordinal().intValue()
     );
     final VarArgs varargs = TestMatrix.varargs(args);
     int offset = args.hashCode() & varargs.mask();

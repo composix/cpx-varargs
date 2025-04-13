@@ -51,7 +51,7 @@ class StreamVsVarargsTest extends TestCase implements PetstoreTestData {
   @Test
   void testSumPetIdsByCategory() {
     // Given the stream of pets
-    Stream<Pet> streamOfPets = pets.streamA();
+    Stream<Pet> streamOfPets = pets.columnA(1).stream();
 
     // When computing the sum of the pets using streams
     Map<Category, Long> petsByCategoryMap = streamOfPets.collect(
@@ -71,10 +71,13 @@ class StreamVsVarargsTest extends TestCase implements PetstoreTestData {
     ArgsII<long[], Category> petsByCategory = pets
       .groupByA(Pet::category)
       .collectA(Pet::id, Long::sum)
-      .collect();
+      .longs();
 
     // Then check that both approaches yield the same result
-    assertAllEquals(categories, petsByCategory.streamA().toArray(Category[]::new));
-    assertAllEquals(sums, petsByCategory.longStreamB().toArray());
+    assertAllEquals(
+      categories,
+      petsByCategory.columnA(1).stream().toArray(Category[]::new)
+    );
+    assertAllEquals(sums, petsByCategory.columnB(1).longStream().toArray());
   }
 }

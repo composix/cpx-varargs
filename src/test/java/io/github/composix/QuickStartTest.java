@@ -32,14 +32,17 @@
 
 package io.github.composix;
 
+import java.io.IOException;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import io.github.composix.apis.Api;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
 import io.github.composix.varargs.ArgsI;
-import java.io.IOException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import io.github.composix.varargs.Chars;
 
 class QuickStartTest extends TestCase {
 
@@ -48,12 +51,10 @@ class QuickStartTest extends TestCase {
   @BeforeAll
   static void setup() {
     petStoreApi = Api.select(
-      ArgsI.of(
+      Chars.of(
         "title:",
         "Swagger Petstore - OpenAPI 3.0" // Title for the Swagger Petstore API (OpenAPI 3.0 version)
-      )
-      
-      // Alternatively, use the older Swagger Petstore v2 API by uncommenting the next line:
+      )// Alternatively, use the older Swagger Petstore v2 API by uncommenting the next line:
       // .of("title:", "Swagger Petstore")  // Title for the Swagger Petstore v2 API (OpenAPI 2.0)
 
       .andOf(
@@ -84,13 +85,14 @@ class QuickStartTest extends TestCase {
     // Then the Stream approach yields the same results
     assertAllEquals(
       pets
-        .streamA()
+        .columnA(1)
+        .stream()
         .map(Pet::category)
         .map(Category::name)
         .distinct()
         .sorted()
         .toArray(String[]::new),
-      categoryNames.streamA().toArray(String[]::new)
+      categoryNames.columnA(1).stream().toArray(String[]::new)
     );
   }
 }

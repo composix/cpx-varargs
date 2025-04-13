@@ -38,6 +38,7 @@ package io.github.composix.math;
 
 import java.util.AbstractList;
 import java.util.Comparator;
+import java.util.stream.LongStream;
 
 class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
 
@@ -90,6 +91,11 @@ class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
     return elements.getLong(matrix.rank(refs.getInt(index)));
   }
 
+  @Override
+  public LongStream longStream() {
+    return refs.intStream().map(matrix::rank).mapToLong(elements::getLong);
+  }
+  
   @Override
   public int size() {
     return matrix.amount();

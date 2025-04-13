@@ -24,45 +24,18 @@
 
 package io.github.composix.varargs;
 
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+
+import io.github.composix.math.ArgsList;
 
 public interface ArgsII<A, B> extends ArgsI<A> {
-  Map<A, B> asMap();
 
-  Map<B, A> asInverseMap();
-
-  @Override
-  ArgsII<A, B> withHeaders();
-
-  Iterable<B> columnB();
-
-  Iterable<B> columnB(CharSequence header) throws NoSuchFieldException;
-
-  LongStream longStreamB();
-
-  @Override
-  KeysII<A, B, A> onA();
-
-  KeysII<A, B, B> onB();
+  ArgsList<B> columnB(int pos);
 
   @Override
   <N extends Comparable<N>> KeysII<A, B, N> groupByA(Function<A, N> accessor);
 
   @Override
   LongII<A, B> groupByA(ToLongFunction<A> accessor);
-
-  default Stream<B> streamB() {
-    return StreamSupport.stream(columnB().spliterator(), false);
-  }
-
-  default Stream<B> streamB(CharSequence header) throws NoSuchFieldException {
-    return StreamSupport.stream(columnB(header).spliterator(), false);
-  }
-
-  <C> ArgsIII<A, B, C> extendC(C... swaggers);
 }

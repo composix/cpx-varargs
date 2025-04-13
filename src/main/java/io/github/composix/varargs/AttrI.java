@@ -24,17 +24,28 @@
 
 package io.github.composix.varargs;
 
-import io.github.composix.math.Ordinal;
-import java.util.function.LongBinaryOperator;
-import java.util.function.ToLongFunction;
+import java.net.URI;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.LongFunction;
+import java.util.stream.Stream;
 
-public interface LongI1<A, N> extends LongI<A> {
-  @Override
-  ArgsII<long[], N> longs();
+public interface AttrI<X> extends Attr {
+    <Y> AttrII<X,Y> attrY(Class<Y> type);
 
-  @Override
-  LongI1<A, N> andByA(Ordinal col, ToLongFunction<A> accessor);
+    // mapping to E
 
-  @Override
-  LongI1<A, N> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer);
+    AttrI<X> mapIX(int i, IntFunction<X> mapping);
+
+    AttrI<X> mapLX(int i, LongFunction<X> mapping);
+
+    AttrI<X> mapSX(int i, Function<String,X> mapping);
+
+    AttrI<X> mapUX(int i, Function<URI,X> mapping);
+
+    // mapping from E
+
+    <B> AttrI<X> mapXS(int pos, Function<X,String> mapping);
+
+    AttrI<X> flatMapXS(int pos, Function<X,Stream<String>> mapping);
 }

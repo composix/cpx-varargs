@@ -74,7 +74,6 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
                 .collect()
                 .toArray(CharSequence[]::new)
             ).split(PATTERN);
-            csv.order().skipHeader();
             return csv;
           } catch (IOException e) {
             throw new UncheckedIOException(e);

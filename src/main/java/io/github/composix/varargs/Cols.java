@@ -24,17 +24,24 @@
 
 package io.github.composix.varargs;
 
-import io.github.composix.math.Ordinal;
-import java.util.function.LongBinaryOperator;
-import java.util.function.ToLongFunction;
+import java.net.URI;
 
-public interface LongI1<A, N> extends LongI<A> {
-  @Override
-  ArgsII<long[], N> longs();
+import io.github.composix.math.ArgsList;
 
-  @Override
-  LongI1<A, N> andByA(Ordinal col, ToLongFunction<A> accessor);
+public interface Cols {
+    ArgsList<Byte> byteColumn(int pos);
 
-  @Override
-  LongI1<A, N> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer);
+    ArgsList<Boolean> booleanColumn(int pos);
+
+    ArgsList<Character> charColumn(int pos);
+
+    ArgsList<Short> shortColumn(int pos);
+
+    ArgsList<Integer> intColumn(int pos);
+
+    ArgsList<Long> longColumn(int pos);
+
+    ArgsList<String> stringColumn(int pos);
+
+    ArgsList<URI> uriColumn(int pos);
 }
