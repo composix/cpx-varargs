@@ -58,7 +58,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   private static final byte[] LENGTHS = new byte[16];
   private static final Cursor CURSOR = Cursor.ofRow(LENGTHS);
 
-  byte source, target;
+  byte source, target, tpos;
   ArgsLongSet pk, fk;
 
   protected Matrix(int ordinal) {
@@ -104,6 +104,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     return value == null ? Void.class : value.getClass().getComponentType();
   }
 
+  @Override
   public Args extend(
     final int index,
     final int amount,
@@ -115,24 +116,45 @@ public class Matrix extends OrderInt implements Keys, Args {
     if (!isOrdinal()) {
       throw new IllegalStateException("extend not allowed after reordering");
     }
-    if (index != ordinal / omega) {
-      if (index < omega) {
-        throw new IndexOutOfBoundsException(
-          "expected to be extended at column: " + ordinal / omega
-        );
-      }
-      throw new IndexOutOfBoundsException("column index exceeds omega");
-    }
     final VarArgs varargs = varArgs();
     final int mask = varargs.mask();
-    int target = (offset() + index) & mask;
-    if (target < ((target + length) & mask)) {
-      System.arraycopy(arrays, offset, varargs.argv, target, length);
-    } else {
-      final Object[] argv = varargs.argv;
-      for (int i = 0; i < length; ++i) {
-        argv[mask(target++)] = arrays[i];
+    final Object[] argv = varargs.argv;
+    int target = offset() + this.target;
+    Class<?> type;
+    if (this.target > 0) {
+      type = argv[--target & mask].getClass();
+      if (tpos == index) {
+        if (arrays[0].getClass() != type) {
+          throw new IndexOutOfBoundsException(
+            "expected type position " + (index + 1) + "; actual=" + index
+          );
+        }
+      } else if (tpos + 1 == index) {
+        if (type == (type = arrays[0].getClass())) {
+          throw new IndexOutOfBoundsException(
+            "expected type position " + tpos + "; actual=" + index
+          );
+        }
+      } else {
+        throw new IndexOutOfBoundsException(
+          "expected type position " + tpos + "; actual=" + index
+        );      
       }
+      argv[++target & mask] = arrays[0];
+    } else {
+      if (index != 0) {
+        throw new IndexOutOfBoundsException(
+          "expected type position 0; actual=" + index
+        );
+      }
+      type = arrays[0].getClass();
+      argv[target & mask] = arrays[0];
+    }
+    for (int i = 1; i < length; ++i) {
+      if (type != (type = arrays[i].getClass())) {
+        ++tpos;
+      }
+      argv[++target & mask] = arrays[i];
     }
     ordinal = ordinal == 0
       ? (omega * length) + amount
