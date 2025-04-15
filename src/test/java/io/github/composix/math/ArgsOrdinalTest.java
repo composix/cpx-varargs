@@ -80,7 +80,7 @@ class ArgsOrdinalTest implements ArgsOrdinal {
 
   @Test
   void testTYPES() {
-    assertSame(Class[].class, TYPES.getClass());
+    assertSame(Object[].class, TYPES.getClass());
     assertEquals(26, TYPES.length);
   }
 
