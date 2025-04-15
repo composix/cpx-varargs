@@ -33,6 +33,8 @@ import java.util.function.LongPredicate;
 import java.util.function.LongToIntFunction;
 import java.util.function.LongUnaryOperator;
 
+import io.github.composix.math.Cols;
+
 public interface Attr extends Cols {
   Chars mapIB(int i, IntPredicate mapping);
 

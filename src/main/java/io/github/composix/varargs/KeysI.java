@@ -31,7 +31,7 @@ import java.util.function.ToLongFunction;
 import io.github.composix.math.Ordinal;
 
 public interface KeysI<A, N> {
-  ArgsI<N> collect();
+  ArgsI<N> done();
 
   KeysI<A, N> andByA(Ordinal col, Function<A, N> accessor);
 

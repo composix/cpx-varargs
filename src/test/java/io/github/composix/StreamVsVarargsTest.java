@@ -37,7 +37,6 @@ import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.testdata.PetstoreTestData;
 import io.github.composix.varargs.ArgsI;
-import io.github.composix.varargs.ArgsII;
 
 class StreamVsVarargsTest extends TestCase implements PetstoreTestData {
 
@@ -51,7 +50,7 @@ class StreamVsVarargsTest extends TestCase implements PetstoreTestData {
   @BeforeEach
   void beforeEach() {
     // Given the pets from the TestData interface
-    pets = ArgsI.of(PETS.stream(A).toArray(Pet[]::new));
+    pets = ArgsI.of(PETS.column(A).toArray(Pet[]::new));
   }
 
   @Test
@@ -74,16 +73,16 @@ class StreamVsVarargsTest extends TestCase implements PetstoreTestData {
       .toArray();
 
     // And when computing the same result using (Var)Args
-    ArgsII<long[], Category> petsByCategory = pets
+    ArgsI<Category> petsByCategory = pets
       .groupByA(Pet::category)
       .collectA(Pet::id, Long::sum)
-      .longs();
+      .done();
 
     // Then check that both approaches yield the same result
     assertAllEquals(
       categories,
       petsByCategory.columnA(1).stream().toArray(Category[]::new)
     );
-    assertAllEquals(sums, petsByCategory.columnB(1).longStream().toArray());
+    assertAllEquals(sums, petsByCategory.longColumn(1).longStream().toArray());
   }
 }

@@ -24,12 +24,14 @@
 
 package io.github.composix.varargs;
 
-import io.github.composix.math.Ordinal;
 import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
 
+import io.github.composix.math.Cols;
+import io.github.composix.math.Ordinal;
+
 public interface LongI<A> {
-  ArgsI<long[]> longs();
+  Cols done();
   LongI<A> andByA(Ordinal col, ToLongFunction<A> accessor);
   LongI<A> collectA(ToLongFunction<A> accessor, LongBinaryOperator reducer);
 }

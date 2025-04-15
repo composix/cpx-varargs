@@ -26,5 +26,5 @@ package io.github.composix.varargs;
 
 public interface KeysI3<A, N, O, P> extends KeysI2<A, N, O> {
   @Override
-  ArgsIII<N, O, P> collect();
+  ArgsIII<N, O, P> done();
 }

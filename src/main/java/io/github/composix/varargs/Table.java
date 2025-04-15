@@ -28,13 +28,12 @@ import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
 
-import io.github.composix.math.Args;
 import io.github.composix.math.ArgsList;
 import io.github.composix.math.Ordinal;
 import io.github.composix.math.SafeMatrix;
-import io.github.composix.math.VarArgs;
+import io.github.composix.models.Defaults;
 
-class Table<A, B, C, N, O, P>
+class Table<A extends Defaults<A>, B, C, N, O, P>
   extends SafeMatrix
   implements Chars,ArgsIII<A, B, C>, KeysII2<A, B, N, O>, KeysIII<A, B, C, N>, LongII2<A,B,N,O> {
 
@@ -65,7 +64,7 @@ class Table<A, B, C, N, O, P>
   public <KN extends Comparable<KN>> KeysIII<A, B, C, KN> groupByA(
     final Function<A, KN> accessor
   ) {
-    return (KeysIII<A, B, C, KN>) _groupBy(A, accessor);
+    return (KeysIII<A, B, C, KN>) groupBy(A, accessor);
   }
 
   @Override
@@ -75,26 +74,8 @@ class Table<A, B, C, N, O, P>
 
   // from the Keys interface
 
-  public ArgsIII<N, O, P> collect() {
-    VarArgs varargs = varArgs();
-    final int mask = varargs.mask();
-    final Object[] argv = varargs.argv;
-    final Ordinal[] indices = (Ordinal[]) argv[-1 & mask];
-    final int size = size();
-    int index = size;
-    while (argv[index & mask] != null) {
-      ++index;
-    }
-    try {
-      Args result = clone();
-      index -= size - 1;
-      //result.order().reorder(NATURAL_ORDER);
-      //result.order().resize(OMEGA.intValue() * index + indices.length);
-      export(result, (byte) size, index);
-      return (ArgsIII<N, O, P>) result;
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError();
-    }
+  public ArgsIII<N, O, P> done() {
+    return (ArgsIII<N, O, P>) $done();
   }
 
   @Override
@@ -169,11 +150,6 @@ class Table<A, B, C, N, O, P>
   }
 
   @Override
-  public ArgsIII<long[], N, O> longs() {
-    throw new UnsupportedOperationException("Unimplemented method 'longs'");
-  }
-
-  @Override
   public ArgsList<B> columnB(int pos) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'columnB'");
@@ -181,8 +157,7 @@ class Table<A, B, C, N, O, P>
 
   @Override
   public ArgsList<A> columnA(int pos) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'columnA'");
+    return column(A, pos);
   }
 
   @Override

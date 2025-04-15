@@ -124,6 +124,54 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     // general methods on Ordinal
 
+    private void type(Object values) {
+        TYPES[intValue() - SIZE] = values;
+    }
+    @Override
+    public void any(boolean... values) {
+        type(values);
+    }
+
+    @Override
+    public void any(byte... values) {
+        type(values);
+    }
+
+    @Override
+    public void any(char... values) {
+        type(values);
+    }
+
+    @Override
+    public void any(short... values) {
+        type(values);
+    }
+
+    @Override
+    public void any(int... values) {
+        type(values);
+    }
+
+    @Override
+    public void any(long... values) {
+        type(values);
+    }
+
+    @Override
+    public void any(float... values) {
+        type(values);
+    }
+
+    @Override
+    public void any(double... values) {
+        type(values);
+    }
+
+    @Override
+    public <T> void all(T... values) {
+        type(values);
+    }
+
     @Override
     public boolean contains(Ordinal ordinal) {
         return ordinal.intValue() < intValue();

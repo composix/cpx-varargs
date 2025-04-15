@@ -28,9 +28,9 @@ import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
 import io.github.composix.math.ArgsList;
-import io.github.composix.math.ArgsOrdinal;
+import io.github.composix.math.Cols;
 
-public interface ArgsI<A> extends ArgsOrdinal {
+public interface ArgsI<A> extends Cols {
   static <A> ArgsI<A> of(A... columnA) {
     if (columnA.getClass() == CharSequence[].class) {
       throw new IllegalArgumentException("use Chars.of() for CharSequence");

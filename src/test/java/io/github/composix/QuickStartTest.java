@@ -78,9 +78,9 @@ class QuickStartTest extends TestCase {
     // When using grouping to get unique category names from the list of pets
     ArgsI<String> categoryNames = pets
       .groupByA(Pet::category) // group by pet category
-      .collect() // collect distinct categories into ArgsI<Category>
+      .done() // collect distinct categories into ArgsI<Category>
       .groupByA(Category::name) // Group by category name
-      .collect(); // collect again to get the list of distinct category names
+      .done(); // collect again to get the list of distinct category names
 
     // Then the Stream approach yields the same results
     assertAllEquals(

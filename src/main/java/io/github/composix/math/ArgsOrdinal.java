@@ -25,12 +25,12 @@
 package io.github.composix.math;
 
 import java.math.BigInteger;
-import java.net.URI;
 import java.util.regex.Pattern;
 
 import io.github.composix.varargs.ArgsI;
 
 public interface ArgsOrdinal extends Cloneable {
+    static final byte SIZE = 16, SHIFT = 5, MASK = (1 << SHIFT) - 1;
     static final char QUOTE = '"', DELIM = ';';
     static final Pattern PATTERN = Pattern.compile(Pattern.quote(new String(new char[] {QUOTE,DELIM,QUOTE})));
     static final Ordinal OMEGA = Constants.getInstance().omega();
@@ -77,34 +77,7 @@ public interface ArgsOrdinal extends Cloneable {
             AO = AN.next(),
             AP = AO.next();
 
-    static Class<?>[] TYPES = new Class[] {
-        null, // Q
-        null, // R
-        String.class, // S
-        null, // T
-        URI.class, // U
-        null, // V
-        null, // W
-        null, // X
-        null, // Y
-        null, // Z
-        boolean.class, // AA
-        byte.class, // AB
-        char.class, // AC
-        short.class, // AD
-        boolean[].class, // AE
-        byte[].class, // AF
-        char[].class, // AG
-        short[].class, // AH
-        int.class, // AI
-        int[].class, // AJ
-        long[].class, // AK
-        long.class, // AL
-        null, // AM
-        null, // AN
-        null, // AO
-        null // AP
-    };
+    static Object[] TYPES = new Object[42];
     
     static Object[] OBJECT = new Object[1];
     static Object[] OBJECTS = new Object[0];

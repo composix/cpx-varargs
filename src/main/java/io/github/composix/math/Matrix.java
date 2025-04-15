@@ -37,6 +37,7 @@ package io.github.composix.math;
 import io.github.composix.models.Defaults;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -51,6 +52,20 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public class Matrix extends OrderInt implements Keys, Args {
+
+  static {
+    // type definitions
+    AA.any(false);
+    AB.any((byte) 0);
+    AC.any(' ');
+    AD.any((short) 0);
+    AE.all(new BitSet());
+    AF.all(new byte[0]);
+    AG.all(new char[0]);
+    AH.all(new short[0]);
+    AI.any(0);
+    AJ.any(new int[0]);
+  }
 
   private static final VarArgs VARARGS = VarArgs.VARARGS;
   private static final int MASK = VARARGS.mask();
@@ -166,28 +181,26 @@ public class Matrix extends OrderInt implements Keys, Args {
   // from Args interface
 
   @Override
-  public <T> List<T> column(Ordinal tpos) {
+  public <T> ArgsList<T> column(Ordinal tpos) {
     return column(tpos, 1);
   }
 
   @Override
-  public <T> List<T> column(Ordinal tpos, int pos) {
+  public <T> ArgsList<T> column(Ordinal tpos, int pos) {
     final VarArgs varargs = varArgs();
+    final byte[] types = varargs.types;
     final int mask = varargs.mask();
-    int offset = offset();
-    final byte position = varargs.position(
-      offset,
-      mask,
-      tpos.intValue(),
-      (byte) --pos
-    );
-    offset += position;
-    offset &= mask;
-    List<T> result = (List<T>) varargs.get(offset);
-    if (result == null) {
-      return result = new ArgsIndexList<>(this, position);
+    final int offset = offset() & mask;
+    int index = offset;
+    byte i = 0, type;
+    while ((type = types[index-- & mask]) != 0) {
+      if ((type & MASK) == (tpos.intValue() & mask)) {
+        return (ArgsList<T>) varargs.get((offset + i) & mask);
+      }
+      type >>= SHIFT;
+      i += type;
     }
-    return result;
+    throw new IndexOutOfBoundsException();
   }
 
   @Override
@@ -362,7 +375,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     if (argv(-1) != null) {
       throw new ConcurrentModificationException("grouping already in progress");
     }
-    argv(-1, result.indices);
+    argv(-1, result);
     return this;
   }
 
@@ -667,9 +680,9 @@ public class Matrix extends OrderInt implements Keys, Args {
   @Override
   public void thenBy(Ordinal col, Accessor accessor) {
     final Object[] source = argv(col.intValue());
-    final Ordinal[] indices = indices();
+    final Index indices = indices();
     final int count = count(indices(), source, accessor);
-    final int length = indices.length;
+    final int length = indices.size();
     final Ordinal[] subindices = new Ordinal[count];
     int k = 0;
     while (argv(--k) != null);
@@ -677,7 +690,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     k = 0;
     int fromIndex = 0;
     for (int i = 0; i < length; ++i) {
-      final int toIndex = indices[i].intValue();
+      final int toIndex = indices.getInt(i);
       accessor.setValueAt(rank(fromIndex++), source);
       for (int j = fromIndex; j < toIndex; ++j) {
         if (accessor.compareAt(rank(j), source) < 0) {
@@ -700,7 +713,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     while (argv(index) != null) {
       ++index;
     }
-    final Ordinal[] indices = indices();
+    final Index indices = indices();
     argv(index, target(ofLong(col, accessor), reducer, indices));
     return this;
   }
@@ -767,8 +780,30 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public Args done() {
-    return this;
+  public Args $done() {
+    final VarArgs varargs = varArgs();
+    final Object[] argv = varargs.argv;
+    final int mask = varargs.mask();
+    int index = offset();
+    try {
+      final Matrix result = (Matrix) clone();
+      final VarArgs varargs2 = result.varArgs();
+      final Object[] argv2 = varargs2.argv;
+      if (varargs2.mask() != mask) {
+        throw new AssertionError();
+      }
+      final int omega = OMEGA.intValue();
+      int offset = result.offset();
+      Object array;
+      result.ordinal %= omega;
+      while ((array = argv[--index & mask]) != null) {
+        argv2[offset++ & mask] = array;
+        result.ordinal += omega;
+      }
+      return result;
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError();
+    }
   }
 
   protected int offset() {
@@ -922,16 +957,16 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   private int count(
-    final Ordinal[] indices,
+    final Index indices,
     Object container,
     Accessor accessor
   ) {
-    final int length = indices.length;
-    int offset = indices[0].intValue();
+    final int length = indices.size();
+    int offset = indices.getInt(0);
     order().reorder(accessor.comparator(container), 0, offset);
     int count = count(offset, container, accessor);
     for (int i = 1; i < length; ++i) {
-      int toIndex = indices[i].intValue();
+      int toIndex = indices.getInt(i);
       order().reorder(accessor.comparator(container), offset, toIndex);
       accessor.setValueAt(rank(offset), container);
       count += count(++offset, offset = toIndex, container, accessor);
@@ -939,12 +974,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     return count;
   }
 
-  private Ordinal[] indices() {
+  private Index indices() {
     final VarArgs varargs = varArgs();
     final int mask = varargs.mask();
     int offset = offset();
-    final Ordinal[] indices = (Ordinal[]) varargs.argv[--offset & mask];
-    return indices;
+    return ((ArgsSet<?>) varargs.argv[--offset & mask]).indices();
   }
 
   private <T> Spliterator.OfLong ofLong(
@@ -958,14 +992,14 @@ public class Matrix extends OrderInt implements Keys, Args {
   private Object target(
     Spliterator.OfLong spliterator,
     LongBinaryOperator reducer,
-    Ordinal... indices
+    Index indices
   ) {
-    final int length = indices.length;
+    final int length = indices.size();
     long[] target = new long[length];
 
     int j = 0;
     for (int i = 0; i < length; ++i) {
-      while (j++ < indices[i].intValue()) {
+      while (j++ < indices.getInt(i)) {
         spliterator.tryAdvance(consumer(target, i, reducer));
       }
       --j;

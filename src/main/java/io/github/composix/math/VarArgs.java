@@ -42,10 +42,12 @@ public final class VarArgs extends AbstractList<ArgsIndexList<?>> implements Clo
 
   private static final IndexOutOfBoundsException OUT_OF_BOUNDS = new IndexOutOfBoundsException();
 
+  public final byte[] types;
   public final Object[] argv;
   private final ArgsIndexList[] columns;
 
   VarArgs(final int bits) {
+    types = new byte[1 << bits];
     argv = new Object[1 << bits];
     columns = new ArgsIndexList[1 << bits];
   }

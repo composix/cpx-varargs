@@ -38,16 +38,23 @@ package io.github.composix.math;
 
 import java.util.AbstractList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.LongStream;
 
 class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
 
+  final String header;
   final Matrix matrix;
   final byte pos;
   final Index refs;
   final ArgsSet<?> elements;
 
   ArgsIndexList(Matrix matrix, byte pos) {
+    this(":", matrix, pos);
+  }
+  
+  ArgsIndexList(String header, Matrix matrix, byte pos) {
+    this.header = header.intern();
     this.matrix = matrix;
     this.pos = pos;
     switch (source()) {
@@ -95,7 +102,33 @@ class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
   public LongStream longStream() {
     return refs.intStream().map(matrix::rank).mapToLong(elements::getLong);
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof List) {
+      return super.equals(o);
+    }
+    if (o instanceof String) {
+      return toString() == ((String) o).intern();
+    }
+    return false;
+  }
   
+  @Override
+  public char charAt(int index) {
+    return header.charAt(index);
+  }
+
+  @Override
+  public CharSequence subSequence(int start, int end) {
+    return header.subSequence(start, end);
+  }
+  
+  @Override
+  public int length() {
+    return header.length();
+  }
+
   @Override
   public int size() {
     return matrix.amount();
@@ -107,7 +140,7 @@ class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
   }
 
   @Override
-  public ArgsSet<E> asArgsSet() {
+  public ArgsSet<E> asListSet() {
     return (ArgsSet<E>) elements;
   }
 

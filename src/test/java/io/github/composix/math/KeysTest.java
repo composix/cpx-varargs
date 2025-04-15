@@ -73,9 +73,10 @@ class KeysTest extends PetstoreTestCase {
     );
 
     // ...and contains the indices of the groups
+    ArgsSet<Category> columnA = (ArgsSet<Category>) argv[--offset & mask];
     assertAllEquals(
       all(C, F, I),
-      ((Index) argv[--offset & mask]).toArray(Ordinal[]::new)
+      columnA.indices().toArray(Ordinal[]::new)
     );
 
     // ...and contains the extracted keys

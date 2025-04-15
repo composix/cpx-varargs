@@ -32,6 +32,24 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
         return OrdinalNumber.ORDINALS[index];
     }
 
+    void any(boolean... values);
+
+    void any(byte...values);
+
+    void any(char... values);
+
+    void any(short... values);
+
+    void any(int... values);
+
+    void any(long... values);
+
+    void any(float... values);
+
+    void any(double... values);
+
+    <T> void all(@SuppressWarnings("unchecked") T... values);
+
     byte byteValue();
     
     short shortValue();

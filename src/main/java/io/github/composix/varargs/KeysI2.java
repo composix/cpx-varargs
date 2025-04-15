@@ -31,7 +31,7 @@ import java.util.function.ToLongFunction;
 
 public interface KeysI2<A, N, O> extends KeysI<A, N> {
   @Override
-  ArgsII<N, O> collect();
+  ArgsII<N, O> done();
 
   KeysI2<A, N, O> andByA2(Ordinal col, Function<A, O> accessor);
 

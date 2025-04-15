@@ -39,7 +39,7 @@ import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
 
 public interface Keys {
-  Args done();
+  Args $done();
 
   <T> Args collect(
     Ordinal col,

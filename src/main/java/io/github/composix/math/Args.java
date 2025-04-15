@@ -69,32 +69,7 @@ import java.util.regex.Pattern;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-public interface Args extends ArgsOrdinal, MutableOrder {
-  /**
-   * Retrieve the column at the first type position. For example,
-   * column(A) returns the first column, column(B) returns the first
-   * column of type that differs from typeOf(A), column(C) returns
-   * the first column of type that differs from typeOf(B), and so on.
-   *
-   * Note that this method is equivalent to column(tpos, 1).
-   *
-   * @param tpos - the type position of the column
-   * @return a list of values in the column
-   */
-  <T> List<T> column(Ordinal type);
-
-  /**
-   * Retrieve the column at the pos-th type position. For example,
-   * column(tpos, 2) return the column directly following column(tpos),
-   * column(tpos, 3) returns the column directly following column(tpos, 2), and so on.
-   *
-   * @param tpos - the type position of the column
-   * @param pos - the position within columns of same type
-   * @return a list of values in the column
-   * @throws IndexOutOfBoundsException - if pos is out of bounds
-   */
-  <T> List<T> column(Ordinal type, int pos);
-
+public interface Args extends Cols, MutableOrder {
   /**
    * Retrieve the text-based column with a given header. For example,
    * column("name") returns the column with the header "name".
