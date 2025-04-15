@@ -24,87 +24,8 @@
 
 package io.github.composix.math;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.RandomAccess;
-import java.util.SortedSet;
-import java.util.Spliterator;
-
-interface ArgsSet<E> extends SortedSet<E>, List<E>, RandomAccess {
+interface ArgsSet<E> extends ListSet<E> {
   Ordinal getType();
 
   Index indices();
-
-  long getLong(int index);
-
-  @Override
-  ArgsSet<E> subSet(E fromElement, E toElement);
-
-  @Override
-  ArgsSet<E> headSet(E toElement);
-
-  @Override
-  ArgsSet<E> tailSet(E fromElement);
-
-  @Override
-  ArgsSet<E> subList(int fromIndex, int toIndex);
-
-  @Override
-  default E getFirst() {
-    if (this.isEmpty()) {
-      throw new NoSuchElementException();
-    } else {
-      return this.get(0);
-    }
-  }
-
-  @Override
-  default E getLast() {
-    if (this.isEmpty()) {
-      throw new NoSuchElementException();
-    } else {
-      return this.get(this.size() - 1);
-    }
-  }
-
-  @Override
-  default E removeFirst() {
-    if (this.isEmpty()) {
-      throw new NoSuchElementException();
-    } else {
-      return this.remove(0);
-    }
-  }
-
-  @Override
-  default E removeLast() {
-    if (this.isEmpty()) {
-      throw new NoSuchElementException();
-    } else {
-      return this.remove(this.size() - 1);
-    }
-  }
-
-  @Override
-  default void addFirst(E e) {
-    this.add(0, e);
-  }
-
-  @Override
-  default void addLast(E e) {
-    this.add(e);
-  }
-
-  @Override
-  default ArgsSet<E> reversed() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  default Spliterator<E> spliterator() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException(
-      "Unimplemented method 'spliterator'"
-    );
-  }
 }
