@@ -44,12 +44,12 @@ import java.util.List;
 import java.util.RandomAccess;
 import java.util.stream.LongStream;
 
-public interface ArgsList<E> extends List<E>, RandomAccess {
+public interface ArgsList<E> extends CharSequence, List<E>, RandomAccess {
   long getLong(int index);
 
   LongStream longStream();
 
-  ArgsSet<E> asArgsSet();
+  ListSet<E> asListSet();
 
   default int binarySearch(Object item) {
     return Collections.binarySearch(
@@ -57,4 +57,7 @@ public interface ArgsList<E> extends List<E>, RandomAccess {
       (Comparable<?>) item
     );
   }
+
+  @Override
+  boolean isEmpty();
 }
