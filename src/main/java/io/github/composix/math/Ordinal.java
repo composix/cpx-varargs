@@ -42,13 +42,13 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
 
     void any(int... values);
 
-    void any(long... values);
+    Column<Long> any(long... values);
 
     void any(float... values);
 
     void any(double... values);
 
-    <T> void all(@SuppressWarnings("unchecked") T... values);
+    <T> Column<T> all(@SuppressWarnings("unchecked") T... values);
 
     byte byteValue();
     

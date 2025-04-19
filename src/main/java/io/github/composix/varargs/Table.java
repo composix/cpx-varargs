@@ -28,7 +28,7 @@ import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
 
-import io.github.composix.math.ArgsList;
+import io.github.composix.math.Column;
 import io.github.composix.math.Ordinal;
 import io.github.composix.math.SafeMatrix;
 import io.github.composix.models.Defaults;
@@ -150,13 +150,13 @@ class Table<A extends Defaults<A>, B, C, N, O, P>
   }
 
   @Override
-  public ArgsList<B> columnB(int pos) {
+  public Column<B> columnB(int pos) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'columnB'");
   }
 
   @Override
-  public ArgsList<A> columnA(int pos) {
+  public Column<A> columnA(int pos) {
     return column(A, pos);
   }
 

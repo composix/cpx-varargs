@@ -28,4 +28,6 @@ interface ArgsSet<E> extends ListSet<E> {
   Ordinal getType();
 
   Index indices();
+
+  Object array();
 }

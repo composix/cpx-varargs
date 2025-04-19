@@ -30,22 +30,30 @@ import java.util.function.IntFunction;
 import java.util.function.LongFunction;
 import java.util.stream.Stream;
 
+import io.github.composix.math.Column;
+
 public interface AttrI<X> extends Attr {
-    <Y> AttrII<X,Y> attrY(Class<Y> type);
+  static <X> AttrI<X> of(X... columnX) {
+    return null;
+  }
 
-    // mapping to E
+  <Y> AttrII<X, Y> attrY(Class<Y> type);
 
-    AttrI<X> mapIX(int i, IntFunction<X> mapping);
+  Column<X> columnX(int pos);
 
-    AttrI<X> mapLX(int i, LongFunction<X> mapping);
+  // mapping to E
 
-    AttrI<X> mapSX(int i, Function<String,X> mapping);
+  AttrI<X> mapIX(int i, IntFunction<X> mapping);
 
-    AttrI<X> mapUX(int i, Function<URI,X> mapping);
+  AttrI<X> mapLX(int i, LongFunction<X> mapping);
 
-    // mapping from E
+  AttrI<X> mapSX(int i, Function<String, X> mapping);
 
-    <B> AttrI<X> mapXS(int pos, Function<X,String> mapping);
+  AttrI<X> mapUX(int i, Function<URI, X> mapping);
 
-    AttrI<X> flatMapXS(int pos, Function<X,Stream<String>> mapping);
+  // mapping from E
+
+  <B> AttrI<X> mapXS(int pos, Function<X, String> mapping);
+
+  AttrI<X> flatMapXS(int pos, Function<X, Stream<String>> mapping);
 }

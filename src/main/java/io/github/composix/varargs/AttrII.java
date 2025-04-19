@@ -27,12 +27,11 @@ package io.github.composix.varargs;
 import java.net.URI;
 import java.util.function.BiFunction;
 
-import io.github.composix.math.ArgsList;
+import io.github.composix.math.Column;
 
-public interface AttrII<X, Y> extends AttrI<X> {
-    AttrII<X,Y> mapUSY(int posA, int posC, BiFunction<URI,String,Y> mapping);
+public interface AttrII<X, Y> extends Attr {
+  Column<X> columnX(int pos);
+  Column<Y> columnY(int pos);
 
-    ArgsList<X> columnX(int pos);
-
-    ArgsList<Y> columnY(int pos);
+  AttrII<X, Y> mapUSY(int posA, int posC, BiFunction<URI, String, Y> mapping);
 }

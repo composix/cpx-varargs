@@ -41,38 +41,26 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.LongStream;
 
-class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
+class ArgsIndexList<E> extends AbstractList<E> implements Column<E> {
 
-  final String header;
-  final Matrix matrix;
-  final byte pos;
   final Index refs;
   final ArgsSet<?> elements;
 
-  ArgsIndexList(Matrix matrix, byte pos) {
-    this(":", matrix, pos);
+  String header;
+  MutableOrder order;
+
+  ArgsIndexList(byte tpos, long[] array) {
+    this.header = ":";
+    this.order = null;
+    refs = Index.of(array.length);
+    elements = new ArgsLongSet(tpos, null, array);
   }
-  
-  ArgsIndexList(String header, Matrix matrix, byte pos) {
-    this.header = header.intern();
-    this.matrix = matrix;
-    this.pos = pos;
-    switch (source()) {
-      case String[] strings:
-        refs = Index.of(strings.length);
-        elements = new ArgsObjSet<>(ArgsOrdinal.S, null, strings);
-        break;
-      case Object[] objects:
-        refs = Index.of(objects.length);
-        elements = new ArgsObjSet<>(null, null, objects);
-        break;
-      case long[] longs:
-        refs = Index.of(longs.length);
-        elements = new ArgsLongSet(null, longs);
-        break;
-      default:
-        throw new UnsupportedOperationException();
-    }
+
+  ArgsIndexList(byte tpos, E[] array) {
+    this.header = ":";
+    this.order = null;
+    refs = Index.of(array.length);
+    elements = new ArgsObjSet(tpos, null, array);
   }
 
   void initialize() {
@@ -87,20 +75,31 @@ class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
     }
   }
 
-  Object source() {
-    final VarArgs varargs = matrix.varArgs();
-    final int mask = varargs.mask(), offset = (matrix.offset() + pos) & mask;
-    return varargs.argv[offset & mask];
+  public Ordinal getType() {
+    return elements.getType();
+  }
+
+  @Override
+  public Object source() {
+    if (elements.indices() == null) {
+      return elements.array();
+    }
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void attachOrder(MutableOrder order) {
+    this.order = order;
   }
 
   @Override
   public long getLong(int index) {
-    return elements.getLong(matrix.rank(refs.getInt(index)));
+    return elements.getLong(order.rank(refs.getInt(index)));
   }
 
   @Override
   public LongStream longStream() {
-    return refs.intStream().map(matrix::rank).mapToLong(elements::getLong);
+    return refs.intStream().map(order::rank).mapToLong(elements::getLong);
   }
 
   @Override
@@ -131,12 +130,12 @@ class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
 
   @Override
   public int size() {
-    return matrix.amount();
+    return refs.size();
   }
 
   @Override
   public E get(int index) {
-    return (E) elements.get(matrix.rank(refs.getInt(index)));
+    return (E) elements.get(order.rank(refs.getInt(index)));
   }
 
   @Override
@@ -152,7 +151,7 @@ class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
           if (comparator != null) {
             throw new UnsupportedOperationException();
           }
-          matrix.reorder((lhs, rhs) ->
+          order.reorder((lhs, rhs) ->
             Long.compare(
               longSet.array[lhs.intValue()],
               longSet.array[rhs.intValue()]
@@ -161,13 +160,13 @@ class ArgsIndexList<E> extends AbstractList<E> implements ArgsList<E> {
           break;
         case ArgsObjSet<?> objSet:
           if (comparator == null) {
-            matrix.reorder((lhs, rhs) ->
+            order.reorder((lhs, rhs) ->
               ((String) objSet.array[lhs.intValue()]).compareTo(
                   (String) objSet.array[rhs.intValue()]
                 )
             );
           } else {
-            matrix.reorder((lhs, rhs) ->
+            order.reorder((lhs, rhs) ->
               comparator.compare(
                 (E) objSet.array[lhs.intValue()],
                 (E) objSet.array[rhs.intValue()]

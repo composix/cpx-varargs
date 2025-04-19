@@ -37,7 +37,7 @@ import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.github.composix.math.ArgsList;
+import io.github.composix.math.Column;
 import io.github.composix.varargs.AttrI;
 import io.github.composix.varargs.Chars;
 
@@ -99,13 +99,13 @@ public final class Api {
     }
   }
 
-  private final ArgsList<ApiResource> resources;
+  private final Column<ApiResource> resources;
 
   private Api(Chars args) throws NoSuchFieldException {
     // Retrieve the Swaggers...
     final AttrI<JsonNode> urisSwaggersTitles = args
       .attrURI("url:") // get the URLs
-      .attrXY(JsonNode.class, ApiResource.class) // custom attribute type X = JsonNode
+      .attrX(JsonNode.class) // custom attribute type X = JsonNode
       .mapUX(1, Api::readTree)
       // read swagggers from URLs
       .mapXS(1, TITLE::text); // get the titles

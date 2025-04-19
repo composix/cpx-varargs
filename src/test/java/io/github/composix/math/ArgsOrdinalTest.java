@@ -25,16 +25,17 @@
 package io.github.composix.math;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class ArgsOrdinalTest implements ArgsOrdinal {
+import io.github.composix.testing.TestCase;
 
-  static String MESSAGE =
-    "class io.github.composix.math.ArgsOrdinalTest cannot be cast to class io.github.composix.math.Args (io.github.composix.math.ArgsOrdinalTest and io.github.composix.math.Args are in unnamed module of loader 'app')";
+class ArgsOrdinalTest extends TestCase {
 
   static Ordinal[] ORDINALS;
 
@@ -49,7 +50,7 @@ class ArgsOrdinalTest implements ArgsOrdinal {
   }
 
   @Test
-  void testABCDEFGHIJKLMNOPQRSTUVWXYZ() {
+  void testAlphabet() {
     assertSame(ORDINALS[0], A);
     assertSame(ORDINALS[1], B);
     assertSame(ORDINALS[2], C);
@@ -81,31 +82,25 @@ class ArgsOrdinalTest implements ArgsOrdinal {
   @Test
   void testTYPES() {
     assertSame(Object[].class, TYPES.getClass());
+    assertAllSame(all(""), TYPES[2]);
+    assertAllSame(any(false), TYPES[10]);
     assertEquals(26, TYPES.length);
   }
 
   @Test
   void testClone() {
-    assertEquals(
-      MESSAGE,
-      assertThrows(ClassCastException.class, () -> clone()).getMessage()
+    assertNull(
+      assertThrows(CloneNotSupportedException.class, () -> clone()).getMessage()
     );
   }
 
   @Test
   void testExtend() {
-    assertEquals(
-      MESSAGE,
-      assertThrows(ClassCastException.class, () -> extend(0, 0, 0, 0)
-      ).getMessage()
-    );
-    assertEquals(
-      MESSAGE,
-      assertThrows(ClassCastException.class, () -> extend(A, "")).getMessage()
-    );
-    assertEquals(
-      MESSAGE,
-      assertThrows(ClassCastException.class, () -> extendLong(0L)).getMessage()
+    assertThrows(NullPointerException.class, () -> extend(null));
+    assertInstanceOf(CloneNotSupportedException.class,
+      assertThrows(UnsupportedOperationException.class, () ->
+        extend(new ArgsIndexList<>(AL.byteValue(), any(0L, 1L, 2L)))
+      ).getCause()
     );
   }
 

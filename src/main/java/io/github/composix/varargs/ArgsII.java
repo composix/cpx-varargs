@@ -27,11 +27,11 @@ package io.github.composix.varargs;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
-import io.github.composix.math.ArgsList;
+import io.github.composix.math.Column;
 
 public interface ArgsII<A, B> extends ArgsI<A> {
 
-  ArgsList<B> columnB(int pos);
+  Column<B> columnB(int pos);
 
   @Override
   <N extends Comparable<N>> KeysII<A, B, N> groupByA(Function<A, N> accessor);

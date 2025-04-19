@@ -1,4 +1,13 @@
 /**
+ * interface Cols
+ * 
+ * Group of methods the retrieve columns from a tabular data structure.
+ * 
+ * Author: dr. ir. J. M. Valk
+ * Date: April 2025
+ */
+
+/**
  * MIT License
  *
  * Copyright (c) 2025 ComPosiX
@@ -26,6 +35,14 @@ package io.github.composix.math;
 
 import java.net.URI;
 
+/**
+ * The {@code Cols} interface provides methods to retrieve columns from a
+ * tabular data structure, allowing access to columns based on their type
+ * position and ordinal. It extends the {@link ArgsOrdinal} interface, which
+ * provides a way to work with ordinal types in a tabular context.
+ * 
+ * @author dr. ir. J. M. Valk
+ */
 public interface Cols extends ArgsOrdinal {
   /**
    * Retrieve the column at the first type position. For example,
@@ -38,7 +55,7 @@ public interface Cols extends ArgsOrdinal {
    * @param tpos - the type position of the column
    * @return a list of values in the column
    */
-  <T> ArgsList<T> column(Ordinal type);
+  <T> Column<T> column(Ordinal type);
 
   /**
    * Retrieve the column at the pos-th type position. For example,
@@ -50,37 +67,37 @@ public interface Cols extends ArgsOrdinal {
    * @return a list of values in the column
    * @throws IndexOutOfBoundsException - if pos is out of bounds
    */
-  <T> ArgsList<T> column(Ordinal type, int pos);
+  <T> Column<T> column(Ordinal type, int pos);
 
-  default ArgsList<Boolean> booleanColumn(int pos) {
+  default Column<Boolean> booleanColumn(int pos) {
     return column(AA, pos);
   }
 
-  default ArgsList<Byte> byteColumn(int pos) {
+  default Column<Byte> byteColumn(int pos) {
     return column(AB, pos);
   }
 
-  default ArgsList<Character> charColumn(int pos) {
+  default Column<Character> charColumn(int pos) {
     return column(AB, pos);
   }
 
-  default ArgsList<Short> shortColumn(int pos) {
+  default Column<Short> shortColumn(int pos) {
     return column(AC, pos);
   }
 
-  default ArgsList<Integer> intColumn(int pos) {
+  default Column<Integer> intColumn(int pos) {
     return column(AI, pos);
   }
 
-  default ArgsList<Long> longColumn(int pos) {
+  default Column<Long> longColumn(int pos) {
     return column(AL, pos);
   }
 
-  default ArgsList<String> stringColumn(int pos) {
+  default Column<String> stringColumn(int pos) {
     return column(S, pos);
   }
 
-  default ArgsList<URI> uriColumn(int pos) {
+  default Column<URI> uriColumn(int pos) {
     return column(U, pos);
   }
 }

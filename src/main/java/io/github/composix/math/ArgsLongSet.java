@@ -1,4 +1,13 @@
 /**
+ * class ArgsObjSet
+ * 
+ * Sorted set of long values backed by an array, with support for subrange views.
+ * 
+ * Author: dr. ir. J. M. Valk
+ * Date: April 2025
+ */
+
+/**
  * MIT License
  *
  * Copyright (c) 2025 ComPosiX
@@ -30,17 +39,24 @@ import java.util.Comparator;
 
 public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
 
+  byte tpos;
   Index indices;
   long[] array;
 
-  ArgsLongSet(Index indices, long[] array) {
+  ArgsLongSet(byte tpos, Index indices, long[] array) {
+    this.tpos = tpos;
     this.indices = indices;
     this.array = array;
   }
 
   @Override
+  public Object array() {
+    return array;
+  }
+  
+  @Override
   public Ordinal getType() {
-    return ArgsOrdinal.L;
+    return OrdinalNumber.ORDINALS[tpos];
   }
 
   @Override
@@ -102,15 +118,15 @@ public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
 
   @Override
   public ArgsSet<Long> subList(int fromIndex, int toIndex) {
-    return new SubArgsSet(array, fromIndex, toIndex - fromIndex);
+    return new SubArgsSet(tpos, array, fromIndex, toIndex - fromIndex);
   }
 
   static class SubArgsSet extends ArgsLongSet {
 
     private final int offset, size;
 
-    SubArgsSet(long[] array, int offset, int size) {
-      super(null, array);
+    SubArgsSet(byte tpos, long[] array, int offset, int size) {
+      super(tpos, null, array);
       this.offset = offset;
       this.size = size;
     }
@@ -127,7 +143,7 @@ public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
 
     @Override
     public ArgsSet<Long> subList(int fromIndex, int toIndex) {
-      return new SubArgsSet(array, fromIndex, toIndex - fromIndex);
+      return new SubArgsSet(tpos, array, fromIndex, toIndex - fromIndex);
     }
   }
 }

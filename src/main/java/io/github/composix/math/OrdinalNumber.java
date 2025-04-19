@@ -1,4 +1,13 @@
 /**
+ * class OrdinalNumber
+ * 
+ * This is the base class for all ordinals that implement the Ordinal interface.
+ *
+ * Author: dr. ir. J. M. Valk
+ * Date: April 2025
+ */
+
+/**
  * MIT License
  *
  * Copyright (c) 2025 ComPosiX
@@ -30,8 +39,9 @@ import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 abstract class OrdinalNumber extends Number implements Ordinal {
-    static Ordinal[] ORDINALS = Constants.getInstance().ordinals;
+    static final Ordinal[] ORDINALS = Constants.getInstance().ordinals;
 
+    private static final Constants CONSTANTS = Constants.getInstance();
     private static final NoSuchElementException NO_SUCH_ELEMENT_EXCEPTION = new NoSuchElementException("Ordinal 0 has no predecessor");
 
     // from ArgsOrdinal
@@ -48,7 +58,27 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     @Override
     public String toString() {
-        return Long.toString(longValue());
+        long row = longValue();
+        if (OMEGA.contains(this)) {
+            return Long.toString(row);
+        }
+        final long omega = OMEGA.longValue();
+        row %= omega;
+        final String rowString = row > 0 ? Long.toString(row) : "";
+        int length = rowString.length();
+        int col = (int) (row / omega), i = 0;
+        int offset = col / 26 + 1;
+        char[] result = new char[offset + length];
+        length = result.length;
+        do {
+            result[i++] = (char) (col % 26 + 65);
+            col /= 26;
+        } while (col > 0);
+        --offset;
+        while (++offset < length) {
+            result[offset] = rowString.charAt(offset);
+        }
+        return new String(result);
     }
 
     // inherited from Number
@@ -124,52 +154,57 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     // general methods on Ordinal
 
-    private void type(Object values) {
-        TYPES[intValue() - SIZE] = values;
-    }
     @Override
     public void any(boolean... values) {
-        type(values);
+        CONSTANTS.check(this, values);
     }
 
     @Override
     public void any(byte... values) {
-        type(values);
+        CONSTANTS.check(this, values);
     }
 
     @Override
     public void any(char... values) {
-        type(values);
+        CONSTANTS.check(this, values);
     }
 
     @Override
     public void any(short... values) {
-        type(values);
+        CONSTANTS.check(this, values);
     }
 
     @Override
     public void any(int... values) {
-        type(values);
+        CONSTANTS.check(this, values);
     }
 
     @Override
-    public void any(long... values) {
-        type(values);
+    public ArgsIndexList<Long> any(long... values) {
+        byte tpos = CONSTANTS.check(this, values);
+        if (tpos < 0) {
+            return null;
+        }
+        return new ArgsIndexList<>(tpos, values);
     }
 
     @Override
     public void any(float... values) {
-        type(values);
+        CONSTANTS.check(this, values);
     }
 
     @Override
     public void any(double... values) {
-        type(values);
+        CONSTANTS.check(this, values);
     }
 
     @Override
-    public <T> void all(T... values) {
-        type(values);
+    public <T> Column<T> all(T... values) {
+        byte tpos = CONSTANTS.check(this, values);
+        if (tpos < 0) {
+            return null;
+        }
+        return new ArgsIndexList<>(tpos, values);
     }
 
     @Override
@@ -189,7 +224,7 @@ abstract class OrdinalNumber extends Number implements Ordinal {
 
     @Override
     public final Ordinal column() {
-        return Constants.getInstance().columns[intValue()];
+        return CONSTANTS.columns[intValue()];
     }
     
     @Override

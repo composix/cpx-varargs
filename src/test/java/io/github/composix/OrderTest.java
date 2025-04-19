@@ -58,8 +58,8 @@ class OrderTest extends TestCase {
 
     // VarArgs
     Args idArgs = D.extendLong(idArray.clone());
-    Args args = D.extend(A, array.clone());
-    Args matrix = D.extend(0, 3, 0, 2, idArray.clone(), array.clone());
+    Args args = D.extend(S.all(array.clone()));
+    Args matrix = D.extend(AL.any(idArray.clone())).extend(S.all(array.clone()));
 
     @BeforeEach
     void sorting() {
@@ -79,9 +79,9 @@ class OrderTest extends TestCase {
         assertArrayEquals(array, stream.sorted().toArray());
 
         // VarArgs
-        idArgs.column(A).sort(null);
-        args.column(A).sort(null);
-        matrix.column(B).sort(null); 
+        idArgs.column(AL).sort(null);
+        args.column(S).sort(null);
+        matrix.column(S).sort(null); 
     }
 
     @Test

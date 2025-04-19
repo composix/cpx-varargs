@@ -1,4 +1,13 @@
 /**
+ * class ArgsObjSet
+ * 
+ * Sorted set of object values backed by an array, with support for subrange views.
+ * 
+ * Author: dr. ir. J. M. Valk
+ * Date: April 2025
+ */
+
+/**
  * MIT License
  *
  * Copyright (c) 2025 ComPosiX
@@ -27,22 +36,28 @@ package io.github.composix.math;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.NoSuchElementException;
 
 public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
 
-  final Ordinal type;
+  final byte tpos;
   Index indices;
   E[] array;
 
-  ArgsObjSet(Ordinal type, Index indices, E[] array) {
-    this.type = type;
+  ArgsObjSet(byte tpos, Index indices, E[] array) {
+    this.tpos = tpos;
     this.indices = indices;
     this.array = array;
   }
 
   @Override
+  public Object array() {
+    return array;
+  }
+
+  @Override
   public Ordinal getType() {
-    return ArgsOrdinal.O;
+    return OrdinalNumber.ORDINALS[tpos];
   }
 
   @Override
@@ -52,7 +67,7 @@ public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
 
   @Override
   public long getLong(int index) {
-    return ((Long) get(index)).longValue();
+    throw new NoSuchElementException();
   }
 
   @Override
@@ -104,15 +119,15 @@ public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
 
   @Override
   public ArgsSet<E> subList(int fromIndex, int toIndex) {
-    return new SubArgsSet<>(type, array, fromIndex, toIndex - fromIndex);
+    return new SubArgsSet<>(tpos, array, fromIndex, toIndex - fromIndex);
   }
 
   static class SubArgsSet<E> extends ArgsObjSet<E> {
 
     private final int offset, size;
 
-    SubArgsSet(Ordinal type, E[] array, int offset, int size) {
-      super(type, null, array);
+    SubArgsSet(byte tpos, E[] array, int offset, int size) {
+      super(tpos, null, array);
       this.offset = offset;
       this.size = size;
     }
@@ -129,7 +144,7 @@ public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
 
     @Override
     public ArgsSet<E> subList(int fromIndex, int toIndex) {
-      return new SubArgsSet<>(type, array, fromIndex, toIndex - fromIndex);
+      return new SubArgsSet<>(tpos, array, fromIndex, toIndex - fromIndex);
     }
   }
 }

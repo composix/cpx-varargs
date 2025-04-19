@@ -34,10 +34,8 @@
 
 package io.github.composix.math;
 
-import io.github.composix.models.Defaults;
 import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -51,29 +49,14 @@ import java.util.regex.Pattern;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import io.github.composix.models.Defaults;
+
 public class Matrix extends OrderInt implements Keys, Args {
 
-  static {
-    // type definitions
-    AA.any(false);
-    AB.any((byte) 0);
-    AC.any(' ');
-    AD.any((short) 0);
-    AE.all(new BitSet());
-    AF.all(new byte[0]);
-    AG.all(new char[0]);
-    AH.all(new short[0]);
-    AI.any(0);
-    AJ.any(new int[0]);
-  }
-
-  private static final VarArgs VARARGS = VarArgs.VARARGS;
-  private static final int MASK = VARARGS.mask();
-  private static final Ordinal[] ALL = new Ordinal[] { A };
   private static final byte[] LENGTHS = new byte[16];
   private static final Cursor CURSOR = Cursor.ofRow(LENGTHS);
 
-  byte source, target, tpos;
+  byte length, source, target, tpos;
   ArgsLongSet pk, fk;
 
   protected Matrix(int ordinal) {
@@ -81,7 +64,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   protected VarArgs varArgs() {
-    return VARARGS;
+    return VarArgs.VARARGS;
   }
 
   // from ArgsOrdinal
@@ -99,9 +82,15 @@ public class Matrix extends OrderInt implements Keys, Args {
   @Override
   public void export(Args target, byte position, int size) {
     final VarArgs varargs = varArgs();
-    final int mask = varargs.mask(), offset = offset() & mask;
-    if (offset < ((offset + size) & mask)) {
-      target.extend(0, OMEGA.amount(ordinal), offset, size, varargs.argv);
+    final int mask = varargs.mask();
+    int offset = offset() & mask;
+    size += offset;
+    if (offset < (size & mask)) {
+      do {
+        target.extend(0, OMEGA.amount(ordinal), varargs.argv[offset]);
+      } while (++offset < size);
+    } else {
+      throw new UnsupportedOperationException();
     }
   }
 
@@ -119,14 +108,58 @@ public class Matrix extends OrderInt implements Keys, Args {
     return value == null ? Void.class : value.getClass().getComponentType();
   }
 
+  public Args extend(Column<?> column) {
+    if (!isOrdinal()) {
+      throw new IllegalStateException("extend not allowed after reordering");
+    }
+    final VarArgs varargs = varArgs();
+    final int offset = offset() & varargs.mask();
+    final Index positions = varargs.positions;
+    int tpos = column.getType().intValue() - SIZE, type = 1, pos = 0, i;
+    if (tpos < 0) {
+      throw new UnsupportedOperationException();
+    }
+    for (i = 0; i < length; ++i) {
+      type = positions.getInt(offset + i);
+      if ((type & MASK) == tpos) {
+        type >>>= SHIFT;
+        pos = type >>> SHIFT2;
+        pos += type++ & MASK2;
+        break;
+      }
+    }
+    if (i == length) {
+      ++length;
+      type = 1;
+    }
+    if (varargs.columns[pos] == null) {
+      pos += offset;
+    } else {
+      pos = offset;
+      type &= MASK2;
+      int j;
+      do {
+        while(varargs.columns[pos++] != null);
+          for (j = 1; j < type; ++j) {
+            if (varargs.columns[pos++] != null) {
+              break;
+            }
+          }
+      } while (j < type);
+      pos -= type;
+      type |= (pos - offset) << SHIFT2;
+    }
+    type <<= SHIFT;
+    tpos |= type;
+    positions.setInt(offset + i, tpos);
+    varargs.columns[pos] = column;
+    ordinal += OMEGA.intValue();
+    column.attachOrder(this);
+    return this;
+  }
+
   @Override
-  public Args extend(
-    final int index,
-    final int amount,
-    final int offset,
-    final int length,
-    final Object... arrays
-  ) {
+  public Args extend(final int index, final int amount, final Object array) {
     final int omega = OMEGA.intValue();
     if (!isOrdinal()) {
       throw new IllegalStateException("extend not allowed after reordering");
@@ -139,13 +172,13 @@ public class Matrix extends OrderInt implements Keys, Args {
     if (this.target > 0) {
       type = argv[--target & mask].getClass();
       if (tpos == index) {
-        if (arrays[0].getClass() != type) {
+        if (array.getClass() != type) {
           throw new IndexOutOfBoundsException(
             "expected type position " + (index + 1) + "; actual=" + index
           );
         }
       } else if (tpos + 1 == index) {
-        if (type == (type = arrays[0].getClass())) {
+        if (type == (type = array.getClass())) {
           throw new IndexOutOfBoundsException(
             "expected type position " + tpos + "; actual=" + index
           );
@@ -153,52 +186,51 @@ public class Matrix extends OrderInt implements Keys, Args {
       } else {
         throw new IndexOutOfBoundsException(
           "expected type position " + tpos + "; actual=" + index
-        );      
+        );
       }
-      argv[++target & mask] = arrays[0];
+      argv[++target & mask] = array;
     } else {
       if (index != 0) {
         throw new IndexOutOfBoundsException(
           "expected type position 0; actual=" + index
         );
       }
-      type = arrays[0].getClass();
-      argv[target & mask] = arrays[0];
-    }
-    for (int i = 1; i < length; ++i) {
-      if (type != (type = arrays[i].getClass())) {
-        ++tpos;
-      }
-      argv[++target & mask] = arrays[i];
+      type = array.getClass();
+      argv[target & mask] = array;
     }
     ordinal = ordinal == 0
-      ? (omega * length) + amount
-      : omega * (index + length) + Math.min(ordinal % omega, amount);
-    this.target = (byte) (index + length);
+      ? omega + amount
+      : omega * (index + 1) + Math.min(ordinal % omega, amount);
+    this.target = (byte) (index + 1);
     return this;
   }
 
   // from Args interface
 
   @Override
-  public <T> ArgsList<T> column(Ordinal tpos) {
+  public <T> Column<T> column(Ordinal tpos) {
     return column(tpos, 1);
   }
 
   @Override
-  public <T> ArgsList<T> column(Ordinal tpos, int pos) {
+  public <T> Column<T> column(Ordinal tpos, int pos) {
     final VarArgs varargs = varArgs();
-    final byte[] types = varargs.types;
-    final int mask = varargs.mask();
-    final int offset = offset() & mask;
-    int index = offset;
-    byte i = 0, type;
-    while ((type = types[index-- & mask]) != 0) {
-      if ((type & MASK) == (tpos.intValue() & mask)) {
-        return (ArgsList<T>) varargs.get((offset + i) & mask);
+    final int mask = varargs.mask(), offset = offset() & mask;
+    final Index positions = varargs.positions;
+    int position = tpos.intValue() - SIZE;
+    if (position < 0) {
+      throw new UnsupportedOperationException();
+    }
+    for (int i = 0; i < length; ++i) {
+      int type = positions.getInt((offset + i) & mask);
+      if ((type & MASK) == position) {
+        type >>>= SHIFT;
+        if (pos > (type & MASK2) || --pos < 0) {
+          throw new IndexOutOfBoundsException();
+        }
+        pos += type >>> SHIFT2;
+        return (Column<T>) varargs.get((offset + pos) & mask);
       }
-      type >>= SHIFT;
-      i += type;
     }
     throw new IndexOutOfBoundsException();
   }
@@ -482,7 +514,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Object[] source = argv(tpos.intValue());
     final Index indices = groupBy(accessObject, source);
     final ArgsObjSet<T> result = new ArgsObjSet<>(
-      null,
+      tpos.byteValue(),
       indices,
       (T[]) keys(accessObject, source, indices)
     );
@@ -506,6 +538,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     accessLong.accessor(accessor);
     final Index indices = groupBy(accessLong, source);
     final ArgsLongSet result = new ArgsLongSet(
+      AL.byteValue(),
       indices,
       (long[]) keys(accessLong, source, indices)
     );
@@ -520,7 +553,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     );
     Index indices = groupBy(accessor, source);
     ArgsObjSet<T> result = new ArgsObjSet<>(
-      type,
+      type.byteValue(),
       indices,
       (T[]) keys(accessor, source, indices)
     );
@@ -535,6 +568,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     );
     final Index indices = groupBy(accessor, source);
     ArgsLongSet result = new ArgsLongSet(
+      AL.byteValue(),
       indices,
       (long[]) keys(accessor, source, indices)
     );
@@ -605,12 +639,24 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public <T> T getValue(int index) {
-    return OMEGA.getValue(argv(), hashCode() & MASK, index, ordinals);
+    final int omega = OMEGA.intValue();
+    final VarArgs varargs = varArgs();
+    final Column<T> result = (Column<T>) varargs.get((offset() & varargs.mask()) + (index / omega));
+    if (result == null) {
+      return OMEGA.getValue(varargs.argv, offset() & varargs.mask(), index, ordinals);
+    }
+    return result.get(index % omega);
   }
 
   @Override
   public long getLongValue(int index) {
-    return OMEGA.getLongValue(argv(), hashCode() & MASK, index, ordinals);
+    final int omega = OMEGA.intValue();
+    final VarArgs varargs = varArgs();
+    final Column<Long> result = (Column<Long>) varargs.get((offset() & varargs.mask()) + (index / omega));
+    if (result == null) {
+      return OMEGA.getLongValue(varargs.argv, offset() & varargs.mask(), index, ordinals);
+    }
+    return result.getLong(index % omega);
   }
 
   @Override
@@ -956,11 +1002,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     return ++count;
   }
 
-  private int count(
-    final Index indices,
-    Object container,
-    Accessor accessor
-  ) {
+  private int count(final Index indices, Object container, Accessor accessor) {
     final int length = indices.size();
     int offset = indices.getInt(0);
     order().reorder(accessor.comparator(container), 0, offset);

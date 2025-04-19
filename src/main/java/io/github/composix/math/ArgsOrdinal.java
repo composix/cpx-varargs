@@ -1,4 +1,18 @@
 /**
+ * interface ArgsOrdinal
+ *
+ * Serves as a foundational interface that provides a rich set of constants for use with 
+ * other interfaces in the package. It also defines the ArgsOrdinal::clone method as a 
+ * starting point for creating Args instances that represent tabular data.
+ * 
+ * Additionally, the ArgsOrdinal::extend method enables seamless addition of new columns 
+ * to the data structure in a type-safe manner.
+ *
+ * Author: dr. ir. J. M. Valk  
+ * Date: April 2025
+ */
+
+/**
  * MIT License
  *
  * Copyright (c) 2025 ComPosiX
@@ -25,59 +39,72 @@
 package io.github.composix.math;
 
 import java.math.BigInteger;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import io.github.composix.varargs.ArgsI;
 
+/**
+ * As a foundational interface, {@code ArgsOrdinal} provides a set of useful constants 
+ * for working with the other interfaces in this package. It is recommended to 
+ * implement this interface in your classes if you intend to use these constants. 
+ * Since all methods have default implementations, implementing this interface 
+ * requires no additional effort.
+ * 
+ * @author dr. ir. J. M. Valk
+ * @since April 2025
+ */
 public interface ArgsOrdinal extends Cloneable {
-    static final byte SIZE = 16, SHIFT = 5, MASK = (1 << SHIFT) - 1;
+    static Constants CONSTANTS = Constants.getInstance();
+    static final int SIZE = 16, SHIFT = 5, MASK = (1 << SHIFT) - 1, SHIFT2 = 3, MASK2 = (1 << SHIFT2) - 1;
     static final char QUOTE = '"', DELIM = ';';
     static final Pattern PATTERN = Pattern.compile(Pattern.quote(new String(new char[] {QUOTE,DELIM,QUOTE})));
-    static final Ordinal OMEGA = Constants.getInstance().omega();
-    static final Ordinal A = Constants.getInstance().ordinal(0),
-            B = Constants.getInstance().ordinal(1),
-            C = Constants.getInstance().ordinal(2),
-            D = Constants.getInstance().ordinal(3),
-            E = Constants.getInstance().ordinal(4),
-            F = Constants.getInstance().ordinal(5),
-            G = Constants.getInstance().ordinal(6),
-            H = Constants.getInstance().ordinal(7),
-            I = Constants.getInstance().ordinal(8),
-            J = Constants.getInstance().ordinal(9),
-            K = Constants.getInstance().ordinal(10),
-            L = Constants.getInstance().ordinal(11),
-            M = Constants.getInstance().ordinal(12),
-            N = Constants.getInstance().ordinal(13),
-            O = Constants.getInstance().ordinal(14),
-            P = Constants.getInstance().ordinal(15),
-            Q = Constants.getInstance().ordinal(16),
-            R = Constants.getInstance().ordinal(17),
-            S = Constants.getInstance().ordinal(18),
-            T = Constants.getInstance().ordinal(19),
-            U = Constants.getInstance().ordinal(20),
-            V = Constants.getInstance().ordinal(21),
-            W = Constants.getInstance().ordinal(22),
-            X = Constants.getInstance().ordinal(23),
-            Y = Constants.getInstance().ordinal(24),
-            Z = Constants.getInstance().ordinal(25),
-            AA = Z.next(),
-            AB = AA.next(),
-            AC = AB.next(),
-            AD = AC.next(),
-            AE = AD.next(),
-            AF = AE.next(),
-            AG = AF.next(),
-            AH = AG.next(),
-            AI = AH.next(),
-            AJ = AI.next(),
-            AK = AJ.next(),
-            AL = AK.next(),
-            AM = AL.next(),
-            AN = AM.next(),
-            AO = AN.next(),
-            AP = AO.next();
+    static final Ordinal OMEGA = CONSTANTS.omega();
+    static final Ordinal A = CONSTANTS.ordinal(0),
+            B = CONSTANTS.ordinal(1),
+            C = CONSTANTS.ordinal(2),
+            D = CONSTANTS.ordinal(3),
+            E = CONSTANTS.ordinal(4),
+            F = CONSTANTS.ordinal(5),
+            G = CONSTANTS.ordinal(6),
+            H = CONSTANTS.ordinal(7),
+            I = CONSTANTS.ordinal(8),
+            J = CONSTANTS.ordinal(9),
+            K = CONSTANTS.ordinal(10),
+            L = CONSTANTS.ordinal(11),
+            M = CONSTANTS.ordinal(12),
+            N = CONSTANTS.ordinal(13),
+            O = CONSTANTS.ordinal(14),
+            P = CONSTANTS.ordinal(15),
+            Q = CONSTANTS.ordinal(16),
+            R = CONSTANTS.ordinal(17),
+            S = CONSTANTS.ordinal(18),
+            T = CONSTANTS.ordinal(19),
+            U = CONSTANTS.ordinal(20),
+            V = CONSTANTS.ordinal(21),
+            W = CONSTANTS.ordinal(22),
+            X = CONSTANTS.ordinal(23),
+            Y = CONSTANTS.ordinal(24),
+            Z = CONSTANTS.ordinal(25),
+            AA = CONSTANTS.ordinal(26),
+            AB = CONSTANTS.ordinal(27),
+            AC = CONSTANTS.ordinal(28),
+            AD = CONSTANTS.ordinal(29),
+            AE = CONSTANTS.ordinal(30),
+            AF = CONSTANTS.ordinal(31),
+            AG = CONSTANTS.ordinal(32),
+            AH = CONSTANTS.ordinal(33),
+            AI = CONSTANTS.ordinal(34),
+            AJ = CONSTANTS.ordinal(35),
+            AK = CONSTANTS.ordinal(36),
+            AL = CONSTANTS.ordinal(37),
+            AM = CONSTANTS.ordinal(38),
+            AN = CONSTANTS.ordinal(39),
+            AO = CONSTANTS.ordinal(40),
+            AP = CONSTANTS.ordinal(41),
+            AQ = CONSTANTS.ordinal(42);
 
-    static Object[] TYPES = new Object[42];
+    static Object[] TYPES = CONSTANTS.types;
     
     static Object[] OBJECT = new Object[1];
     static Object[] OBJECTS = new Object[0];
@@ -92,40 +119,53 @@ public interface ArgsOrdinal extends Cloneable {
     @Override
     String toString();
 
-    default Args extend(int col, int amount, int offset, int length, Object... arrays) {
+    default Args extend(Column<?> column) {
+        Objects.requireNonNull(column);
         try {
-            return clone().extend(col, amount, offset, length, arrays);
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
+            return clone().extend(column);
+        } catch(CloneNotSupportedException e) {
+            throw new UnsupportedOperationException(e);
         }
     }
 
+    @Deprecated
+    default Args extend(int col, int amount, Object array) {
+        try {
+            return clone().extend(col, amount, array);
+        } catch(CloneNotSupportedException e) {
+            throw new UnsupportedOperationException(e);
+        }
+    }
+
+    @Deprecated
     default <T> Args extend(Ordinal col, T... column) {
         final int length = column.length;
         if (length > 0) {
-            OBJECT[0] = column;
-            return extend(col.intValue(), length, 0, 1, OBJECT);
+            return extend(col.intValue(), length, column);
         }
         throw new IllegalArgumentException("column must not be empty");
     }
 
+    @Deprecated
     default Args extendLong(long... column) {
         final int length = column.length;
         if (length > 0) {
-            OBJECT[0] = column;
-            return extend(0, length, 0, 1, OBJECT);
+            return extend(AL.intValue(), length, column);
         }
         throw new IllegalArgumentException("column must not be empty");
     }
 
+    @Deprecated
     default Class<?> typeOf(Ordinal col) {
         return Void.class;
     }
 
+    @Deprecated
     default ArgsI<CharSequence> castI(int cols) {
         return castI(cols, CharSequence.class);
     }
 
+    @Deprecated
     default <T> ArgsI<T> castI(int cols, Class<T> expected) {
         if (expected.isPrimitive()) {
             throw new UnsupportedOperationException("primitives (e.g., long.class) must be boxed as wrapper (e.g., Long.class) or array (e.g., long[].class)");

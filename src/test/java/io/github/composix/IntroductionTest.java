@@ -54,9 +54,9 @@ class IntroductionTest extends TestCase {
     Stream<String> stream = Stream.of("aap", "noot", "mies");
 
     // VarArgs
-    Args idArgs = D.extendLong(idArray);
-    Args args = D.extend(A, array);
-    Args matrix = D.extend(0, 3, 0, 2, idArray, array);
+    Args idArgs = D.extend(AL.any(idArray));
+    Args args = D.extend(S.all(array));
+    Args matrix = D.extend(AL.any(idArray)).extend(S.all(array));
 
     @Test
     void testGetValue() {
@@ -84,12 +84,12 @@ class IntroductionTest extends TestCase {
     void testStream() {
         assertArrayEquals(
             array,
-            args.stream(A).toArray()
+            args.column(S).toArray()
         );
 
         assertArrayEquals(
             array,
-            matrix.stream(B).toArray()
+            matrix.column(S).toArray()
         );
     }
 
@@ -97,12 +97,12 @@ class IntroductionTest extends TestCase {
     void testLongStream() {
         assertArrayEquals(
             idArray,
-            idArgs.longStream(A).toArray()
+            idArgs.column(AL).longStream().toArray()
         );
 
         assertArrayEquals(
             idArray,
-            matrix.longStream(A).toArray()
+            matrix.column(AL).longStream().toArray()
         );
     }
 

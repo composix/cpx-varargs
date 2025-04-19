@@ -27,8 +27,8 @@ package io.github.composix.varargs;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
-import io.github.composix.math.ArgsList;
 import io.github.composix.math.Cols;
+import io.github.composix.math.Column;
 
 public interface ArgsI<A> extends Cols {
   static <A> ArgsI<A> of(A... columnA) {
@@ -38,7 +38,7 @@ public interface ArgsI<A> extends Cols {
     return (ArgsI<A>) new Table<>(0).extend(A, columnA);
   }
 
-  ArgsList<A> columnA(int pos);
+  Column<A> columnA(int pos);
 
   <N extends Comparable<N>> KeysI<A, N> groupByA(Function<A, N> accessor);
 
