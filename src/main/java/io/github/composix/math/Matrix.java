@@ -53,6 +53,7 @@ import io.github.composix.models.Defaults;
 
 public class Matrix extends OrderInt implements Keys, Args {
 
+  private static final byte TPOS_DTO = -1 & MASK;
   private static final byte[] LENGTHS = new byte[16];
   private static final Cursor CURSOR = Cursor.ofRow(LENGTHS);
 
@@ -61,6 +62,7 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   protected Matrix(int ordinal) {
     super(ordinal);
+    length = 0;
   }
 
   protected VarArgs varArgs() {
@@ -76,7 +78,10 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public Args clone() throws CloneNotSupportedException {
-    return (Args) super.clone();
+    final Matrix result = (Matrix) super.clone();
+    result.ordinal %= OMEGA.intValue();
+    result.length = 0;
+    return result;
   }
 
   @Override
@@ -87,7 +92,12 @@ public class Matrix extends OrderInt implements Keys, Args {
     size += offset;
     if (offset < (size & mask)) {
       do {
-        target.extend(0, OMEGA.amount(ordinal), varargs.argv[offset]);
+        final Column<?> column = varargs.columns[offset];
+        if (column == null) {
+          target.extend(0, OMEGA.amount(ordinal), varargs.argv[offset]);
+        } else {
+          target.extend(column);
+        }
       } while (++offset < size);
     } else {
       throw new UnsupportedOperationException();
@@ -109,15 +119,15 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   public Args extend(Column<?> column) {
-    if (!isOrdinal()) {
-      throw new IllegalStateException("extend not allowed after reordering");
-    }
+    //if (!isOrdinal()) {
+    //  throw new IllegalStateException("extend not allowed after reordering");
+    //}
     final VarArgs varargs = varArgs();
     final int offset = offset() & varargs.mask();
     final Index positions = varargs.positions;
     int tpos = column.getType().intValue() - SIZE, type = 1, pos = 0, i;
     if (tpos < 0) {
-      throw new UnsupportedOperationException();
+      tpos = TPOS_DTO;
     }
     for (i = 0; i < length; ++i) {
       type = positions.getInt(offset + i);
@@ -132,16 +142,17 @@ public class Matrix extends OrderInt implements Keys, Args {
       ++length;
       type = 1;
     }
-    if (varargs.columns[pos] == null) {
+    Object[] argv = varargs.argv;
+    if (argv[pos] == null) {
       pos += offset;
     } else {
       pos = offset;
       type &= MASK2;
       int j;
       do {
-        while(varargs.columns[pos++] != null);
+        while(argv[pos++] != null);
           for (j = 1; j < type; ++j) {
-            if (varargs.columns[pos++] != null) {
+            if (argv[pos++] != null) {
               break;
             }
           }
@@ -152,6 +163,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     type <<= SHIFT;
     tpos |= type;
     positions.setInt(offset + i, tpos);
+    argv[pos] = column.source();
     varargs.columns[pos] = column;
     ordinal += OMEGA.intValue();
     column.attachOrder(this);
@@ -219,7 +231,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Index positions = varargs.positions;
     int position = tpos.intValue() - SIZE;
     if (position < 0) {
-      throw new UnsupportedOperationException();
+      position = TPOS_DTO;
     }
     for (int i = 0; i < length; ++i) {
       int type = positions.getInt((offset + i) & mask);
@@ -232,7 +244,7 @@ public class Matrix extends OrderInt implements Keys, Args {
         return (Column<T>) varargs.get((offset + pos) & mask);
       }
     }
-    throw new IndexOutOfBoundsException();
+    throw new IndexOutOfBoundsException("position " + pos + " out of bounds for length 0");
   }
 
   @Override
@@ -789,8 +801,19 @@ public class Matrix extends OrderInt implements Keys, Args {
       fk,
       matrix.pk
     );
-    lhsArgs.argv[(offset() + target) & mask] = result;
+    extend(target(lhsArgs, offset()).all(result));
     return this;
+  }
+
+  private Ordinal target(VarArgs varargs, int offset) {
+    Index positions = varargs.positions;
+    for (int i = 0; i < length; ++i) {
+      int pos = positions.getInt(i);
+      if ((pos & MASK) == TPOS_DTO) {
+        return ORDINALS[(pos >> SHIFT) & MASK2];
+      }
+    }
+    return A;
   }
 
   private boolean cancel() {

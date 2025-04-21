@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,15 +24,19 @@
 
 package io.github.composix.math;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.testdata.PetstoreTestData;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 class PetstoreTestCase extends TestCase implements PetstoreTestData {
+
   static Pet THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY;
   static Order O, P, Q, R, S, T;
   static Order[] EMPTY = new Order[0];
@@ -65,10 +69,10 @@ class PetstoreTestCase extends TestCase implements PetstoreTestData {
   }
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws CloneNotSupportedException {
     // Given two matrices...
-    pets = new SafeMatrix(0);
-    orders = new SafeMatrix(0);
+    pets = (Matrix) PETS.clone();
+    orders = (Matrix) ORDERS.clone();
 
     // ...populated with data from the TestData interface
     PETS.export(pets, (byte) 0, 1);

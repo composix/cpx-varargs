@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,9 +24,6 @@
 
 package io.github.composix.testing.testdata;
 
-import java.util.Arrays;
-import java.util.List;
-
 import io.github.composix.math.Args;
 import io.github.composix.math.ArgsOrdinal;
 import io.github.composix.math.Ordinal;
@@ -35,10 +32,12 @@ import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.models.examples.Tag;
+import java.util.Arrays;
+import java.util.List;
 
 public interface PetstoreTestData extends ArgsOrdinal {
   static Args PETS = pets(I);
-  static Args ORDERS = orders(H);
+  static Args ORDERS = orders(G);
 
   static Args pets(Ordinal amount) {
     final List<Tag> EMPTY = Defaults.empty();
@@ -75,27 +74,48 @@ public interface PetstoreTestData extends ArgsOrdinal {
       "https://purepng.com/public/uploads/large/purepng.com-donald-duckdonald-duckdonaldduckcartoon-character1934walt-disneywhite-duck-1701528532131iamxo.png";
 
     return amount.extend(
-      A,
-      new Pet(0, "Thomas", SOLD, CATS, EMPTY, Arrays.asList(IMG_THOMAS)),
-      new Pet(1, "Duchess", SOLD, CATS, EMPTY, Arrays.asList(IMG_DUCHESS)),
-      new Pet(2, "Pluto", AVAILABLE, DOGS, EMPTY, Arrays.asList(IMG_PLUTO)),
-      new Pet(3, "Frank", PENDING, DOGS, EMPTY, Arrays.asList(IMG_FRANK)),
-      new Pet(4, "Frey", PENDING, OTHER, Arrays.asList(MISC), Arrays.asList(IMG_FREY)),
-      new Pet(5, "Mickey", AVAILABLE, OTHER, Arrays.asList(MICE), Arrays.asList(IMG_MICKEY)),
-      new Pet(6, "Donald", AVAILABLE, OTHER, Arrays.asList(DUCKS), Arrays.asList(IMG_DONALD)),
-      new Pet(7, "Goofy", AVAILABLE, DOGS, EMPTY, Arrays.asList(IMG_GOOFY))
-    );
+      A.all(
+        new Pet(0, "Thomas", SOLD, CATS, EMPTY, Arrays.asList(IMG_THOMAS)),
+        new Pet(1, "Duchess", SOLD, CATS, EMPTY, Arrays.asList(IMG_DUCHESS)),
+        new Pet(2, "Pluto", AVAILABLE, DOGS, EMPTY, Arrays.asList(IMG_PLUTO)),
+        new Pet(3, "Frank", PENDING, DOGS, EMPTY, Arrays.asList(IMG_FRANK)),
+        new Pet(
+          4,
+          "Frey",
+          PENDING,
+          OTHER,
+          Arrays.asList(MISC),
+          Arrays.asList(IMG_FREY)
+        ),
+        new Pet(
+          5,
+          "Mickey",
+          AVAILABLE,
+          OTHER,
+          Arrays.asList(MICE),
+          Arrays.asList(IMG_MICKEY)
+        ),
+        new Pet(
+          6,
+          "Donald",
+          AVAILABLE,
+          OTHER,
+          Arrays.asList(DUCKS),
+          Arrays.asList(IMG_DONALD)
+        ),
+        new Pet(7, "Goofy", AVAILABLE, DOGS, EMPTY, Arrays.asList(IMG_GOOFY))
+      ));
   }
 
   static Args orders(Ordinal amount) {
     return amount.extend(
-      A,
+      A.all(
       new Order(0, 5, 1),
       new Order(1, 1, 1),
       new Order(2, 6, 1),
       new Order(3, 2, 2),
       new Order(4, 4, 2),
       new Order(5, 5, 2)
-    );
+    ));
   }
 }

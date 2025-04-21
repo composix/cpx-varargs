@@ -34,12 +34,13 @@
 
 package io.github.composix.math;
 
+import io.github.composix.models.Defaults;
 import java.util.BitSet;
 
 /**
  * This singleton is intended to be loaded at startup and is accessible via
  * {@code ArgsOrdinal.CONSTANTS}. It can be used to verify that arrays of values
- * conform to the expected types according to the ordinal type system, e.g., 
+ * conform to the expected types according to the ordinal type system, e.g.,
  * {@code CONSTANTS.check(AL, 0L, 1L, 2L)}.
  *
  * @author dr. ir. J. M. Valk
@@ -99,7 +100,7 @@ final class Constants {
    * type of the given array. If the type is already defined and does not match
    * the type of the given array, an {@code IllegalArgumentException} will be
    * thrown.
-   * 
+   *
    * @param tpos - the type position to check
    * @param array - the array to check
    * @throws IllegalArgumentException if the type of the given array does not
@@ -111,6 +112,17 @@ final class Constants {
   public byte check(Ordinal tpos, Object array) {
     final byte result = tpos.byteValue();
     final int index = result - SIZE;
+    if (index < 0) {
+      if (
+        !Defaults.class.isAssignableFrom(array.getClass().getComponentType())
+      ) {
+        throw new IllegalArgumentException(
+          "type mismatch: DTO implementing Defaults interface expected; actual=" +
+          array.getClass().getComponentType()
+        );
+      }
+      return result;
+    }
     Object type = types[index];
     if (type == null) {
       types[index] = array;
