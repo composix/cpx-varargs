@@ -27,13 +27,15 @@ package io.github.composix.math;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import io.github.composix.models.examples.Order;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.testing.TestCase;
 import io.github.composix.testing.testdata.PetstoreTestData;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 
 class PetstoreTestCase extends TestCase implements PetstoreTestData {
 
