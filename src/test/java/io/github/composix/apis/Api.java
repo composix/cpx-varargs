@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.composix.math.Column;
+import io.github.composix.models.Defaults;
 import io.github.composix.varargs.AttrI;
 import io.github.composix.varargs.Chars;
 
@@ -125,7 +126,7 @@ public final class Api {
     // TODO: ...assure unique resource path by mapping paths to URIs
   }
 
-  public final <T> ApiResource<T> resource(CharSequence path, Class<T> dto) {
+  public final <T extends Defaults<T>> ApiResource<T> resource(CharSequence path, Class<T> dto) {
     final int index = resources.binarySearch(path);
     if (index < 0) {
       throw new IllegalArgumentException("resource path not found");

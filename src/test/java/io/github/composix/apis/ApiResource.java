@@ -30,9 +30,10 @@ import java.net.URI;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.github.composix.models.Defaults;
 import io.github.composix.varargs.ArgsI;
 
-public final class ApiResource<T> implements CharSequence, Comparable<CharSequence> {
+public final class ApiResource<T extends Defaults<T>> implements CharSequence, Comparable<CharSequence> {
 
   public static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -54,7 +55,8 @@ public final class ApiResource<T> implements CharSequence, Comparable<CharSequen
     if (query.charAt(0) != '?') {
       throw new IllegalArgumentException("query must start with '?'");
     }
-    return (ArgsI<T>) ArgsI.of(MAPPER.readValue(uri.resolve(query.toString()).toURL(), dtoClass.arrayType()));
+    T[] column = (T[]) MAPPER.readValue(uri.resolve(query.toString()).toURL(), dtoClass.arrayType());
+    return (ArgsI<T>) ArgsI.of(column);
   }
 
   @Override

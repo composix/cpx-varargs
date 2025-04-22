@@ -29,13 +29,11 @@ import java.util.function.ToLongFunction;
 
 import io.github.composix.math.Cols;
 import io.github.composix.math.Column;
+import io.github.composix.models.Defaults;
 
 public interface ArgsI<A> extends Cols {
-  static <A> ArgsI<A> of(A... columnA) {
-    if (columnA.getClass() == CharSequence[].class) {
-      throw new IllegalArgumentException("use Chars.of() for CharSequence");
-    }
-    return (ArgsI<A>) new Table<>(0).extend(A, columnA);
+  static <A extends Defaults<A>> ArgsI<A> of(A... columnA) {
+    return (ArgsI<A>) new Table<>(0).extend(A.all(columnA));
   }
 
   Column<A> columnA(int pos);
