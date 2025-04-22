@@ -45,6 +45,7 @@
 package io.github.composix.math;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -73,20 +74,21 @@ class KeysTest extends PetstoreTestCase {
     );
 
     // ...and contains the indices of the groups
-    ArgsSet<Category> columnA = (ArgsSet<Category>) argv[--offset & mask];
-    assertAllEquals(
-      all(C, F, I),
-      columnA.indices().toArray(Ordinal[]::new)
-    );
+    Index indices = (Index) argv[--offset & mask];
+    assertEquals(3, indices.size());
+    assertEquals(2, indices.getInt(0));
+    assertEquals(5,indices.getInt(1));
+    assertEquals(8, indices.getInt(2));
 
     // ...and contains the extracted keys
+    Column<Category> column = (Column<Category>) argv[--offset & mask];
     assertAllEquals(
       all(
         new Category(0, "cats"),
         new Category(1, "dogs"),
         new Category(2, "other")
       ),
-      argv[--offset & mask]
+      column.source()
     );
 
     // And nothing else
@@ -110,13 +112,14 @@ class KeysTest extends PetstoreTestCase {
     );
 
     // ...and contains the indices of the groups
-    assertAllEquals(
-      all(D, G),
-      ((Index) argv[--offset & mask]).toArray(Ordinal[]::new)
-    );
+    Index indices = (Index) argv[--offset & mask];
+    assertEquals(2, indices.size());
+    assertEquals(3, indices.getInt(0));
+    assertEquals(6,indices.getInt(1));
 
     // ...and contains the extracted quantities
-    assertAllEquals(any(1L, 2L), argv[--offset & mask]);
+    Column<Long> column = (Column<Long>) argv[--offset & mask];
+    assertAllEquals(any(1L, 2L), column.source());
   }
 
   @Test

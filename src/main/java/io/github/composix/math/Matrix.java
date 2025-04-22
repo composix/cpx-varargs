@@ -53,7 +53,7 @@ import io.github.composix.models.Defaults;
 
 public class Matrix extends OrderInt implements Keys, Args {
 
-  private static final byte TPOS_DTO = -1 & MASK;
+  private static final byte TPOS_DTO = -1;
   private static final byte[] LENGTHS = new byte[16];
   private static final Cursor CURSOR = Cursor.ofRow(LENGTHS);
 
@@ -127,7 +127,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Index positions = varargs.positions;
     int tpos = column.getType().intValue() - SIZE, type = 1, pos = 0, i;
     if (tpos < 0) {
-      tpos = TPOS_DTO;
+      tpos = TPOS_DTO & MASK;
     }
     for (i = 0; i < length; ++i) {
       type = positions.getInt(offset + i);
@@ -231,7 +231,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Index positions = varargs.positions;
     int position = tpos.intValue() - SIZE;
     if (position < 0) {
-      position = TPOS_DTO;
+      position = TPOS_DTO & MASK;
     }
     for (int i = 0; i < length; ++i) {
       int type = positions.getInt((offset + i) & mask);
@@ -415,11 +415,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal tpos,
     Function<T, K> accessor
   ) {
-    final ArgsObjSet<T> result = _groupBy(tpos, accessor);
     if (argv(-1) != null) {
       throw new ConcurrentModificationException("grouping already in progress");
     }
-    argv(-1, result);
+    final ArgsIndexList<T> result = _groupBy(tpos, accessor);
+    argv(-2, result);
     return this;
   }
 
@@ -428,11 +428,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal tpos,
     ToLongFunction<T> accessor
   ) {
-    final ArgsLongSet result = _groupBy(tpos, accessor);
     if (argv(-1) != null) {
       throw new ConcurrentModificationException("grouping already in progress");
     }
-    argv(-1, result.indices);
+    final ArgsIndexList<Long> result = _groupBy(tpos, accessor);
+    argv(-2, result);
     return this;
   }
 
@@ -441,7 +441,8 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal tpos,
     ToLongFunction<T> accessor
   ) {
-    pk = _groupBy(tpos, accessor);
+    pk = (ArgsLongSet) _groupBy(tpos, accessor).elements;
+    pk.indices = argv(-1);
     if (pk.array.length != pk.indices.size()) {
       throw new IllegalArgumentException("column has duplicates");
     }
@@ -453,7 +454,8 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal tpos,
     ToLongFunction<T> accessor
   ) {
-    fk = _groupBy(tpos, accessor);
+    fk = (ArgsLongSet) _groupBy(tpos, accessor).elements;
+    fk.indices = argv(-1);
     return this;
   }
 
@@ -516,7 +518,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     }
   }
 
-  protected <T, K extends Comparable<K>> ArgsObjSet<T> _groupBy(
+  protected <T, K extends Comparable<K>> ArgsIndexList<T> _groupBy(
     Ordinal tpos,
     Function<T, K> accessor
   ) {
@@ -525,16 +527,26 @@ public class Matrix extends OrderInt implements Keys, Args {
     accessObject.accessor(accessor);
     final Object[] source = argv(tpos.intValue());
     final Index indices = groupBy(accessObject, source);
-    final ArgsObjSet<T> result = new ArgsObjSet<>(
-      tpos.byteValue(),
-      indices,
-      (T[]) keys(accessObject, source, indices)
+    final T[] target = (T[]) keys(accessObject, source, indices);
+    final ArgsIndexList<T> result = new ArgsIndexList<>(
+      tposOfType(target.getClass().getComponentType()),
+      target
     );
     accessObject.destroy();
     return result;
   }
 
-  protected <T> ArgsLongSet _groupBy(Ordinal tpos, ToLongFunction<T> accessor) {
+  private byte tposOfType(Class<?> type) {
+    if (Defaults.class.isAssignableFrom(type)) {
+      return TPOS_DTO;
+    }
+    if (type == String.class) {
+      S.byteValue();
+    }
+    throw new UnsupportedOperationException();
+  }
+
+  protected <T> ArgsIndexList<Long> _groupBy(Ordinal tpos, ToLongFunction<T> accessor) {
     final VarArgs varargs = varArgs();
     final int mask = varargs.mask(), offset = offset() & mask;
     final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
@@ -549,9 +561,8 @@ public class Matrix extends OrderInt implements Keys, Args {
     );
     accessLong.accessor(accessor);
     final Index indices = groupBy(accessLong, source);
-    final ArgsLongSet result = new ArgsLongSet(
+    final ArgsIndexList<Long> result = new ArgsIndexList<>(
       AL.byteValue(),
-      indices,
       (long[]) keys(accessLong, source, indices)
     );
     accessLong.destroy();
@@ -592,6 +603,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int amount = amount();
     final int count = count(amount, source, accessor);
     final Index indices = Index.of(count, amount);
+    argv(-1, indices);
     int k = 0;
     accessor.setValueAt(rank(0), source);
     for (int i = 1; i < amount; ++i) {
@@ -611,7 +623,6 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int count = indices.size();
     accessor.setValueAt(rank(0), source);
     final Object keys = accessor.alloc(ORDINALS[count]);
-    argv(-2, keys);
     accessor.assign(0, keys);
     for (int i = 0; ++i < count; ++i) {
       accessor.setValueAt(rank(indices.getInt(--i)), source);
@@ -766,13 +777,12 @@ public class Matrix extends OrderInt implements Keys, Args {
     ToLongFunction<T> accessor,
     LongBinaryOperator reducer
   ) {
-    final int size = size();
-    int index = size;
+    int index = -1;
+    final Index indices = argv(index--);
     while (argv(index) != null) {
-      ++index;
+      --index;
     }
-    final Index indices = indices();
-    argv(index, target(ofLong(col, accessor), reducer, indices));
+    argv(index, new ArgsIndexList<>(AL.byteValue(), (long[]) target(ofLong(col, accessor), reducer, indices)));
     return this;
   }
 
@@ -852,22 +862,21 @@ public class Matrix extends OrderInt implements Keys, Args {
   public Args $done() {
     final VarArgs varargs = varArgs();
     final Object[] argv = varargs.argv;
-    final int mask = varargs.mask();
-    int index = offset();
+    int index = offset(); --index;
+    index &= varargs.mask();
     try {
-      final Matrix result = (Matrix) clone();
-      final VarArgs varargs2 = result.varArgs();
-      final Object[] argv2 = varargs2.argv;
-      if (varargs2.mask() != mask) {
-        throw new AssertionError();
-      }
-      final int omega = OMEGA.intValue();
-      int offset = result.offset();
-      Object array;
-      result.ordinal %= omega;
-      while ((array = argv[--index & mask]) != null) {
-        argv2[offset++ & mask] = array;
-        result.ordinal += omega;
+      final Args result = (Matrix) clone();
+      ArgsIndexList<?> column;
+      byte pos = 0;
+      while ((column = (ArgsIndexList<?>) argv[--index]) != null) {
+        switch (column.elements) {
+          case ArgsObjSet<?> elements:
+            elements.tpos = pos++;
+            break;        
+          default:
+            break;
+        }
+        result.extend(column);
       }
       return result;
     } catch (CloneNotSupportedException e) {

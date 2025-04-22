@@ -33,7 +33,7 @@ import io.github.composix.models.Defaults;
 
 public interface ArgsI<A> extends Cols {
   static <A extends Defaults<A>> ArgsI<A> of(A... columnA) {
-    return (ArgsI<A>) new Table<>(0).extend(A.all(columnA));
+    return (ArgsI<A>) new Table<>(columnA.length).extend(A.all(columnA));
   }
 
   Column<A> columnA(int pos);

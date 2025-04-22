@@ -40,7 +40,7 @@ import java.util.NoSuchElementException;
 
 public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
 
-  final byte tpos;
+  byte tpos;
   Index indices;
   E[] array;
 
