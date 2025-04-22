@@ -51,6 +51,8 @@ class PetstoreTestCase extends TestCase implements PetstoreTestData {
 
   @BeforeAll
   static void beforeAll() {
+    assertTrue(PETS.isOrdinal());
+    
     THOMAS = PETS.getValue(0);
     DUCHESS = PETS.getValue(1);
     PLUTO = PETS.getValue(2);
@@ -59,6 +61,26 @@ class PetstoreTestCase extends TestCase implements PetstoreTestData {
     MICKEY = PETS.getValue(5);
     DONALD = PETS.getValue(6);
     GOOFY = PETS.getValue(7);
+
+    Column<Pet> petCol = PETS.column(A);
+    THOMAS = petCol.get(0);
+    DUCHESS = petCol.get(1);
+    PLUTO = petCol.get(2);
+    FRANK = petCol.get(3);
+    FREY = petCol.get(4);
+    MICKEY = petCol.get(5);
+    DONALD = petCol.get(6);
+    GOOFY = petCol.get(7);
+
+    Pet[] pets = (Pet[]) petCol.source();
+    THOMAS = petCol.get(0);
+    DUCHESS = pets[1];
+    PLUTO = pets[2];
+    FRANK = pets[3];
+    FREY = pets[4];
+    MICKEY = pets[5];
+    DONALD = pets[6];
+    GOOFY = pets[7];
 
     O = ORDERS.getValue(0);
     P = ORDERS.getValue(1);
