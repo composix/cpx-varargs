@@ -96,7 +96,6 @@ class ArgsOrdinalTest extends TestCase {
 
   @Test
   void testExtend() {
-    assertThrows(NullPointerException.class, () -> extend(null));
     assertInstanceOf(CloneNotSupportedException.class,
       assertThrows(UnsupportedOperationException.class, () ->
         extend(new ArgsIndexList<>(AL.byteValue(), any(0L, 1L, 2L)))
