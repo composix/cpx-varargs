@@ -555,12 +555,9 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   protected <T> ArgsIndexList<Long> _groupBy(Ordinal tpos, ToLongFunction<T> accessor) {
-    final VarArgs varargs = varArgs();
-    final int mask = varargs.mask(), offset = offset() & mask;
+    final Column<T> column = column(tpos);
+    final Object[] source = (Object[]) column.source();
     final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
-    this.source = varargs.position(offset, mask, tpos.intValue(), (byte) 0);
-    final Object[] source = (Object[]) varargs.argv[(offset + this.source) &
-      mask];
     final Comparator<Object> comparator = (Comparator<
         Object
       >) Comparator.comparingLong(accessor);
