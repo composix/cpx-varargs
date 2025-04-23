@@ -456,7 +456,7 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public Args pk(CharSequence name, Ordinal type) throws NoSuchFieldException {
-    pk = (ArgsLongSet) attribute(name, type);
+    pk = (ArgsLongSet) attribute(name, type).elements;
     if (pk.array.length != pk.indices.size()) {
       throw new IllegalArgumentException("column has duplicates");
     }
@@ -465,52 +465,47 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public Args fk(CharSequence name, Ordinal type) throws NoSuchFieldException {
-    fk = (ArgsLongSet) attribute(name, type);
+    fk = (ArgsLongSet) attribute(name, type).elements;
     return this;
   }
 
   @Override
   public Args attr(CharSequence name, Ordinal type)
     throws NoSuchFieldException {
-    attribute(name, type);
-    return this;
+    return extend(attribute(name, type));
   }
 
-  private ArgsSet<?> attribute(CharSequence name, Ordinal type)
+  private ArgsIndexList<?> attribute(CharSequence name, Ordinal type)
     throws NoSuchFieldException {
-    if (ordinals == ORDINALS) {
-      throw new NoSuchFieldException(name.toString());
-    }
+    name = name.toString().intern();
     final VarArgs varargs = varArgs();
-    final int mask = varargs.mask(), offset = offset() & mask;
-    final CharSequence[] attr = (CharSequence[]) varargs.argv[(offset +
-        varargs.position(offset, mask, name)) &
-      mask];
-    int length = attr.length;
-    switch (type.intValue()) {
-      case 11:
-        long[] longs = new long[length];
-        for (int i = 1; i < length; ++i) {
-          longs[i] = Long.parseLong(attr[i].toString());
+    final Object[] argv = varargs.argv;
+    int offset = offset() & varargs.mask();
+    Object current;
+    while ((current = argv[offset++]) instanceof CharSequence[]) {
+      final CharSequence[] column = (CharSequence[]) current;
+      if (column[0].toString() == name) {
+        int length = column.length;
+        --length; offset = 1;
+        switch (type.intValue()) {
+          case 11:
+            long[] longs = new long[length];
+            for (int i = 0; i < length; ++i) {
+              longs[i] = Long.parseLong(column[offset++].toString());
+            }
+            return (ArgsIndexList<?>) AL.any(longs);
+          case 18:
+            String[] strings = new String[length];
+            for (int i = 1; i < length; ++i) {
+              strings[i] = (String) column[offset++];
+            }
+            return (ArgsIndexList<?>) S.all(strings);
+            default:
+            throw new UnsupportedOperationException();
         }
-        if (--length != ordinals.length) {
-          throw new AssertionError();
-        }
-        varargs.argv[(offset + target++) & mask] = longs;
-        return groupBy(longs);
-      case 18:
-        String[] strings = new String[length];
-        for (int i = 1; i < length; ++i) {
-          strings[i] = (String) attr[i];
-        }
-        if (--length != ordinals.length) {
-          throw new AssertionError();
-        }
-        varargs.argv[(offset + target++) & mask] = strings;
-        return groupBy(type, strings);
-      default:
-        throw new UnsupportedOperationException();
+      }
     }
+    throw new NoSuchFieldException(name.toString());
   }
 
   protected <T, K extends Comparable<K>> ArgsIndexList<T> _groupBy(
@@ -901,7 +896,7 @@ public class Matrix extends OrderInt implements Keys, Args {
           ++size;
           argv[i] = new CharSequence[amount];
         }
-        ((CharSequence[]) argv[i++])[j] = j == 0 ? item + ":" : item;
+        ((CharSequence[]) argv[i++])[j] = j == 0 ? (item + ":").intern() : item;
       }
     }
     source = target = (byte) ++size;
