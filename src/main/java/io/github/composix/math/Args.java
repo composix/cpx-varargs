@@ -233,6 +233,7 @@ public interface Args extends Cols, MutableOrder {
 
   void export(Args target, byte position, int size);
 
+  @Deprecated
   Args select(Order order);
 
   <T> T getValue(int index);

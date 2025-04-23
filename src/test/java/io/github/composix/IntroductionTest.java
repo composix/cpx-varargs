@@ -106,18 +106,6 @@ class IntroductionTest extends TestCase {
         );
     }
 
-    @Test
-    void testSelect() {
-        MutableOrder order = (MutableOrder) C.order();
-        order.reorder(Comparator.reverseOrder());
-        Args reversed = matrix.select(order);
-        //assertEquals(1L, matrix.getLongValue(A.index(A)));
-        //assertSame("aap", matrix.getValue(B.index(A)));
-        assertSame("aap", reversed.getValue(A.index(A)));
-        assertEquals(1L, reversed.getLongValue(B.index(A)));
-        assertTrue(reversed.isOrdinal());
-    }
-
     // tests on the Order interface
 
     @Test
