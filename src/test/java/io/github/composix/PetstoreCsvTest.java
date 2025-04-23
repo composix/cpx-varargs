@@ -99,19 +99,14 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
 
     Args categories = petstore
       .getArgsValue(B.index(A))
-      .pk("id:", L)
-      .attr("name:", S)
       .combine(Category.DEFAULTS);
 
     Args tags = petstore
       .getArgsValue(B.index(E))
-      .pk("tagId:", L)
-      .attr("name:", S)
       .combine(Tag.DEFAULTS, 1, 1);
 
     Args tagging = petstore
       .getArgsValue(B.index(D))
-      .fk("petId: ", L)
       .fk("tagId:", L)
       .joinOne(tags);
 

@@ -342,8 +342,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   ) {
     final int omega = OMEGA.intValue();
     final int index = omega * --pos;
-    final int amount = ordinal % omega;
-    final int skip = Math.max(0, amount - ordinals.length);
+    final int amount = amount();
     final int offset = offset();
     int size = ordinal / omega;
     if (pos < 0 || pos >= size) {
@@ -355,17 +354,13 @@ public class Matrix extends OrderInt implements Keys, Args {
     final T[] result = (T[]) ORDINALS[amount].newInstance(defaults.getClass());
     final VarArgs varargs = varArgs();
     CURSOR.position(index, ordinal, offset & varargs.mask(), varargs);
-    for (int j = skip; j < amount; ++j) {
+    for (int j = 0; j < amount; ++j) {
       if (!CURSOR.advance(1)) {
         throw new AssertionError();
       }
       result[j] = defaults.combine(CURSOR);
     }
-    if (!varargs.declare(offset + size++, result)) {
-      throw new AssertionError();
-    }
-    ordinal += omega;
-    return this;
+    return extend(A.all(result));
   }
 
   @Override
@@ -1093,6 +1088,6 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public <T extends Defaults<T>> Args combine(T defaults) {
-    return combine(defaults, source + 1, 1);
+    return combine(defaults, 1, 1);
   }
 }

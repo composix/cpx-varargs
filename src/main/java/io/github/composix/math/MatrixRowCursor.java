@@ -63,7 +63,7 @@ class MatrixRowCursor implements Cursor {
 
     @Override
     public boolean advance(int delta) {
-        if (col + length <= size && row < amount) {
+        if (row < amount) {
             row += delta % omega;
             col += delta / omega;
             return true;
