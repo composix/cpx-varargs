@@ -98,9 +98,9 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
       .getArgsValue(B.index(A))
       .combine(Category.DEFAULTS);
 
-    Args tags = petstore
-      .getArgsValue(B.index(E))
-      .combine(Tag.DEFAULTS, 1, 1);
+    Args tags = petstore.getArgsValue(B.index(E)).combine(Tag.DEFAULTS);
+
+    tags.primaryKey(A, Tag::id);
 
     Args tagging = petstore
       .getArgsValue(B.index(D))
