@@ -879,10 +879,16 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   private Args split(Function<CharSequence, Stream<String>> splitter) {
-    if (size() != 1) {
-      throw new UnsupportedOperationException("not yet implemented");
+    if (length > 0) {
+      throw new UnsupportedOperationException("text-only matrix required");
     }
-    final int amount = amount();
+    final VarArgs varargs = varArgs();
+    final Index positions = varargs.positions;
+    final int offset = offset() & varargs.mask();
+    if (positions.getInt(offset) != 1) {
+      throw new IllegalStateException("no column to split");
+    }
+    final int amount = amount() + 1;
     final Object[] argv = argv();
     int size = 0;
     for (int j = 0; j < amount; ++j) {
@@ -899,10 +905,7 @@ public class Matrix extends OrderInt implements Keys, Args {
         ((CharSequence[]) argv[i++])[j] = j == 0 ? (item + ":").intern() : item;
       }
     }
-    source = target = (byte) ++size;
-    skipHeader();
-    ordinal = target * OMEGA.intValue() + amount;
-    // TODO: operation now has side effects on the original matrix
+    positions.setInt(offset, ++size);
     return this;
   }
 
