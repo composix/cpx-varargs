@@ -118,6 +118,24 @@ public class Matrix extends OrderInt implements Keys, Args {
     return value == null ? Void.class : value.getClass().getComponentType();
   }
 
+  @Override
+  public Args extend(CharSequence... column) {
+    if (length > 0) {
+      throw new UnsupportedOperationException("text-only matrix required");
+    }
+    final VarArgs varargs = varArgs();
+    final Index positions = varargs.positions;
+    final int offset = offset() & varargs.mask();
+    int position = positions.getInt(offset);
+    varargs.argv[offset + position] = column;
+    positions.setInt(offset, ++position);
+    if (!OMEGA.contains(this)) {
+      ordinal = column.length - 1;
+    }
+    return this;
+  }
+
+  @Override
   public Args extend(Column<?> column) {
     //if (!isOrdinal()) {
     //  throw new IllegalStateException("extend not allowed after reordering");

@@ -70,28 +70,25 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
       petstore
         .stream(A)
         .map(filename -> {
+          CharSequence[] lines;
           try {
-            final Args csv = A.extend(
-              A,
-              testData
-                .select("~", (String) filename)
-                .refreshLines()
-                .collect()
-                .toArray(CharSequence[]::new)
-            ).split(PATTERN);
-            return csv;
+            lines = testData
+              .select("~", (String) filename)
+              .refreshLines()
+              .collect()
+              .toArray(CharSequence[]::new);
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }
-        })
+          return OMEGA.extend(lines).split(PATTERN);
+      })
         .toArray(Args[]::new)
-    );    
+    );
   }
 
   @Test
   void testCSV()
     throws IOException, CloneNotSupportedException, NoSuchFieldException {
-
     Args photoUrls = petstore
       .getArgsValue(B.index(C))
       .fk("petId:", L)

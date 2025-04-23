@@ -119,8 +119,23 @@ public interface ArgsOrdinal extends Cloneable {
     @Override
     String toString();
 
+    default Args extend(CharSequence... column) {
+        if (column.length > 1) {
+            try {
+                return clone().extend(column);
+            } catch(CloneNotSupportedException e) {
+                throw new UnsupportedOperationException(e);
+            }
+        }
+        switch(column.length) {
+            case 0: 
+                throw new IllegalArgumentException("column must start with a header");
+            default: 
+                throw new IllegalArgumentException("column must not be empty");
+        }
+    }
+
     default Args extend(Column<?> column) {
-        Objects.requireNonNull(column);
         try {
             return clone().extend(column);
         } catch(CloneNotSupportedException e) {
