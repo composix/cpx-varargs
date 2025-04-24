@@ -869,8 +869,10 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Object[] argv = varargs.argv;
     int index = offset(); --index;
     index &= varargs.mask();
+    final Index indices = (Index) argv[index];
     try {
-      final Args result = (Matrix) clone();
+      final Matrix result = (Matrix) clone();
+      result.ordinal = indices.size();
       ArgsIndexList<?> column;
       byte pos = 0;
       while ((column = (ArgsIndexList<?>) argv[--index]) != null) {
