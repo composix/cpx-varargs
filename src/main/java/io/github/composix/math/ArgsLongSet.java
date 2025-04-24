@@ -1,8 +1,8 @@
 /**
  * class ArgsObjSet
- * 
+ *
  * Sorted set of long values backed by an array, with support for subrange views.
- * 
+ *
  * Author: dr. ir. J. M. Valk
  * Date: April 2025
  */
@@ -50,10 +50,43 @@ public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
   }
 
   @Override
+  public Index initialize(final MutableOrder order) {
+    final long[] array = this.array;
+    final int amount = order.amount();
+    order.reorder((lhs, rhs) ->
+      Long.compare(array[lhs.intValue()], array[rhs.intValue()])
+    );
+    int count = 1, rank = order.rank(0);
+    long current = array[rank];
+    for (int i = 1; i < amount; ++i) {
+      if (current != (current = array[order.rank(i)])) {
+        ++count;
+      }
+    }
+    indices = Index.of(count, amount);
+    this.array = new long[count];
+    final Index result = Index.of(amount, --count);
+    count = 0;
+    result.setInt(rank, count);
+    current = array[rank];
+    this.array[0] = current;
+    for (int i = 1; i < amount; ++i) {
+      rank = order.rank(i);
+      result.setInt(rank, count);
+      if (current != (current = array[rank])) {
+        indices.setInt(count++, i);
+        this.array[count] = current;
+      }
+    }
+    indices.setInt(count, amount);
+    return result;
+  }
+
+  @Override
   public Object array() {
     return array;
   }
-  
+
   @Override
   public Ordinal getType() {
     return OrdinalNumber.ORDINALS[tpos];

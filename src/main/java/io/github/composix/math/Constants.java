@@ -87,11 +87,13 @@ final class Constants {
   final Object[] types;
   final Ordinal[] ordinals;
   final Ordinal[] columns;
+  private Index index;
 
   private Constants() {
     types = new Object[26];
     ordinals = new Ordinal[Short.MAX_VALUE - Short.MIN_VALUE];
     columns = new Ordinal[Byte.MAX_VALUE - Byte.MIN_VALUE];
+    index = Index.of(-Short.MIN_VALUE);
   }
 
   /**
@@ -154,5 +156,9 @@ final class Constants {
 
   Ordinal omega() {
     return ordinal(-Short.MIN_VALUE);
+  }
+
+  Index index() {
+    return index;
   }
 }

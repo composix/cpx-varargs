@@ -42,37 +42,26 @@ import java.util.List;
 import java.util.stream.LongStream;
 
 class ArgsIndexList<E> extends AbstractList<E> implements Column<E> {
+  private static final Constants CONSTANTS = Constants.getInstance();
 
-  final Index refs;
   final ArgsSet<?> elements;
 
   String header;
   MutableOrder order;
+  Index refs;
 
   ArgsIndexList(byte tpos, long[] array) {
     this.header = ":";
     this.order = null;
-    refs = Index.of(array.length);
+    refs = CONSTANTS.index();
     elements = new ArgsLongSet(tpos, null, array);
   }
 
   ArgsIndexList(byte tpos, E[] array) {
     this.header = ":";
     this.order = null;
-    refs = Index.of(array.length);
+    refs = CONSTANTS.index();
     elements = new ArgsObjSet(tpos, null, array);
-  }
-
-  void initialize() {
-    final int size = refs.size();
-    short i = 0, j = 0;
-    while (i < size) {
-      final int limit = elements.indices().getInt(i);
-      while (i < limit) {
-        refs.setInt(i++, j);
-      }
-      ++j;
-    }
   }
 
   public Ordinal getType() {
@@ -89,6 +78,19 @@ class ArgsIndexList<E> extends AbstractList<E> implements Column<E> {
 
   @Override
   public void attachOrder(MutableOrder order) {
+    if (refs == CONSTANTS.index()) {
+      if (elements.size() < order.amount()) {
+        throw new IllegalArgumentException(
+          "The order is larger than the number of elements"
+        );
+      }
+    } else {
+      if (refs.size() < order.amount()) {
+        throw new IllegalArgumentException(
+          "The order is larger than the number of elements"
+        );
+      }
+    }
     this.order = order;
   }
 
@@ -99,7 +101,7 @@ class ArgsIndexList<E> extends AbstractList<E> implements Column<E> {
 
   @Override
   public LongStream longStream() {
-    return refs.intStream().map(order::rank).mapToLong(elements::getLong);
+    return refs.intStream().limit(size()).map(order::rank).mapToLong(elements::getLong);
   }
 
   @Override
@@ -130,7 +132,7 @@ class ArgsIndexList<E> extends AbstractList<E> implements Column<E> {
 
   @Override
   public int size() {
-    return refs.size();
+    return order.amount();
   }
 
   @Override
@@ -140,6 +142,9 @@ class ArgsIndexList<E> extends AbstractList<E> implements Column<E> {
 
   @Override
   public ArgsSet<E> asListSet() {
+    if (elements.indices() == null) {
+      refs = elements.initialize(order);
+    }
     return (ArgsSet<E>) elements;
   }
 
