@@ -27,6 +27,14 @@ package io.github.composix.math;
 interface ArgsSet<E> extends ListSet<E> {
   Ordinal getType();
 
+  Index initialize(MutableOrder order);
+  
+  /**
+   * Get the cumulative indices from the set into this list indicating where the 
+   * duplicates are.
+   * 
+   * @return index from set into list
+   */
   Index indices();
 
   Object array();
