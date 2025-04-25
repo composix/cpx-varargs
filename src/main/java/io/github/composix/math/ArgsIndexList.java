@@ -77,6 +77,11 @@ class ArgsIndexList<E> extends AbstractList<E> implements Column<E> {
   }
 
   @Override
+  public Args attach() {
+    return order.ordinal().extend(this);
+  }
+  
+  @Override
   public void attachOrder(MutableOrder order) {
     if (refs == CONSTANTS.index()) {
       if (elements.size() < order.amount()) {

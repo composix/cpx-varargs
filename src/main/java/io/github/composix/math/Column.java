@@ -127,6 +127,8 @@ public interface Column<E> extends CharSequence, List<E>, RandomAccess {
    */
   Object source();
 
+  Args attach();
+  
   /**
    * Attaches a mutable order to this column. This will have an immediate effect on the
    * sort order of the elements in this column. Also changes in the order will be 

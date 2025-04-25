@@ -25,6 +25,7 @@
 package io.github.composix;
 
 import io.github.composix.math.Args;
+import io.github.composix.math.Column;
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Pet;
 import io.github.composix.models.examples.Tag;
@@ -91,36 +92,37 @@ public class PetstoreCsvTest extends TestCase implements PetstoreTestData {
     throws IOException, CloneNotSupportedException, NoSuchFieldException {
     Args photoUrls = petstore
       .getArgsValue(B.index(C))
-      .fk("petId:", L)
+      .fk("petId:", AL)
       .attr("photoUrl:", S);
 
     Args categories = petstore
       .getArgsValue(B.index(A))
-      .combine(Category.DEFAULTS);
+      .combine(Category.DEFAULTS).attach();
 
-    Args tags = petstore.getArgsValue(B.index(E)).combine(Tag.DEFAULTS);
+    categories.primaryKey(A, Category::id);
+
+    Args tags = petstore.getArgsValue(B.index(E)).combine(Tag.DEFAULTS).attach();
 
     tags.primaryKey(A, Tag::id);
 
     Args tagging = petstore
       .getArgsValue(B.index(D))
-      .fk("tagId:", L)
-      .joinOne(tags);
+      .fk("tagId:", AL)
+      .joinOne(tags)
+      .fk("petId:", AL);
 
-    Args pets = petstore
+    Column<Pet> pets = petstore
       .getArgsValue(B.index(B))
-      .pk("id:", L)
-      .fk("categoryId:", L)
-      .attr("name:", S)
-      .attr("status", S)
+      .fk("categoryId:", AL)
       .joinOne(categories)
+      .pk("id:", AL)
       .joinMany(tagging)
       .joinMany(photoUrls)
       .combine(Pet.DEFAULTS);
 
     assertAllEquals(
-      PETS.stream(A).toArray(Pet[]::new),
-      pets.stream(A).toArray(Pet[]::new)
+      PETS.column(A).stream().toArray(Pet[]::new),
+      pets.stream().toArray(Pet[]::new)
     );
   }
 }

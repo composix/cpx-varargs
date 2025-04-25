@@ -208,13 +208,10 @@ public interface Args extends Cols, MutableOrder {
    * of defaults values of the DTO.
    *
    * @param defaults - the defaults values of the DTO
-   * @param pos - position of the text-based column where to start
-   * @param repeat - the number of times to repeat the DTO
    * @return new Args object with the combined columns
    * @throws IndexOutOfBoundsException - pos or repeat is out of bounds
    */
-  <T extends Defaults<T>> Args combine(T defaults, int pos, int repeat);
-  <T extends Defaults<T>> Args combine(T defaults);
+  <T extends Defaults<T>> Column<T> combine(T defaults);
 
   /**
    * Parse a single CharSequence column into a single primitive long column.

@@ -352,8 +352,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     return split(pattern::splitAsStream);
   }
 
-  @Override
-  public <T extends Defaults<T>> Args combine(
+  private <T extends Defaults<T>> Column<T> combine(
     final T defaults,
     int pos,
     final int repeat
@@ -370,15 +369,17 @@ public class Matrix extends OrderInt implements Keys, Args {
     if (repeat != 1) {
       throw new UnsupportedOperationException();
     }
-    final T[] result = (T[]) ORDINALS[amount].newInstance(defaults.getClass());
+    final T[] target = (T[]) ORDINALS[amount].newInstance(defaults.getClass());
     CURSOR.position(index, ordinal, offset, varargs);
     for (int j = 0; j < amount; ++j) {
       if (!CURSOR.advance(1)) {
         throw new AssertionError();
       }
-      result[j] = defaults.combine(CURSOR);
+      target[j] = defaults.combine(CURSOR);
     }
-    return extend(A.all(result));
+    final Column<T> result = A.all(target);
+    result.attachOrder(this);
+    return result;
   }
 
   @Override
@@ -474,8 +475,10 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public Args pk(CharSequence name, Ordinal type) throws NoSuchFieldException {
-    pk = (ArgsLongSet) attribute(name, type).elements;
-    if (pk.array.length != pk.indices.size()) {
+    final Column<?> column = attribute(name, type);
+    column.attachOrder(this);
+    pk = (ArgsLongSet) column.asListSet();
+    if (column.size() != pk.size()) {
       throw new IllegalArgumentException("column has duplicates");
     }
     return this;
@@ -483,7 +486,9 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public Args fk(CharSequence name, Ordinal type) throws NoSuchFieldException {
-    fk = (ArgsLongSet) attribute(name, type).elements;
+    final Column<?> column = attribute(name, type);
+    column.attachOrder(this);
+    fk = (ArgsLongSet) column.asListSet();
     return this;
   }
 
@@ -496,6 +501,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   private ArgsIndexList<?> attribute(CharSequence name, Ordinal type)
     throws NoSuchFieldException {
     name = name.toString().intern();
+    final int tpos = type.intValue();
     final VarArgs varargs = varArgs();
     final Object[] argv = varargs.argv;
     int offset = offset() & varargs.mask();
@@ -505,8 +511,8 @@ public class Matrix extends OrderInt implements Keys, Args {
       if (column[0].toString() == name) {
         int length = column.length;
         --length; offset = 1;
-        switch (type.intValue()) {
-          case 11:
+        switch (tpos) {
+          case 37:
             long[] longs = new long[length];
             for (int i = 0; i < length; ++i) {
               longs[i] = Long.parseLong(column[offset++].toString());
@@ -514,7 +520,7 @@ public class Matrix extends OrderInt implements Keys, Args {
             return (ArgsIndexList<?>) AL.any(longs);
           case 18:
             String[] strings = new String[length];
-            for (int i = 1; i < length; ++i) {
+            for (int i = 0; i < length; ++i) {
               strings[i] = (String) column[offset++];
             }
             return (ArgsIndexList<?>) S.all(strings);
@@ -809,8 +815,10 @@ public class Matrix extends OrderInt implements Keys, Args {
     if (rhsArgs.mask() != mask) {
       throw new AssertionError();
     }
+    final int offset = matrix.offset() & mask;
+    final Object[] source = (Object[]) rhsArgs.argv[offset + source(rhsArgs, offset)];
     final Object[] result = injection(
-      (Object[]) rhsArgs.argv[(matrix.offset() + matrix.source) & mask],
+      source,
       this,
       matrix,
       fk,
@@ -818,6 +826,16 @@ public class Matrix extends OrderInt implements Keys, Args {
     );
     extend(target(lhsArgs, offset()).all(result));
     return this;
+  }
+
+  private int source(VarArgs varargs, int offset) {
+    int pos = varargs.positions.getInt(offset) >>> SHIFT;
+    int len = pos & MASK2;
+    if (len != 1) {
+      throw new UnsupportedOperationException();
+    }
+    pos >>>= SHIFT2;
+    return pos;
   }
 
   private Ordinal target(VarArgs varargs, int offset) {
@@ -847,20 +865,55 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public Args joinMany(Args rhs) {
+    if (pk == null) {
+      throw new IllegalArgumentException(
+        "missing primary key on left-hand side"
+      );
+    }
     final Matrix matrix = (Matrix) rhs;
-    final Object[] source = matrix.argv(0);
-    argv(
-      size(),
-      surjection(
-        source.getClass() == CharSequence[].class ? matrix.argv(1) : source,
-        this,
-        matrix,
-        pk,
-        matrix.fk
-      )
+    if (matrix.fk == null) {
+      throw new IllegalArgumentException(
+        "missing foreign key on right-hand side"
+      );
+    }
+    final VarArgs lhsArgs = varArgs(), rhsArgs = matrix.varArgs();
+    final int mask = lhsArgs.mask();
+    if (rhsArgs.mask() != mask) {
+      throw new AssertionError();
+    }
+    final int offset = matrix.offset() & mask;
+    final Column<?> column = rhsArgs.get(offset + source(rhsArgs, offset));
+    final Object[] source = (Object[]) column.source();
+    int size = source.length;
+    final Object[] result = surjection(
+      source,
+      this,
+      matrix,
+      pk,
+      matrix.fk
     );
-    ordinal += OMEGA.intValue();
-    return this;
+    final Index indices = CONSTANTS.index();
+    final int amount = amount();
+    int k = 0;
+    for (int i = 0; i < amount; ++i) {
+      if (k == (k = indices.getInt(i))) {
+        ++size;
+      }
+    }
+    if (size != amount) {
+      throw new UnsupportedOperationException();
+    }
+    final Object[] target = (Object[]) Array.newInstance(source.getClass().getComponentType(), size);
+    k = 0;
+    for (int i = 0; i < amount; ++i) {
+      if (k == (size = indices.getInt(i))) {
+        target[rank(i)] = null;
+      } else {
+        target[rank(i)] = source[matrix.rank(k)];
+        k = size;
+      }
+    }
+    return extend(column.getType().all(target));
   }
 
   @Override
@@ -977,6 +1030,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       .newInstance(componentType);
     componentType = componentType.getComponentType();
     final Object empty = Array.newInstance(componentType, 0);
+    final Index result = CONSTANTS.index();
     for (int i = 0; i < l; ++i) {
       long value = lhs.getLong(i);
       while (++m < n && rhs.getLong(m) < value);
@@ -996,6 +1050,7 @@ public class Matrix extends OrderInt implements Keys, Args {
           target[lhsOrder.rank(j++)] = empty;
         }
       }
+      result.setInt(i, k);
     }
     return target;
   }
@@ -1102,7 +1157,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T extends Defaults<T>> Args combine(T defaults) {
+  public <T extends Defaults<T>> Column<T> combine(T defaults) {
     return combine(defaults, 1, 1);
   }
 }

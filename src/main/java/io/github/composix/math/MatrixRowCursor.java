@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 class MatrixRowCursor implements Cursor {
+    private static final List<?> EMPTY = List.of();
     private final byte[] positions;
     private Object[] argv;
     private int length, omega, row, col, amount, size, offset, mask;
@@ -95,7 +96,7 @@ class MatrixRowCursor implements Cursor {
             switch(argv[offset + position & mask]) {
                 case Object[] array:
                     if (array.getClass() == type.arrayType()) {
-                        return (T) array[row];
+                        return (T) array[row - 1];
                     }
                     break;
                 default:
@@ -108,10 +109,19 @@ class MatrixRowCursor implements Cursor {
     @Override
     public <T> List<T> getMany(Class<T> type, int pos) {
         final int offset = col + pos;
+        type = (Class<T>) type.arrayType();
+        Object value;
         for (byte position : positions) {
             switch(argv[offset + position & mask]) {
                 case Object[] array:
-                    if (array.getClass() == type.arrayType().arrayType()) {
+                    if (array.getClass() == type) {
+                        value = array[row - 1];
+                        if (value == null) {
+                            return (List<T>) EMPTY;
+                        }
+                        return (List<T>) List.of(value);
+                    }
+                    if (array.getClass() == type.arrayType()) {
                         return Arrays.asList((T[]) array[row]);
                     }
                     break;
