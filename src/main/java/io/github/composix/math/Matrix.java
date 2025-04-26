@@ -57,6 +57,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   private static final byte[] LENGTHS = new byte[16];
   private static final Cursor CURSOR = Cursor.ofRow(LENGTHS);
 
+  boolean flip;
   byte length, source, target, tpos;
   ArgsLongSet pk, fk;
 
@@ -783,6 +784,37 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
+  public <T> Column<List<T>> collect(Ordinal col) {
+    final ArgsIndexList<T> source = (ArgsIndexList<T>) dto(col);
+    final Index indices = source.indices;
+    final int amount = amount();
+    final List[] target = new List[amount];
+    int index = 0;
+    for (int i = 0; i < amount; ++i) {
+      target[i] = source.subList(index, (index = indices.getInt(i)));
+    }
+    return new ArgsIndexList<>(TPOS_DTO, target);
+  }
+
+  private ArgsIndexList<?> dto(Ordinal col) {
+    final VarArgs varargs = varArgs();
+    final Index positions = varargs.positions;
+    int pos, offset = offset() & varargs.mask();
+    for (int i = 0; i < length; ++i) {
+      if (((pos = positions.getInt(i)) & MASK) == TPOS_DTO) {
+        int limit = pos >> SHIFT;
+        int index = limit >> SHIFT2;
+        limit &= MASK2;
+        if (col.intValue() < limit) {
+          return (ArgsIndexList<?>) varargs.columns[offset + index];
+        }
+        break;
+      }
+    }
+    throw new IndexOutOfBoundsException(col.intValue());
+  }
+
+  @Override
   public <T> Args collect(
     Ordinal col,
     ToLongFunction<T> accessor,
@@ -864,7 +896,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public Args joinMany(Args rhs) {
+  public Keys joinMany(Args rhs) {
     if (pk == null) {
       throw new IllegalArgumentException(
         "missing primary key on left-hand side"
@@ -920,11 +952,15 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
       indices.setInt(i, i);
     }
-    return extend(column.getType().all(target));
+    extend(column.getType().all(target));
+    return this;
   }
 
   @Override
   public Args $done() {
+    if (flip) {
+      return this;
+    }
     final VarArgs varargs = varArgs();
     final Object[] argv = varargs.argv;
     int index = offset(); --index;

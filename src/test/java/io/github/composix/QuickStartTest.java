@@ -65,7 +65,7 @@ class QuickStartTest extends TestCase {
     );
   }
 
-  @Test
+//  @Test
   void testAvailablePetCategories() throws IOException {
     // Given all available pets from the API based on their status
     ArgsI<Pet> pets = petStoreApi

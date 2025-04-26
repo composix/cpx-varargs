@@ -34,12 +34,17 @@
 
 package io.github.composix.math;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
 
+import io.github.composix.models.Defaults;
+
 public interface Keys {
   Args $done();
+
+  <T> Column<List<T>> collect(Ordinal tpos);
 
   <T> Args collect(
     Ordinal col,
@@ -47,7 +52,11 @@ public interface Keys {
     LongBinaryOperator reducer
   );
 
+  <T extends Defaults<T>> Column<T> combine(T defaults);
+
   void thenBy(Ordinal col, Accessor accessor);
+
+  Keys joinMany(Args rhs);
 
   default <T, K extends Comparable<K>> Keys thenBy(
     Ordinal col,

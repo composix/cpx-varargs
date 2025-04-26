@@ -159,7 +159,7 @@ public interface Args extends Cols, MutableOrder {
 
   Args joinOne(Args rhs);
 
-  Args joinMany(Args rhs);
+  Keys joinMany(Args rhs);
 
 
   /**

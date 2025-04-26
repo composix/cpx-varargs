@@ -48,20 +48,22 @@ class ArgsIndexList<E> extends AbstractList<E> implements Column<E> {
 
   String header;
   MutableOrder order;
-  Index refs;
+  Index refs, indices;
 
   ArgsIndexList(byte tpos, long[] array) {
-    this.header = ":";
-    this.order = null;
-    refs = CONSTANTS.index();
     elements = new ArgsLongSet(tpos, null, array);
+    header = ":";
+    order = null;
+    refs = CONSTANTS.index();
+    indices = null;
   }
 
   ArgsIndexList(byte tpos, E[] array) {
-    this.header = ":";
-    this.order = null;
-    refs = CONSTANTS.index();
     elements = new ArgsObjSet(tpos, null, array);
+    header = ":";
+    order = null;
+    refs = CONSTANTS.index();
+    indices = null;
   }
 
   public Ordinal getType() {
