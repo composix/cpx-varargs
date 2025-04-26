@@ -876,6 +876,10 @@ public class Matrix extends OrderInt implements Keys, Args {
         "missing foreign key on right-hand side"
       );
     }
+    final int amount = amount();
+    if (pk.indices.size() != amount) {
+      throw new AssertionError();
+    }
     final VarArgs lhsArgs = varArgs(), rhsArgs = matrix.varArgs();
     final int mask = lhsArgs.mask();
     if (rhsArgs.mask() != mask) {
@@ -893,7 +897,6 @@ public class Matrix extends OrderInt implements Keys, Args {
       matrix.fk
     );
     final Index indices = CONSTANTS.index();
-    final int amount = amount();
     int k = 0;
     for (int i = 0; i < amount; ++i) {
       if (k == (k = indices.getInt(i))) {
@@ -901,6 +904,9 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
     }
     if (size != amount) {
+      for (int i = 0; i < amount; ++i) {
+        indices.setInt(i, i);
+      }
       throw new UnsupportedOperationException();
     }
     final Object[] target = (Object[]) Array.newInstance(source.getClass().getComponentType(), size);
@@ -912,6 +918,7 @@ public class Matrix extends OrderInt implements Keys, Args {
         target[rank(i)] = source[matrix.rank(k)];
         k = size;
       }
+      indices.setInt(i, i);
     }
     return extend(column.getType().all(target));
   }
