@@ -163,13 +163,17 @@ public class ArgsTest extends PetstoreTestCase {
     assertNotSame(matrix, clone);
     assertEquals(mask, clone.varArgs().mask()); // but the mask is
 
-    // But the fields are the similar
+    // And then the clone starts empty
+    assertEquals(0, clone.length);
+    assertEquals(0, clone.source);
+    assertEquals(0, clone.target);
+    assertEquals(0, clone.tpos);
+    assertNull(clone.pk);
+    assertNull(clone.fk);
+
+    // But with the same ordering
     assertEquals(matrix.ordinal % OMEGA.intValue(), clone.ordinal);
     assertSame(matrix.ordinals, clone.ordinals);
-    assertSame(matrix.pk, clone.pk);
-    assertSame(matrix.fk, clone.fk);
-    assertEquals(matrix.source, clone.source);
-    assertEquals(matrix.target, clone.target);
 
     // the columns are not cloned
     assertNull(argvClone[clone.offset() & mask]);
