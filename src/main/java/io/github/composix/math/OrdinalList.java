@@ -158,7 +158,7 @@ abstract class OrdinalList extends AbstractList<Ordinal> implements Index {
   /**
    * OrdinalList backed by a compact {@code byte[]} index.
    */
-  private static final class ByteIndex extends OrdinalList {
+  static final class ByteIndex extends OrdinalList {
 
     private final byte[] index;
 
@@ -195,7 +195,7 @@ abstract class OrdinalList extends AbstractList<Ordinal> implements Index {
   /**
    * OrdinalList backed by a compact {@code short[]} index.
    */
-  private static final class ShortIndex extends OrdinalList {
+  static final class ShortIndex extends OrdinalList {
 
     private final short[] index;
 
