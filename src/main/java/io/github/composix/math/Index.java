@@ -49,7 +49,7 @@ import java.util.stream.IntStream;
  * @author dr. ir. J. M. Valk
  * @since April 2025
  */
-interface Index extends List<Ordinal> {
+interface Index<T extends Comparable<T>> extends List<T> {
   /**
    * Creates an index of the specified length. The index is intended to represent
    * a mapping that maintains the length of the original list, with the maximum index
@@ -59,8 +59,8 @@ interface Index extends List<Ordinal> {
    * @param length - the length of the index
    * @return an index of the specified length
    */
-  static Index of(int length) {
-    final Index result = OrdinalList.of(length, --length);
+  static Index<Ordinal> of(int length) {
+    final Index<Ordinal> result = OrdinalList.of(length, --length);
     for (int i = 0; i <= length; ++i) {
       result.setInt(i, i);
     }
@@ -77,7 +77,7 @@ interface Index extends List<Ordinal> {
    * @param lastIndex - the maximum index that may occur
    * @return an index of the specified length and target range (0 to lastIndex)
    */
-  static Index of(int length, int lastIndex) {
+  static Index<Ordinal> of(int length, int lastIndex) {
     return OrdinalList.of(length, lastIndex);
   }
 
@@ -89,6 +89,15 @@ interface Index extends List<Ordinal> {
    * @return the target index
    */
   int getInt(int index);
+
+  /**
+   * Returns the target index corresponding to the given index as long.
+   * The target index indicates where the element at the given index should be placed.
+   *
+   * @param index - the source index
+   * @return the target index as long
+   */
+  long getLong(int index);
 
   /**
    * Sets the target index for the given index. The target index is the index to

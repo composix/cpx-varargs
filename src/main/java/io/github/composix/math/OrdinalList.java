@@ -9,7 +9,7 @@
  * Author: dr. ir. J. M. Valk
  * Date: April 2025
  */
- 
+
 /**
  * MIT License
  *
@@ -40,7 +40,7 @@ import java.util.AbstractList;
 import java.util.BitSet;
 
 /**
- * Abstract base class for efficiently storing and accessing ordinal indices in a 
+ * Abstract base class for efficiently storing and accessing ordinal indices in a
  * compact form. This class represents an indexed list of Ordinal elements and
  * provides methods to directly access these indices in their most efficient primitive
  * representation, such as {@code BitSet}, {@code byte[]}, {@code short[]}, etc.
@@ -48,47 +48,40 @@ import java.util.BitSet;
  * @author dr. ir. J. M. Valk
  * @since April 2025
  */
-abstract class OrdinalList extends AbstractList<Ordinal> implements Index {
+abstract class OrdinalList<E extends Comparable<E>>
+  extends AbstractList<E>
+  implements Index<E> {
+
+  private static final Constants CONSTANTS = Constants.getInstance();
 
   /**
    * Factory method for creating an {@code OrdinalList} of the specified length,
    * choosing the most compact internal representation based on the maximum ordinal value.
    *
-   * Currently supports {@code byte} and {@code short} representations.
+   * Currently supports {@code BitSet}, {@code byte[]}, {@code short[]}, {@code int[]},
+   * and {@code long[]} representations.
    *
    * @param length - the length of the list to create
-   * @param amount - the maximum ordinal value to be stored
+   * @param lastIndex - the maximum ordinal value to be stored
    * @return an {@code OrdinalList} instance with appropriate backing
-   * @throws IllegalArgumentException if amount exceeds supported range
    */
-  static OrdinalList of(int length, int amount) {
-    if (amount <= Byte.MAX_VALUE) {
+  static OrdinalList<Ordinal> of(int length, int lastIndex) {
+    if (lastIndex < 2) {
+      return new BitIndex(length);
+    }
+    if (lastIndex <= Byte.MAX_VALUE) {
       return new ByteIndex(length);
     }
-    return new ShortIndex(length);
+    if (lastIndex <= Short.MAX_VALUE) {
+      return new ShortIndex(length);
+    }
+    if (lastIndex <= Integer.MAX_VALUE) {
+      return new IntIndex(length);
+    }
+    return new LongIndex(length);
   }
 
-  /**
-   * Converts this list into an {@link ArgsSet} for storing values of a given target
-   * type. If the target type is ordinal (i.e., primitive booleans, bytes, short, ints,
-   * or longs) then the values in this list are directly stored into the set. Otherwise,
-   * sufficient capacity is allocated in the set to store a corresponding distinct value
-   * for each ordinal in this list.
-   *
-   * @param tpos - the target type position in the ordinal type system
-   *               (e.g., tpos = 37 for longs)
-   * @return an newly created ArgsSet corresponding to this list
-   * @throws IllegalArgumentException if no type is associated with the given
-   * target type position.
-   */
-  ArgsSet<?> toArgsSet(byte tpos) {
-    switch (tpos) {
-      case 37: // AL
-        return new ArgsLongSet(tpos, null, asLongArray());
-      default:
-        throw new IllegalArgumentException("Invalid tpos: " + tpos);
-    }
-  }
+  abstract Object asArray();
 
   /**
    * Returns the backing representation of this list only if it is a
@@ -156,14 +149,96 @@ abstract class OrdinalList extends AbstractList<Ordinal> implements Index {
   }
 
   /**
+   * Converts this list into an {@link ArgsSet} for storing values of a given target
+   * type. If the target type is ordinal (i.e., primitive booleans, bytes, short, ints,
+   * or longs) then the values in this list are directly stored into the set. Otherwise,
+   * sufficient capacity is allocated in the set to store a corresponding distinct value
+   * for each ordinal in this list.
+   *
+   * @param tpos - the target type position in the ordinal type system
+   *               (e.g., tpos = 37 for longs)
+   * @return an newly created ArgsSet corresponding to this list
+   * @throws IllegalArgumentException if no type is associated with the given
+   * target type position.
+   */
+  ArgsSet<?> toArgsSet(byte tpos) {
+    switch (tpos) {
+      case 37: // AL
+        return new ArgsLongSet(tpos, null, asLongArray());
+      default:
+        throw new IllegalArgumentException("Invalid tpos: " + tpos);
+    }
+  }
+
+  /**
    * OrdinalList backed by a compact {@code byte[]} index.
    */
-  static final class ByteIndex extends OrdinalList {
+  static final class BitIndex extends OrdinalList<Ordinal> {
+
+    private final byte slack;
+    private final BitSet index;
+
+    BitIndex(final int length) {
+      final int size = Long.SIZE;
+      slack = (byte) ((size - (length % size)) % size);
+      index = new BitSet(slack == 0 ? length / size : length / size + 1);
+    }
+
+    @Override
+    Object asArray() {
+      final int size = size();
+      final boolean[] result = new boolean[size];
+      for (int i = 0; i < size; ++i) {
+        result[i] = index.get(i);
+      }
+      return result;
+    }
+
+    @Override
+    BitSet asBitSet() {
+      return index;
+    }
+
+    @Override
+    public int size() {
+      return index.size() - slack;
+    }
+
+    @Override
+    public Ordinal get(int i) {
+      return CONSTANTS.ordinals[getInt(i)];
+    }
+
+    @Override
+    public int getInt(int i) {
+      return index.get(i) ? 1 : 0;
+    }
+
+    @Override
+    public long getLong(int i) {
+      return index.get(i) ? 1L : 0L;
+    }
+
+    @Override
+    public void setInt(int i, int j) {
+      index.set(i, j != 0);
+    }
+  }
+
+  /**
+   * OrdinalList backed by a compact {@code byte[]} index.
+   */
+  static final class ByteIndex extends OrdinalList<Ordinal> {
 
     private final byte[] index;
 
     ByteIndex(final int length) {
       index = new byte[length];
+    }
+
+    @Override
+    Object asArray() {
+      return index;
     }
 
     @Override
@@ -178,11 +253,16 @@ abstract class OrdinalList extends AbstractList<Ordinal> implements Index {
 
     @Override
     public Ordinal get(int i) {
-      return Ordinal.of(index[i]);
+      return CONSTANTS.ordinals[getInt(i)];
     }
 
     @Override
     public int getInt(int i) {
+      return index[i];
+    }
+
+    @Override
+    public long getLong(int i) {
       return index[i];
     }
 
@@ -195,12 +275,17 @@ abstract class OrdinalList extends AbstractList<Ordinal> implements Index {
   /**
    * OrdinalList backed by a compact {@code short[]} index.
    */
-  static final class ShortIndex extends OrdinalList {
+  static final class ShortIndex extends OrdinalList<Ordinal> {
 
     private final short[] index;
 
     ShortIndex(final int length) {
       index = new short[length];
+    }
+
+    @Override
+    Object asArray() {
+      return index;
     }
 
     @Override
@@ -215,7 +300,7 @@ abstract class OrdinalList extends AbstractList<Ordinal> implements Index {
 
     @Override
     public Ordinal get(int i) {
-      return Ordinal.of(index[i]);
+      return CONSTANTS.ordinals[getInt(i)];
     }
 
     @Override
@@ -224,8 +309,107 @@ abstract class OrdinalList extends AbstractList<Ordinal> implements Index {
     }
 
     @Override
+    public long getLong(int i) {
+      return index[i];
+    }
+
+    @Override
     public void setInt(int i, int j) {
       index[i] = (short) j;
+    }
+  }
+
+  /**
+   * OrdinalList backed by a compact {@code int[]} index.
+   */
+  static final class IntIndex extends OrdinalList<Ordinal> {
+
+    private final int[] index;
+
+    IntIndex(final int length) {
+      this.index = new int[length];
+    }
+
+    @Override
+    Object asArray() {
+      return index;
+    }
+
+    @Override
+    int[] asIntArray() {
+      return index;
+    }
+
+    @Override
+    public int size() {
+      return index.length;
+    }
+
+    @Override
+    public Ordinal get(int i) {
+      return CONSTANTS.ordinals[getInt(i)];
+    }
+
+    @Override
+    public int getInt(int i) {
+      return index[i];
+    }
+
+    @Override
+    public long getLong(int i) {
+      return index[i];
+    }
+
+    @Override
+    public void setInt(int i, int j) {
+      index[i] = j;
+    }
+  }
+
+  /**
+   * OrdinalList backed by a {@code long[]} index.
+   */
+  static final class LongIndex extends OrdinalList<Ordinal> {
+
+    private final long[] index;
+
+    LongIndex(final int length) {
+      this.index = new long[length];
+    }
+
+    @Override
+    Object asArray() {
+      return index;
+    }
+
+    @Override
+    long[] asLongArray() {
+      return index;
+    }
+
+    @Override
+    public int size() {
+      return index.length;
+    }
+
+    @Override
+    public Ordinal get(int i) {
+      return CONSTANTS.ordinals[(int) index[i]];
+    }
+
+    @Override
+    public int getInt(int i) {
+      return (int) index[i];
+    }
+
+    @Override
+    public long getLong(int i) {
+      return index[i];
+    }
+
+    @Override
+    public void setInt(int i, int j) {
+      index[i] = j;
     }
   }
 }
