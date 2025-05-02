@@ -52,8 +52,6 @@ abstract class OrdinalList<E extends Comparable<E>>
   extends AbstractList<E>
   implements Index<E> {
 
-  private static final Constants CONSTANTS = Constants.getInstance();
-
   /**
    * Factory method for creating an {@code OrdinalList} of the specified length,
    * choosing the most compact internal representation based on the maximum ordinal value.
@@ -206,7 +204,7 @@ abstract class OrdinalList<E extends Comparable<E>>
 
     @Override
     public Ordinal get(int i) {
-      return CONSTANTS.ordinals[getInt(i)];
+      return Ordinal.of(getInt(i));
     }
 
     @Override
@@ -253,7 +251,7 @@ abstract class OrdinalList<E extends Comparable<E>>
 
     @Override
     public Ordinal get(int i) {
-      return CONSTANTS.ordinals[getInt(i)];
+      return Ordinal.of(getInt(i));
     }
 
     @Override
@@ -300,7 +298,7 @@ abstract class OrdinalList<E extends Comparable<E>>
 
     @Override
     public Ordinal get(int i) {
-      return CONSTANTS.ordinals[getInt(i)];
+      return Ordinal.of(getInt(i));
     }
 
     @Override
@@ -347,7 +345,7 @@ abstract class OrdinalList<E extends Comparable<E>>
 
     @Override
     public Ordinal get(int i) {
-      return CONSTANTS.ordinals[getInt(i)];
+      return Ordinal.of(getInt(i));
     }
 
     @Override
@@ -394,7 +392,7 @@ abstract class OrdinalList<E extends Comparable<E>>
 
     @Override
     public Ordinal get(int i) {
-      return CONSTANTS.ordinals[(int) index[i]];
+      return Ordinal.of(getInt(i));
     }
 
     @Override
