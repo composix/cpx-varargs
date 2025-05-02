@@ -581,36 +581,6 @@ public class Matrix extends OrderInt implements Keys, Args {
     return result;
   }
 
-  private <T> ArgsObjSet<T> groupBy(Ordinal type, final T[] source) {
-    Accessor accessor = Accessor.of(typeOf(source));
-    reorder((lhs, rhs) ->
-      ((Comparable<T>) source[lhs.intValue()]).compareTo(source[rhs.intValue()])
-    );
-    Index indices = groupBy(accessor, source);
-    ArgsObjSet<T> result = new ArgsObjSet<>(
-      type.byteValue(),
-      indices,
-      (T[]) keys(accessor, source, indices)
-    );
-    accessor.destroy();
-    return result;
-  }
-
-  private ArgsLongSet groupBy(final long[] source) {
-    Accessor accessor = Accessor.of(typeOf(source));
-    reorder((lhs, rhs) ->
-      Long.compare(source[lhs.intValue()], source[rhs.intValue()])
-    );
-    final Index indices = groupBy(accessor, source);
-    ArgsLongSet result = new ArgsLongSet(
-      AL.byteValue(),
-      indices,
-      (long[]) keys(accessor, source, indices)
-    );
-    accessor.destroy();
-    return result;
-  }
-
   private Index groupBy(Accessor accessor, final Object source) {
     final int amount = amount();
     final int count = count(amount, source, accessor);
