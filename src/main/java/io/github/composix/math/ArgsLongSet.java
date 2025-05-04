@@ -190,4 +190,22 @@ public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
       return new SubArgsSet(tpos, array, fromIndex, toIndex - fromIndex);
     }
   }
+
+  @Override
+  public int count(Long element) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'count'");
+  }
+
+  @Override
+  public Index<Ordinal> cumulativeCounts() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'cumulativeCounts'");
+  }
+
+  @Override
+  public Index<Ordinal> ranks() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'ranks'");
+  }
 }
