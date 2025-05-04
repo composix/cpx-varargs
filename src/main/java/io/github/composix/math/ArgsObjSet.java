@@ -100,8 +100,18 @@ public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
   }
 
   @Override
+  public int getInt(int index) {
+    throw new ArithmeticException();
+  }
+
+  @Override
   public long getLong(int index) {
-    throw new NoSuchElementException();
+    throw new ArithmeticException();
+  }
+
+  @Override
+  public long getIndexedLong(int index) {
+    throw new ArithmeticException();
   }
 
   @Override

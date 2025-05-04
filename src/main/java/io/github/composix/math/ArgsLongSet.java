@@ -98,8 +98,19 @@ public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
   }
 
   @Override
+  public int getInt(int index) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public long getLong(int index) {
     return array[index];
+  }
+
+  @Override
+  public long getIndexedLong(int index) {
+    final long omega = ArgsOrdinal.OMEGA.longValue();
+    return array[index] * omega + index;
   }
 
   @Override
