@@ -128,7 +128,7 @@ public class ArgsTest extends PetstoreTestCase {
   @Test
   @Disabled
   void testJoinMany() {
-    Column<List<Order>> result = pets
+    Column<OrdinalList<Order>> result = pets
       .primaryKey(A, Pet::id)
       .joinMany(orders.foreignKey(A, Order::petId))
       .collect(B);
