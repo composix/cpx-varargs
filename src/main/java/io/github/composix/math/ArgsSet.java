@@ -24,7 +24,7 @@
 
 package io.github.composix.math;
 
-interface ArgsSet<E> extends ListSet<E> {
+interface ArgsSet<E extends Comparable<E>> extends ListSet<E> {
   Ordinal getType();
 
   Index initialize(MutableOrder order);

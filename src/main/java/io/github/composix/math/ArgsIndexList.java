@@ -41,15 +41,23 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.LongStream;
 
-class ArgsIndexList<E> extends AbstractList<E> implements Column<E> {
+class ArgsIndexList<E extends Comparable<E>> extends AbstractList<E> implements Column<E> {
   private static final Constants CONSTANTS = Constants.getInstance();
 
   final ArgsSet<?> elements;
 
   String header;
   MutableOrder order;
-  Index refs, indices;
+  Index<Ordinal> refs, indices;
 
+  ArgsIndexList(byte tpos, OrdinalList<Ordinal> index) {
+    elements = index.toArgsSet(tpos);
+    header = ":";
+    order = null;
+    refs = CONSTANTS.index();
+    indices = null;
+  }
+  
   ArgsIndexList(byte tpos, long[] array) {
     elements = new ArgsLongSet(tpos, null, array);
     header = ":";
@@ -58,8 +66,8 @@ class ArgsIndexList<E> extends AbstractList<E> implements Column<E> {
     indices = null;
   }
 
-  ArgsIndexList(byte tpos, E[] array) {
-    elements = new ArgsObjSet(tpos, null, array);
+  ArgsIndexList(byte tpos, Object[] array) {
+    elements = new ArgsObjSet<>(tpos, null, array);
     header = ":";
     order = null;
     refs = CONSTANTS.index();

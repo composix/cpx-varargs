@@ -34,18 +34,16 @@
 package io.github.composix.math;
 
 import java.lang.reflect.Array;
-import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.NoSuchElementException;
 
-public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
+public class ArgsObjSet<E extends Comparable<E>> extends OrdinalList<E> implements ArgsSet<E> {
 
   byte tpos;
   Index indices;
-  E[] array;
+  Object[] array;
 
-  ArgsObjSet(byte tpos, Index indices, E[] array) {
+  ArgsObjSet(byte tpos, Index indices, Object[] array) {
     this.tpos = tpos;
     this.indices = indices;
     this.array = array;
@@ -53,7 +51,7 @@ public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
 
   @Override
   public Index initialize(final MutableOrder order) {
-    final E[] array = this.array;
+    final E[] array = (E[]) this.array;
     final int amount = order.amount();
     order.reorder((lhs, rhs) ->
       ((Comparable<E>) array[lhs.intValue()]).compareTo(array[rhs.intValue()])
@@ -116,7 +114,7 @@ public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
 
   @Override
   public E get(int index) {
-    return array[index];
+    return (E) array[index];
   }
 
   @Override
@@ -166,11 +164,11 @@ public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
     return new SubArgsSet<>(tpos, array, fromIndex, toIndex - fromIndex);
   }
 
-  static class SubArgsSet<E> extends ArgsObjSet<E> {
+  static class SubArgsSet<E extends Comparable<E>> extends ArgsObjSet<E> {
 
     private final int offset, size;
 
-    SubArgsSet(byte tpos, E[] array, int offset, int size) {
+    SubArgsSet(byte tpos, Object[] array, int offset, int size) {
       super(tpos, null, array);
       this.offset = offset;
       this.size = size;
@@ -178,7 +176,7 @@ public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
 
     @Override
     public E get(int index) {
-      return array[index + offset];
+      return (E) array[index + offset];
     }
 
     @Override
@@ -205,8 +203,20 @@ public class ArgsObjSet<E> extends AbstractList<E> implements ArgsSet<E> {
   }
 
   @Override
-  public Index<Ordinal> ranks() {
+  public void ranks(Index<Ordinal> result) {
     // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'ranks'");
+
+  }
+
+  @Override
+  public void setInt(int index, int ord) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'setInt'");
+  }
+
+  @Override
+  Object asArray() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'asArray'");
   }
 }

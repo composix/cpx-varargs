@@ -51,11 +51,11 @@ public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
 
   @Override
   public Index initialize(final MutableOrder order) {
+    order.reorder((lhs, rhs) ->
+      Long.compare(getLong(lhs.intValue()), getLong(rhs.intValue()))
+    );
     final long[] array = this.array;
     final int amount = order.amount();
-    order.reorder((lhs, rhs) ->
-      Long.compare(array[lhs.intValue()], array[rhs.intValue()])
-    );
     int count = 1, rank = order.rank(0);
     long current = array[rank];
     for (int i = 1; i < amount; ++i) {
@@ -193,19 +193,26 @@ public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
 
   @Override
   public int count(Long element) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'count'");
+    final int index = Arrays.binarySearch(array, element.longValue());
+    return index < 0 ? 0 : 1;
   }
 
   @Override
   public Index<Ordinal> cumulativeCounts() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'cumulativeCounts'");
+    final int size = size();
+    final Index<Ordinal> result = Index.of(size);
+    int i = 0;
+    while (i < size) {
+      result.setInt(i, ++i);
+    }
+    return result;
   }
 
   @Override
-  public Index<Ordinal> ranks() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'ranks'");
+  public void ranks(Index<Ordinal> result) {
+    final int size = size();
+    for (int i = 0; i < size; ++i) {
+      result.setInt(i, i);
+    }
   }
 }
