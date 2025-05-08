@@ -159,7 +159,7 @@ public interface ListSet<E> extends SortedSet<E>, List<E>, RandomAccess {
    * @throws UnsupportedOperationException if the list is not sorted
    * or already deduplicated
    */
-  Index<Ordinal> cumulativeCounts();
+  Index<Ordinal> cumulativeCounts(); 
 
   /**
    * Returns the rank for each element in the list, corresponding to its index in the deduplicated,
@@ -184,7 +184,13 @@ public interface ListSet<E> extends SortedSet<E>, List<E>, RandomAccess {
    *
    * @return an {@code Index<Ordinal>} mapping each element in the list to its deduplicated index
    */
-  Index<Ordinal> ranks();
+  default Index<Ordinal> ranks() {
+    final Index<Ordinal> result = Index.of(size());
+    ranks(result);
+    return result;
+  }
+
+  void ranks(Index<Ordinal> result);
 
   @Override
   ListSet<E> subSet(E fromElement, E toElement);
