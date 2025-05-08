@@ -34,7 +34,6 @@
 
 package io.github.composix.math;
 
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.LongBinaryOperator;
 import java.util.function.ToLongFunction;
@@ -44,7 +43,7 @@ import io.github.composix.models.Defaults;
 public interface Keys {
   Args $done();
 
-  <T> Column<List<T>> collect(Ordinal tpos);
+  <T extends Comparable<T>> Column<OrdinalList<T>> collect(Ordinal tpos);
 
   <T> Args collect(
     Ordinal col,
