@@ -34,8 +34,9 @@
 
 package io.github.composix.math;
 
+import java.net.URI;
+
 import io.github.composix.models.Defaults;
-import java.util.BitSet;
 
 /**
  * This singleton is intended to be loaded at startup and is accessible via
@@ -68,17 +69,18 @@ final class Constants {
       }
       // type definitions
       ordinals[18].all("");
+      ordinals[20].all(URI.create("."));
       ordinals[26].any(false);
       ordinals[27].any((byte) 0);
       ordinals[28].any(' ');
       ordinals[29].any((short) 0);
-      ordinals[30].all(new BitSet());
-      ordinals[31].all(new byte[0]);
-      ordinals[32].all(new char[0]);
-      ordinals[33].all(new short[0]);
+      //ordinals[30].all(new boolean[0]);
+      //ordinals[31].all(new byte[0]);
+      //ordinals[32].all(new char[0]);
+      //ordinals[33].all(new short[0]);
       ordinals[34].any(0);
-      ordinals[35].all(new int[0]);
-      ordinals[36].all(new long[0]);
+      //ordinals[35].all(new int[0]);
+      //ordinals[36].all(new long[0]);
       ordinals[37].any(0L);
     }
     return INSTANCE;
@@ -87,7 +89,7 @@ final class Constants {
   final Object[] types;
   final Ordinal[] ordinals;
   final Ordinal[] columns;
-  private Index index;
+  private Index<Ordinal> index;
 
   private Constants() {
     types = new Object[26];
@@ -125,6 +127,9 @@ final class Constants {
       }
       return result;
     }
+    if (array instanceof OrdinalList<?> list) {
+      array = list.asArray();
+    }
     Object type = types[index];
     if (type == null) {
       types[index] = array;
@@ -158,7 +163,7 @@ final class Constants {
     return ordinal(-Short.MIN_VALUE);
   }
 
-  Index index() {
+  Index<Ordinal> index() {
     return index;
   }
 }

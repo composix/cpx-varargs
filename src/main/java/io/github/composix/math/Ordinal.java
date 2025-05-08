@@ -26,21 +26,24 @@ package io.github.composix.math;
 
 import java.util.ListIterator;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<Ordinal> {
     static Ordinal of(int index) {
         return OrdinalNumber.ORDINALS[index];
     }
 
+    Column<?> ordinals(OrdinalList<Ordinal> values);
+
     void any(boolean... values);
 
-    void any(byte...values);
+    void any(byte... values);
 
     void any(char... values);
 
     void any(short... values);
 
-    void any(int... values);
+    Column<Integer> any(int... values);
 
     Column<Long> any(long... values);
 
@@ -48,7 +51,9 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
 
     void any(double... values);
 
-    <T> Column<T> all(@SuppressWarnings("unchecked") T... values);
+    <R> Column<R> any(Stream<R> values);
+
+    <T extends Comparable<T>> Column<T> all(@SuppressWarnings("unchecked") T... values);
 
     byte byteValue();
     

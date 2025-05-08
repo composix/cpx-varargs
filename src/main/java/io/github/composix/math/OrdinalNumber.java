@@ -37,6 +37,8 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 abstract class OrdinalNumber extends Number implements Ordinal {
     static final Ordinal[] ORDINALS = Constants.getInstance().ordinals;
@@ -155,6 +157,15 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     // general methods on Ordinal
 
     @Override
+    public Column<Ordinal> ordinals(OrdinalList<Ordinal> values) {
+        byte tpos = CONSTANTS.check(this, values);
+        if (tpos < 0) {
+            return null;
+        }
+        return new ArgsIndexList<>(tpos, values);
+    }
+
+    @Override
     public void any(boolean... values) {
         CONSTANTS.check(this, values);
     }
@@ -175,8 +186,12 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     }
 
     @Override
-    public void any(int... values) {
-        CONSTANTS.check(this, values);
+    public ArgsIndexList<Integer> any(int... values) {
+        byte tpos = CONSTANTS.check(this, values);
+        if (tpos < 0) {
+            return null;
+        }
+        return new ArgsIndexList<>(tpos, IntStream.of(values).mapToLong(i -> i).toArray());
     }
 
     @Override
@@ -199,7 +214,17 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     }
 
     @Override
-    public <T> Column<T> all(T... values) {
+    public <R> Column<R> any(Stream<R> values) {
+        switch(intValue()) {
+            case 0:
+                return (Column<R>) all(values.toArray(String[]::new));
+            default:
+                throw new IllegalArgumentException("Invalid ordinal: " + intValue());
+        }
+    }
+
+    @Override
+    public <T extends Comparable<T>> Column<T> all(T... values) {
         byte tpos = CONSTANTS.check(this, values);
         if (tpos < 0) {
             return null;
