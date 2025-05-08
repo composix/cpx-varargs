@@ -35,6 +35,8 @@
 package io.github.composix.math;
 
 import java.lang.reflect.Array;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
@@ -525,7 +527,17 @@ public class Matrix extends OrderInt implements Keys, Args {
               strings[i] = (String) column[offset++];
             }
             return (ArgsIndexList<?>) S.all(strings);
-            default:
+          case 20:
+            URI[] uris = new URI[length];
+            for (int i = 0; i < length; ++i) {
+              try {
+                uris[i] = new URI(column[offset++].toString());
+              } catch (URISyntaxException e) {
+                throw new IllegalArgumentException(e);
+              }
+            }
+            return (ArgsIndexList<?>) U.all(uris);
+          default:
             throw new UnsupportedOperationException();
         }
       }
@@ -533,7 +545,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     throw new NoSuchFieldException(name.toString());
   }
 
-  protected <T, K extends Comparable<K>> ArgsIndexList<T> _groupBy(
+  protected <T extends Comparable<T>, K extends Comparable<K>> ArgsIndexList<T> _groupBy(
     Ordinal tpos,
     Function<T, K> accessor
   ) {
@@ -754,16 +766,17 @@ public class Matrix extends OrderInt implements Keys, Args {
   }
 
   @Override
-  public <T> Column<List<T>> collect(Ordinal col) {
+  public <T extends Comparable<T>> Column<OrdinalList<T>> collect(Ordinal col) {
     final ArgsIndexList<T> source = (ArgsIndexList<T>) dto(col);
     final Index indices = source.indices;
     final int amount = amount();
-    final List[] target = new List[amount];
+    final OrdinalList[] target = new OrdinalList[amount];
     int index = 0;
     for (int i = 0; i < amount; ++i) {
-      target[i] = source.subList(index, (index = indices.getInt(i)));
+      target[i] = (OrdinalList) source.subList(index, (index = indices.getInt(i)));
     }
-    return new ArgsIndexList<>(TPOS_DTO, target);
+    final Column<?> result = new ArgsIndexList<>(TPOS_DTO, target);
+    return (Column<OrdinalList<T>>) result; 
   }
 
   private ArgsIndexList<?> dto(Ordinal col) {
@@ -818,8 +831,8 @@ public class Matrix extends OrderInt implements Keys, Args {
       throw new AssertionError();
     }
     final int offset = matrix.offset() & mask;
-    final Object[] source = (Object[]) rhsArgs.argv[offset + source(rhsArgs, offset)];
-    final Object[] result = injection(
+    final Comparable[] source = (Comparable[]) rhsArgs.argv[offset + source(rhsArgs, offset)];
+    final Comparable[] result = injection(
       source,
       this,
       matrix,
@@ -911,13 +924,13 @@ public class Matrix extends OrderInt implements Keys, Args {
       }
       throw new UnsupportedOperationException();
     }
-    final Object[] target = (Object[]) Array.newInstance(source.getClass().getComponentType(), size);
+    final Comparable[] target = (Comparable[]) Array.newInstance(source.getClass().getComponentType(), size);
     k = 0;
     for (int i = 0; i < amount; ++i) {
       if (k == (size = indices.getInt(i))) {
         target[rank(i)] = null;
       } else {
-        target[rank(i)] = source[matrix.rank(k)];
+        target[rank(i)] = (Comparable) source[matrix.rank(k)];
         k = size;
       }
       indices.setInt(i, i);
@@ -992,8 +1005,8 @@ public class Matrix extends OrderInt implements Keys, Args {
     return this;
   }
 
-  private static Object[] injection(
-    Object[] source,
+  private static Comparable[] injection(
+    Comparable[] source,
     Order lhsOrder,
     Order rhsOrder,
     ArgsLongSet lhs,
@@ -1002,7 +1015,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Index indices = lhs.indices();
     final int l = indices.size(), n = rhsOrder.amount();
     int j = 0, k = -1;
-    Object[] target = lhsOrder
+    Comparable[] target = (Comparable[]) lhsOrder
       .ordinal()
       .newInstance(source.getClass().getComponentType());
     for (int i = 0; i < l; ++i) {
