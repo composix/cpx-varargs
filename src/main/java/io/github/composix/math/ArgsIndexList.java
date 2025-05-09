@@ -38,7 +38,6 @@ package io.github.composix.math;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.LongStream;
 
 class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements Column<E> {
   private static final Constants CONSTANTS = Constants.getInstance();
@@ -116,11 +115,6 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
   @Override
   public long getLong(int index) {
     return elements.getLong(order.rank(refs.getInt(index)));
-  }
-
-  @Override
-  public LongStream longStream() {
-    return refs.intStream().limit(size()).map(order::rank).mapToLong(elements::getLong);
   }
 
   @Override
