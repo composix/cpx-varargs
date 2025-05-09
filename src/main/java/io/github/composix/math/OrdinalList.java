@@ -53,7 +53,7 @@ import java.util.stream.LongStream;
  */
 abstract class OrdinalList<E extends Comparable<E>>
   extends AbstractList<E>
-  implements Index, Comparable<List<E>> {
+  implements Comparable<List<E>>, RangedList<E> {
 
   /**
    * Factory method for creating an {@code OrdinalList} of the specified length,
@@ -86,10 +86,6 @@ abstract class OrdinalList<E extends Comparable<E>>
     throw new UnsupportedOperationException();
   }
 
-  Object asArray() {
-    throw new UnsupportedOperationException();
-  }
-  
   @Override
   public void setInt(int index, int element) {
     throw new UnsupportedOperationException();
@@ -112,6 +108,44 @@ abstract class OrdinalList<E extends Comparable<E>>
 
   public LongStream indexedStream() {
     return IntStream.range(0, size()).mapToLong(this::getIndexedLong);
+  }
+
+  @Override
+  public RangedList<E> range() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int count(E element) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Index cumulativeCounts() {
+    final Index result = Index.of(range().size());
+    cumulativeCounts(result);
+    return result;
+  }
+
+  @Override
+  public void cumulativeCounts(Index result) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Index ranks() {
+    final Index result = Index.of(size());
+    ranks(result);
+    return result;
+  }
+
+  @Override
+  public void ranks(Index result) {
+    throw new UnsupportedOperationException();
+  }
+
+  Object asArray() {
+    throw new UnsupportedOperationException();
   }
 
   /**

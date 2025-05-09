@@ -38,7 +38,6 @@ package io.github.composix.math;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.RandomAccess;
 import java.util.SortedSet;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -73,68 +72,7 @@ import java.util.Spliterators;
  * @author: dr. ir. J. M. Valk
  * @since: May 2025
  */
-public interface ListSet<E> extends SortedSet<E>, Index, List<E>, RandomAccess {
-  /**
-   * Returns the number of times the specified element appears in this list.
-   * <p>
-   * This method assumes the list is sorted but not yet deduplicated. It performs
-   * an efficient range search to determine how many contiguous instances of the
-   * element exist.
-   *
-   * @param element the element whose frequency is to be determined
-   * @return the number of times the element occurs in this list
-   * @throws UnsupportedOperationException if the list is not sorted
-   * or already deduplicated
-   */
-  int count(E element);
-
-  /**
-   * Returns a list of counts representing the number of occurrences of each unique
-   * element in this list, in sorted order.
-   * <p>
-   * This method assumes the list is sorted but not yet deduplicated. The result is
-   * aligned with {@code deduplicated()} or {@code subSet()} views: each entry in the
-   * returned list corresponds to the frequency of a unique value.
-   * <p>
-   * For example, for a list like [1, 1, 2, 3, 3, 3], the method returns [2, 1, 3].
-   *
-   * @return a list of counts corresponding to the sorted unique elements
-   * @throws UnsupportedOperationException if the list is not sorted
-   * or already deduplicated
-   */
-  Index cumulativeCounts(); 
-
-  /**
-   * Returns the rank for each element in the list, corresponding to its index in the deduplicated,
-   * sorted view of this list.
-   * <p>
-   * The result is an {@code Index<Ordinal>} of the same size as the original list. Each entry indicates
-   * which position (rank) the element maps to in the sorted, deduplicated list.
-   * <p>
-   * If the list is already sorted and deduplicated, the ranks will be based on the positions in
-   * the current sorted list. If the list is unsorted, it will be sorted and deduplicated first, then
-   * ranks will be assigned based on the new sorted list.
-   * <p>
-   * For example, for the list [2, 3, 2, 1] → sort → [1, 2, 3], the method returns:
-   * <pre>
-   * [1, 2, 1, 0]
-   * </pre>
-   * Because:
-   * - 2 → rank 1
-   * - 3 → rank 2
-   * - 2 → rank 1
-   * - 1 → rank 0
-   *
-   * @return an {@code Index<Ordinal>} mapping each element in the list to its deduplicated index
-   */
-  default Index ranks() {
-    final Index result = Index.of(size());
-    ranks(result);
-    return result;
-  }
-
-  void ranks(Index result);
-
+public interface ListSet<E> extends SortedSet<E>, RangedList<E> {
   @Override
   ListSet<E> subSet(E fromElement, E toElement);
 
