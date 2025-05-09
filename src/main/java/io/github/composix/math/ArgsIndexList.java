@@ -36,19 +36,18 @@
 
 package io.github.composix.math;
 
-import java.util.AbstractList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.LongStream;
 
-class ArgsIndexList<E extends Comparable<E>> extends AbstractList<E> implements Column<E> {
+class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements Column<E> {
   private static final Constants CONSTANTS = Constants.getInstance();
 
   final ArgsSet<?> elements;
 
   String header;
   MutableOrder order;
-  Index<Ordinal> refs, indices;
+  Index refs, indices;
 
   ArgsIndexList(byte tpos, OrdinalList<Ordinal> index) {
     elements = index.toArgsSet(tpos);
@@ -107,6 +106,11 @@ class ArgsIndexList<E extends Comparable<E>> extends AbstractList<E> implements 
       }
     }
     this.order = order;
+  }
+
+  @Override
+  public int getInt(int index) {
+    return elements.getInt(order.rank(refs.getInt(index)));
   }
 
   @Override

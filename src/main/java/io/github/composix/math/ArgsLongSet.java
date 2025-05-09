@@ -33,11 +33,10 @@
 
 package io.github.composix.math;
 
-import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
+public class ArgsLongSet extends OrdinalList<Long> implements ArgsSet<Long> {
 
   byte tpos;
   Index indices;
@@ -105,12 +104,6 @@ public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
   @Override
   public long getLong(int index) {
     return array[index];
-  }
-
-  @Override
-  public long getIndexedLong(int index) {
-    final long omega = ArgsOrdinal.OMEGA.longValue();
-    return array[index] * omega + index;
   }
 
   @Override
@@ -198,9 +191,9 @@ public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
   }
 
   @Override
-  public Index<Ordinal> cumulativeCounts() {
+  public Index cumulativeCounts() {
     final int size = size();
-    final Index<Ordinal> result = Index.of(size);
+    final Index result = Index.of(size);
     int i = 0;
     while (i < size) {
       result.setInt(i, ++i);
@@ -209,7 +202,7 @@ public class ArgsLongSet extends AbstractList<Long> implements ArgsSet<Long> {
   }
 
   @Override
-  public void ranks(Index<Ordinal> result) {
+  public void ranks(Index result) {
     final int size = size();
     for (int i = 0; i < size; ++i) {
       result.setInt(i, i);

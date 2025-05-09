@@ -89,7 +89,7 @@ final class Constants {
   final Object[] types;
   final Ordinal[] ordinals;
   final Ordinal[] columns;
-  private Index<Ordinal> index;
+  private Index index;
 
   private Constants() {
     types = new Object[26];
@@ -163,7 +163,7 @@ final class Constants {
     return ordinal(-Short.MIN_VALUE);
   }
 
-  Index<Ordinal> index() {
+  Index index() {
     return index;
   }
 }

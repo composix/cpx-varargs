@@ -73,64 +73,7 @@ import java.util.Spliterators;
  * @author: dr. ir. J. M. Valk
  * @since: May 2025
  */
-public interface ListSet<E> extends SortedSet<E>, List<E>, RandomAccess {
-  /**
-   * Returns the value at the specified index as a primitive {@code int},
-   * if the element can be safely and efficiently converted to an {@code int}
-   * without narrowing or overflow.
-   * <p>
-   * This method is designed for performance, and will only succeed if
-   * the underlying value already fits within the {@code int} range.
-   * If the value is wider than {@code int} (e.g., a {@code long} or {@code BigInteger}),
-   * an {@link ArithmeticException} will be thrown.
-   *
-   * @param index the index of the element to retrieve
-   * @return the element at the given index, as an {@code int}
-   * @throws ArithmeticException if the value cannot be represented as an {@code int}
-   * @throws IndexOutOfBoundsException if the index is out of range
-   */
-  int getInt(int index);
-
-  /**
-   * Returns the value at the specified index as a primitive {@code long},
-   * if the element can be safely and efficiently converted to a {@code long}
-   * without narrowing or overflow.
-   * <p>
-   * This method is intended for high-performance access to numeric values.
-   * It will only succeed if the underlying element is already stored as,
-   * or can be directly represented as, a {@code long}. If the value is of
-   * a wider type (e.g., {@code BigInteger}) or not a numeric type at all,
-   * an {@link ArithmeticException} will be thrown.
-   *
-   * @param index the index of the element to retrieve
-   * @return the element at the given index, as a {@code long}
-   * @throws ArithmeticException if the value cannot be represented as a {@code long}
-   * @throws IndexOutOfBoundsException if the index is out of range
-   */
-  long getLong(int index);
-
-  /**
-   * Returns the value at the specified index as a {@code long}, which encodes
-   * both the index and the value. The value is stored as a {@code long} where
-   * the index is packed alongside the actual value.
-   * <p>
-   * This method is designed for performance when dealing with data structures
-   * that need both the value and its index. The index is encoded within the
-   * {@code long} using a specific bit pattern, allowing both the element's value
-   * and its position to be represented in a single return value.
-   * <p>
-   * If the operation results in an invalid encoding (e.g., due to overflow
-   * or misrepresentation of the data), an {@link ArithmeticException} will be thrown.
-   *
-   * @param index the index of the element to retrieve
-   * @return the element at the given index, encoded as a {@code long},
-   *         where the index and the value are combined
-   * @throws ArithmeticException if the index and value cannot be
-   *         correctly encoded into a {@code long}
-   * @throws IndexOutOfBoundsException if the index is out of range
-   */
-  long getIndexedLong(int index);
-
+public interface ListSet<E> extends SortedSet<E>, Index, List<E>, RandomAccess {
   /**
    * Returns the number of times the specified element appears in this list.
    * <p>
@@ -159,7 +102,7 @@ public interface ListSet<E> extends SortedSet<E>, List<E>, RandomAccess {
    * @throws UnsupportedOperationException if the list is not sorted
    * or already deduplicated
    */
-  Index<Ordinal> cumulativeCounts(); 
+  Index cumulativeCounts(); 
 
   /**
    * Returns the rank for each element in the list, corresponding to its index in the deduplicated,
@@ -184,13 +127,13 @@ public interface ListSet<E> extends SortedSet<E>, List<E>, RandomAccess {
    *
    * @return an {@code Index<Ordinal>} mapping each element in the list to its deduplicated index
    */
-  default Index<Ordinal> ranks() {
-    final Index<Ordinal> result = Index.of(size());
+  default Index ranks() {
+    final Index result = Index.of(size());
     ranks(result);
     return result;
   }
 
-  void ranks(Index<Ordinal> result);
+  void ranks(Index result);
 
   @Override
   ListSet<E> subSet(E fromElement, E toElement);

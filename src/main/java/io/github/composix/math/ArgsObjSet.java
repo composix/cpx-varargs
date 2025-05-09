@@ -197,13 +197,13 @@ public class ArgsObjSet<E extends Comparable<E>> extends OrdinalList<E> implemen
   }
 
   @Override
-  public Index<Ordinal> cumulativeCounts() {
+  public Index cumulativeCounts() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'cumulativeCounts'");
   }
 
   @Override
-  public void ranks(Index<Ordinal> result) {
+  public void ranks(Index result) {
     // TODO Auto-generated method stub
 
   }

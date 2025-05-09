@@ -34,7 +34,6 @@
 
 package io.github.composix.math;
 
-import java.util.List;
 import java.util.stream.IntStream;
 
 /**
@@ -42,14 +41,14 @@ import java.util.stream.IntStream;
  * rearranging and/or selecting a subset of elements in a list. Effectively, it
  * maps elements in a list to new positions, potentially changing the list's length.
  *
- * The terms "index" and "target index" refer to:
- * - "Index": the position of an element in the original list.
- * - "Target index": the position where the element will be rearranged in the list.
+ * Technically, an index behaves like a list of ordinals, but it is backed by a
+ * primitive array of bytes, shorts, ints, or longs. This allows for efficient
+ * storage and manipulation of the index.
  *
  * @author dr. ir. J. M. Valk
  * @since April 2025
  */
-interface Index<T extends Comparable<T>> extends List<T> {
+interface Index {
   /**
    * Creates an index of the specified length. The index is intended to represent
    * a mapping that maintains the length of the original list, with the maximum index
@@ -59,8 +58,8 @@ interface Index<T extends Comparable<T>> extends List<T> {
    * @param length - the length of the index
    * @return an index of the specified length
    */
-  static Index<Ordinal> of(int length) {
-    final Index<Ordinal> result = OrdinalList.of(length, --length);
+  static Index of(int length) {
+    final Index result = OrdinalList.of(length, --length);
     for (int i = 0; i <= length; ++i) {
       result.setInt(i, i);
     }
@@ -77,36 +76,81 @@ interface Index<T extends Comparable<T>> extends List<T> {
    * @param lastIndex - the maximum index that may occur
    * @return an index of the specified length and target range (0 to lastIndex)
    */
-  static Index<Ordinal> of(int length, int lastIndex) {
+  static Index of(int length, int lastIndex) {
     return OrdinalList.of(length, lastIndex);
   }
 
+  int size();
+  
   /**
-   * Returns the target index corresponding to the given index.
-   * The target index indicates where the element at the given index should be placed.
+   * Returns the value at the specified index as a primitive {@code int},
+   * if the element can be safely and efficiently converted to an {@code int}
+   * without narrowing or overflow.
+   * <p>
+   * This method is designed for performance, and will only succeed if
+   * the underlying value already fits within the {@code int} range.
+   * If the value is wider than {@code int} (e.g., a {@code long} or {@code BigInteger}),
+   * an {@link ArithmeticException} will be thrown.
    *
-   * @param index - the source index
-   * @return the target index
+   * @param index the index of the element to retrieve
+   * @return the element at the given index, as an {@code int}
+   * @throws ArithmeticException if the value cannot be represented as an {@code int}
+   * @throws IndexOutOfBoundsException if the index is out of range
    */
   int getInt(int index);
 
   /**
-   * Returns the target index corresponding to the given index as long.
-   * The target index indicates where the element at the given index should be placed.
+   * Returns the value at the specified index as a primitive {@code long},
+   * if the element can be safely and efficiently converted to a {@code long}
+   * without narrowing or overflow.
+   * <p>
+   * This method is intended for high-performance access to numeric values.
+   * It will only succeed if the underlying element is already stored as,
+   * or can be directly represented as, a {@code long}. If the value is of
+   * a wider type (e.g., {@code BigInteger}) or not a numeric type at all,
+   * an {@link ArithmeticException} will be thrown.
    *
-   * @param index - the source index
-   * @return the target index as long
+   * @param index the index of the element to retrieve
+   * @return the element at the given index, as a {@code long}
+   * @throws ArithmeticException if the value cannot be represented as a {@code long}
+   * @throws IndexOutOfBoundsException if the index is out of range
    */
   long getLong(int index);
 
   /**
-   * Sets the target index for the given index. The target index is the index to
-   * where the element at index is rearranged.
+   * Returns the value at the specified index as a {@code long}, which encodes
+   * both the index and the value. The value is stored as a {@code long} where
+   * the index is packed alongside the actual value.
+   * <p>
+   * This method is designed for performance when dealing with data structures
+   * that need both the value and its index. The index is encoded within the
+   * {@code long} using OMEGA, allowing both the element's value and its position
+   * to be represented in a single return value.
+   * <p>
+   * If the operation results in an invalid encoding (e.g., due to overflow
+   * or misrepresentation of the data), an {@link ArithmeticException} will be thrown.
    *
-   * @param index - the index to set the target index for
-   * @param ord   - the target index
+   * @param index the index of the element to retrieve
+   * @return the element at the given index, encoded as a {@code long},
+   *         where the index and the value are combined
+   * @throws ArithmeticException if the index and value cannot be
+   *         correctly encoded into a {@code long}
+   * @throws IndexOutOfBoundsException if the index is out of range
    */
-  void setInt(int index, int ord);
+  long getIndexedLong(int index);
+
+  /**
+   * Replaces the element at the specified position in this list with the
+   * specified element (optional operation).
+   *
+   * @param index index of the element to replace
+   * @param element element to be stored at the specified position
+   * @throws ArithmeticException if the element cannot be represented as an {@code int}
+   * @throws IndexOutOfBoundsException if the index is out of range
+   * @throws UnsupportedOperationException if the {@code set} operation
+   *         is not supported by this list
+   */
+  void setInt(int index, int element);
 
   /**
    * Returns an {@code IntStream} of the target indices of this index. The target indices

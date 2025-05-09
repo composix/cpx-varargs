@@ -38,6 +38,9 @@ package io.github.composix.math;
 
 import java.util.AbstractList;
 import java.util.BitSet;
+import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 /**
  * Abstract base class for efficiently storing and accessing ordinal indices in a
@@ -50,7 +53,7 @@ import java.util.BitSet;
  */
 abstract class OrdinalList<E extends Comparable<E>>
   extends AbstractList<E>
-  implements Index<E> {
+  implements Index, Comparable<List<E>> {
 
   /**
    * Factory method for creating an {@code OrdinalList} of the specified length,
@@ -79,7 +82,37 @@ abstract class OrdinalList<E extends Comparable<E>>
     return new LongIndex(length);
   }
 
-  abstract Object asArray();
+  public int compareTo(List<E> other) {
+    throw new UnsupportedOperationException();
+  }
+
+  Object asArray() {
+    throw new UnsupportedOperationException();
+  }
+  
+  @Override
+  public void setInt(int index, int element) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getIndexedLong(int index) {
+    final long omega = ArgsOrdinal.OMEGA.longValue();
+    return getLong(index) * omega + index;
+  }
+
+  @Override
+  public IntStream intStream() {
+    return IntStream.range(0, size()).map(this::getInt);
+  }
+
+  public LongStream longStream() {
+    return IntStream.range(0, size()).mapToLong(this::getLong);
+  }
+
+  public LongStream indexedStream() {
+    return IntStream.range(0, size()).mapToLong(this::getIndexedLong);
+  }
 
   /**
    * Returns the backing representation of this list only if it is a
