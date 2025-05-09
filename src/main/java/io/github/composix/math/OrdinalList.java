@@ -102,10 +102,12 @@ abstract class OrdinalList<E extends Comparable<E>>
     return IntStream.range(0, size()).map(this::getInt);
   }
 
+  @Override
   public LongStream longStream() {
     return IntStream.range(0, size()).mapToLong(this::getLong);
   }
 
+  @Override
   public LongStream indexedStream() {
     return IntStream.range(0, size()).mapToLong(this::getIndexedLong);
   }

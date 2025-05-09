@@ -35,6 +35,7 @@
 package io.github.composix.math;
 
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 /**
  * Interface for maintaining and manipulating an index. An index is useful for
@@ -81,7 +82,7 @@ interface Index {
   }
 
   int size();
-  
+
   /**
    * Returns the value at the specified index as a primitive {@code int},
    * if the element can be safely and efficiently converted to an {@code int}
@@ -161,4 +162,28 @@ interface Index {
   default IntStream intStream() {
     return IntStream.range(0, size()).map(this::getInt);
   }
+
+  /**
+   * Get a primitive LongStream of the elements in this column provided that the
+   * ordinal type matches primitive long.
+   *
+   * @return LongStream - stream of elements in this column
+   * @throws UnsupportedOperationException - if type of this list does not match
+   * primitive long.
+   */
+  LongStream longStream();
+
+  /**
+   * Get a primitive LongStream of the elements in this column as a pairing of indices
+   * with the corresponding integer values. This methods works both for column whose ordinal
+   * type matches both int and long primitives. However, only for int primitives the pairing
+   * is guaranteed to work. If a column is paired in this way and if overflow occurs,
+   * unexpected results may happen.
+   *
+   * @return a stream of index/value combinations: item / omega is the value and item % omega
+   * the index.
+   * @throws UnsupportedOperationException - if type of this. list does not match
+   * primitive int or primitive long.
+   */
+  LongStream indexedStream();
 }

@@ -48,13 +48,6 @@ import java.util.stream.LongStream;
  * <p>Sorting this list via {@link List#sort} affects the row order in the backing {@code Args}, 
  * and likewise, calling {@link Args#orderBy} reorders this list view accordingly.
  *
- * <p>Additionally, ArgsList provides: (i) a column header which can be retrieved via
- * the List::toString method, (ii) a setview (SortedSet) presenting distinct column
- * values in their natural order, (iii) support for primitive datatypes based on
- * the VarArgs system of ordinal types, e.g., L for Long, S for String, and (iv)
- * easy creation of ArgsList instances using ordinals, e.g., AL.any(0L, 1L) creates
- * a new long-valued ArgsList, S.all("one", "two") creates a new String-valued.
- *
  * <p><h3>Additional features</h3>
  * <ul>
  *   <li><strong>Column header:</strong> Provided via {@link #toString()}
@@ -75,7 +68,7 @@ import java.util.stream.LongStream;
  * @since: April 2025
  * @see Args
  */
-public interface Column<E> extends CharSequence, List<E>, RandomAccess {
+public interface Column<E> extends CharSequence, RangedList<E> {
   /**
    * Returns the set view consisting of the distinct elements of this column. As a
    * side-effect this compacts the column and no longer directly maintains its
@@ -96,28 +89,6 @@ public interface Column<E> extends CharSequence, List<E>, RandomAccess {
   Ordinal getType();
 
   /**
-   * Get the long value at the specified index provided that the ordinal type
-   * matches primitive long.
-   *
-   * @param index - index of a long-valued element in the column
-   * @return long value
-   * @throws IndexOutOfBoundException - if index is out of bounds
-   * @throws NoSuchElementException - if type of this list does not match
-   * primitive long.
-   */
-  long getLong(int index);
-
-  /**
-   * Get a primitive LongStream of the elements in this column provided that the
-   * ordinal type matches primitive long.
-   *
-   * @return LongStream - stream of elements in this column
-   * @throws UnsupportedOperationException - if type of this list does not match
-   * primitive long.
-   */
-  LongStream longStream();
-
-  /**
    * Get the source array from which this list was originally created, if still available.
    * The returned array reflects the order at creation time, and is not guaranteed
    * to reflect subsequent sorting or mutation.
@@ -127,6 +98,14 @@ public interface Column<E> extends CharSequence, List<E>, RandomAccess {
    */
   Object source();
 
+  /**
+   * Attaches this column to where it originates from. This method is useful in combination
+   * with methods such as {@code combine} of the Args interface that construct a new column
+   * from an existing tabular datastructure and you want the new column to be part of the table
+   * it originates from.
+   * 
+   * @return the tabular datastructure from where the column originates
+   */
   Args attach();
   
   /**
