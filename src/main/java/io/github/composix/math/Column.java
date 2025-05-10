@@ -78,7 +78,7 @@ public interface Column<E> extends CharSequence, RangedList<E> {
    *
    * @return ListSet - set of distinct elements in this column
    */
-  ListSet<E> asListSet();
+  RangedList<E> asListSet();
 
   /**
    * Get the ordinal type of the elements in this column. See the methods Ordinal::any

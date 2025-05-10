@@ -34,7 +34,6 @@
 package io.github.composix.math;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 public class ArgsLongSet extends OrdinalList<Long> implements ArgsSet<Long> {
 
@@ -114,74 +113,6 @@ public class ArgsLongSet extends OrdinalList<Long> implements ArgsSet<Long> {
   @Override
   public int size() {
     return array.length;
-  }
-
-  @Override
-  public Comparator<Long> comparator() {
-    return null;
-  }
-
-  @Override
-  public Long first() {
-    return get(0);
-  }
-
-  @Override
-  public Long last() {
-    return get(size() - 1);
-  }
-
-  @Override
-  public ArgsSet<Long> subSet(Long fromElement, Long toElement) {
-    int fromIndex = Arrays.binarySearch(array, fromElement);
-    int toIndex = Arrays.binarySearch(array, toElement);
-    return subList(
-      fromIndex < 0 ? -++fromIndex : fromIndex,
-      toIndex < 0 ? -toIndex : toIndex
-    );
-  }
-
-  @Override
-  public ArgsSet<Long> headSet(Long toElement) {
-    int toIndex = Arrays.binarySearch(array, toElement);
-    return subList(0, toIndex < 0 ? -toIndex : toIndex);
-  }
-
-  @Override
-  public ArgsSet<Long> tailSet(Long fromElement) {
-    int fromIndex = Arrays.binarySearch(array, fromElement);
-    return subList(fromIndex < 0 ? -++fromIndex : fromIndex, array.length - 1);
-  }
-
-  @Override
-  public ArgsSet<Long> subList(int fromIndex, int toIndex) {
-    return new SubArgsSet(tpos, array, fromIndex, toIndex - fromIndex);
-  }
-
-  static class SubArgsSet extends ArgsLongSet {
-
-    private final int offset, size;
-
-    SubArgsSet(byte tpos, long[] array, int offset, int size) {
-      super(tpos, null, array);
-      this.offset = offset;
-      this.size = size;
-    }
-
-    @Override
-    public Long get(int index) {
-      return Long.valueOf(array[index + offset]);
-    }
-
-    @Override
-    public int size() {
-      return size;
-    }
-
-    @Override
-    public ArgsSet<Long> subList(int fromIndex, int toIndex) {
-      return new SubArgsSet(tpos, array, fromIndex, toIndex - fromIndex);
-    }
   }
 
   @Override
