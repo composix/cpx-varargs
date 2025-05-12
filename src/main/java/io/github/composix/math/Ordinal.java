@@ -33,8 +33,6 @@ public interface Ordinal extends ArgsOrdinal, ListIterator<Ordinal>, Comparable<
         return OrdinalNumber.ORDINALS[index];
     }
 
-    Column<?> ordinals(OrdinalList<Ordinal> values);
-
     void any(boolean... values);
 
     void any(byte... values);

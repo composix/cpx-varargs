@@ -48,14 +48,6 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
   MutableOrder order;
   Index refs, indices;
 
-  ArgsIndexList(byte tpos, OrdinalList<Ordinal> index) {
-    elements = index.toArgsSet(tpos);
-    header = ":";
-    order = null;
-    refs = CONSTANTS.index();
-    indices = null;
-  }
-  
   ArgsIndexList(byte tpos, long[] array) {
     elements = new ArgsLongSet(tpos, null, array);
     header = ":";

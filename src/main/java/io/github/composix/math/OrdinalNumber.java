@@ -157,15 +157,6 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     // general methods on Ordinal
 
     @Override
-    public Column<Ordinal> ordinals(OrdinalList<Ordinal> values) {
-        byte tpos = CONSTANTS.check(this, values);
-        if (tpos < 0) {
-            return null;
-        }
-        return new ArgsIndexList<>(tpos, values);
-    }
-
-    @Override
     public void any(boolean... values) {
         CONSTANTS.check(this, values);
     }
