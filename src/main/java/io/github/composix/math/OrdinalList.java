@@ -216,28 +216,6 @@ abstract class OrdinalList<E extends Comparable<E>>
   }
 
   /**
-   * Converts this list into an {@link ArgsSet} for storing values of a given target
-   * type. If the target type is ordinal (i.e., primitive booleans, bytes, short, ints,
-   * or longs) then the values in this list are directly stored into the set. Otherwise,
-   * sufficient capacity is allocated in the set to store a corresponding distinct value
-   * for each ordinal in this list.
-   *
-   * @param tpos - the target type position in the ordinal type system
-   *               (e.g., tpos = 37 for longs)
-   * @return an newly created ArgsSet corresponding to this list
-   * @throws IllegalArgumentException if no type is associated with the given
-   * target type position.
-   */
-  ArgsSet<?> toArgsSet(byte tpos) {
-    switch (tpos) {
-      case 37: // AL
-        return new ArgsLongSet(tpos, null, asLongArray());
-      default:
-        throw new IllegalArgumentException("Invalid tpos: " + tpos);
-    }
-  }
-
-  /**
    * OrdinalList backed by a compact {@code byte[]} index.
    */
   static final class BitIndex extends OrdinalList<Ordinal> {
