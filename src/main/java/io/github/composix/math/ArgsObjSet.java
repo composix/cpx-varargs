@@ -1,8 +1,8 @@
 /**
  * class ArgsObjSet
- * 
+ *
  * Sorted set of object values backed by an array, with support for subrange views.
- * 
+ *
  * Author: dr. ir. J. M. Valk
  * Date: April 2025
  */
@@ -35,27 +35,29 @@ package io.github.composix.math;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Comparator;
 
-public class ArgsObjSet<E extends Comparable<E>> extends OrdinalList<E> implements ArgsSet<E> {
+public class ArgsObjSet<E extends Comparable<E>> extends Range<E> {
 
-  byte tpos;
-  Index indices;
   Object[] array;
 
-  ArgsObjSet(byte tpos, Index indices, Object[] array) {
-    this.tpos = tpos;
-    this.indices = indices;
+  ArgsObjSet(byte tpos, Object[] array) {
+    super(tpos);
     this.array = array;
   }
 
   @Override
+  public int count(E element) {
+    final int index = Arrays.binarySearch(array, element);
+    return index < 0 ? 0 : 1;
+  }
+
+  @Override
   public Index initialize(final MutableOrder order) {
+    order.reorder((lhs, rhs) ->
+      get(lhs.intValue()).compareTo(get(rhs.intValue()))
+    );
     final E[] array = (E[]) this.array;
     final int amount = order.amount();
-    order.reorder((lhs, rhs) ->
-      ((Comparable<E>) array[lhs.intValue()]).compareTo(array[rhs.intValue()])
-    );
     int count = 1, rank = order.rank(0);
     E current = array[rank];
     for (int i = 1; i < amount; ++i) {
@@ -64,7 +66,10 @@ public class ArgsObjSet<E extends Comparable<E>> extends OrdinalList<E> implemen
       }
     }
     indices = Index.of(count, amount);
-    this.array = (E[]) Array.newInstance(array.getClass().getComponentType(), count);
+    this.array = (E[]) Array.newInstance(
+      array.getClass().getComponentType(),
+      count
+    );
     final Index result = Index.of(amount, --count);
     count = 0;
     result.setInt(rank, count);
@@ -123,32 +128,7 @@ public class ArgsObjSet<E extends Comparable<E>> extends OrdinalList<E> implemen
   }
 
   @Override
-  public int count(E element) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'count'");
-  }
-
-  @Override
-  public Index cumulativeCounts() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'cumulativeCounts'");
-  }
-
-  @Override
-  public void ranks(Index result) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void setInt(int index, int ord) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'setInt'");
-  }
-
-  @Override
   Object asArray() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'asArray'");
+    return array;
   }
 }

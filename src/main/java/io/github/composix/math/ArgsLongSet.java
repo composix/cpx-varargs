@@ -35,16 +35,19 @@ package io.github.composix.math;
 
 import java.util.Arrays;
 
-public class ArgsLongSet extends OrdinalList<Long> implements ArgsSet<Long> {
+public class ArgsLongSet extends Range<Long> {
 
-  byte tpos;
-  Index indices;
   long[] array;
 
-  ArgsLongSet(byte tpos, Index indices, long[] array) {
-    this.tpos = tpos;
-    this.indices = indices;
+  ArgsLongSet(byte tpos, long[] array) {
+    super(tpos);
     this.array = array;
+  }
+
+  @Override
+  public int count(Long element) {
+    final int index = Arrays.binarySearch(array, element.longValue());
+    return index < 0 ? 0 : 1;
   }
 
   @Override
@@ -115,28 +118,4 @@ public class ArgsLongSet extends OrdinalList<Long> implements ArgsSet<Long> {
     return array.length;
   }
 
-  @Override
-  public int count(Long element) {
-    final int index = Arrays.binarySearch(array, element.longValue());
-    return index < 0 ? 0 : 1;
-  }
-
-  @Override
-  public Index cumulativeCounts() {
-    final int size = size();
-    final Index result = Index.of(size);
-    int i = 0;
-    while (i < size) {
-      result.setInt(i, ++i);
-    }
-    return result;
-  }
-
-  @Override
-  public void ranks(Index result) {
-    final int size = size();
-    for (int i = 0; i < size; ++i) {
-      result.setInt(i, i);
-    }
-  }
 }

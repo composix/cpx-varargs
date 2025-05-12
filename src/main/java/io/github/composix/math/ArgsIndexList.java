@@ -49,7 +49,7 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
   Index refs, indices;
 
   ArgsIndexList(byte tpos, long[] array) {
-    elements = new ArgsLongSet(tpos, null, array);
+    elements = new ArgsLongSet(tpos, array);
     header = ":";
     order = null;
     refs = CONSTANTS.index();
@@ -57,7 +57,7 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
   }
 
   ArgsIndexList(byte tpos, Object[] array) {
-    elements = new ArgsObjSet<>(tpos, null, array);
+    elements = new ArgsObjSet<>(tpos, array);
     header = ":";
     order = null;
     refs = CONSTANTS.index();
