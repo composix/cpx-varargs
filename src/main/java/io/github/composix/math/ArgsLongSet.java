@@ -51,7 +51,7 @@ public class ArgsLongSet extends Range<Long> {
   }
 
   @Override
-  public Index initialize(final MutableOrder order) {
+  Index initialize(final MutableOrder order) {
     order.reorder((lhs, rhs) ->
       Long.compare(getLong(lhs.intValue()), getLong(rhs.intValue()))
     );
@@ -84,18 +84,8 @@ public class ArgsLongSet extends Range<Long> {
   }
 
   @Override
-  public Object array() {
+  Object asArray() {
     return array;
-  }
-
-  @Override
-  public Ordinal getType() {
-    return OrdinalNumber.ORDINALS[tpos];
-  }
-
-  @Override
-  public Index indices() {
-    return indices;
   }
 
   @Override

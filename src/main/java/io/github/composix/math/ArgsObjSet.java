@@ -52,7 +52,7 @@ public class ArgsObjSet<E extends Comparable<E>> extends Range<E> {
   }
 
   @Override
-  public Index initialize(final MutableOrder order) {
+  Index initialize(final MutableOrder order) {
     order.reorder((lhs, rhs) ->
       get(lhs.intValue()).compareTo(get(rhs.intValue()))
     );
@@ -88,18 +88,8 @@ public class ArgsObjSet<E extends Comparable<E>> extends Range<E> {
   }
 
   @Override
-  public Object array() {
+  Object asArray() {
     return array;
-  }
-
-  @Override
-  public Ordinal getType() {
-    return OrdinalNumber.ORDINALS[tpos];
-  }
-
-  @Override
-  public Index indices() {
-    return indices;
   }
 
   @Override
@@ -125,10 +115,5 @@ public class ArgsObjSet<E extends Comparable<E>> extends Range<E> {
   @Override
   public int size() {
     return array.length;
-  }
-
-  @Override
-  Object asArray() {
-    return array;
   }
 }

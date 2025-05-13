@@ -42,14 +42,14 @@ import java.util.List;
 class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements Column<E> {
   private static final Constants CONSTANTS = Constants.getInstance();
 
-  final ArgsSet<?> elements;
+  final Range<E> elements;
 
   String header;
   MutableOrder order;
   Index refs, indices;
 
   ArgsIndexList(byte tpos, long[] array) {
-    elements = new ArgsLongSet(tpos, array);
+    elements = (Range<E>) new ArgsLongSet(tpos, array);
     header = ":";
     order = null;
     refs = CONSTANTS.index();
@@ -65,13 +65,13 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
   }
 
   public Ordinal getType() {
-    return elements.getType();
+    return OrdinalNumber.ORDINALS[elements.tpos];
   }
 
   @Override
   public Object source() {
-    if (elements.indices() == null) {
-      return elements.array();
+    if (elements.indices == null) {
+      return elements.asArray();
     }
     throw new UnsupportedOperationException();
   }
@@ -146,16 +146,16 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
   }
 
   @Override
-  public ArgsSet<E> range() {
-    if (elements.indices() == null) {
+  public RangedList<E> range() {
+    if (elements.indices == null) {
       refs = elements.initialize(order);
     }
-    return (ArgsSet<E>) elements;
+    return elements;
   }
 
   @Override
   public void sort(Comparator<? super E> comparator) {
-    if (elements.indices() == null) {
+    if (elements.indices == null) {
       switch (elements) {
         case ArgsLongSet longSet:
           if (comparator != null) {

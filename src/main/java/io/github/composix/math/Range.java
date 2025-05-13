@@ -1,8 +1,8 @@
 /**
  * class Range
- * 
+ *
  * Abstract class representing the range of values that can occur in a column.
- * 
+ *
  * Author: dr. ir. J. M. Valk
  * Date: May 2025
  */
@@ -33,9 +33,7 @@
 
 package io.github.composix.math;
 
-abstract class Range<E extends Comparable<E>>
-  extends OrdinalList<E>
-  implements ArgsSet<E> {
+abstract class Range<E extends Comparable<E>> extends OrdinalList<E> {
 
   byte tpos;
   Index indices;
@@ -44,6 +42,8 @@ abstract class Range<E extends Comparable<E>>
     this.tpos = tpos;
     this.indices = null;
   }
+
+  abstract Index initialize(MutableOrder order);
 
   @Override
   public Index cumulativeCounts() {

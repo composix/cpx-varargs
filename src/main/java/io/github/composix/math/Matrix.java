@@ -1012,7 +1012,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     ArgsLongSet lhs,
     ArgsLongSet rhs
   ) {
-    final Index indices = lhs.indices();
+    final Index indices = lhs.indices;
     final int l = indices.size(), n = rhsOrder.amount();
     int j = 0, k = -1;
     Comparable[] target = (Comparable[]) lhsOrder
@@ -1143,7 +1143,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final VarArgs varargs = varArgs();
     final int mask = varargs.mask();
     int offset = offset();
-    return ((ArgsSet<?>) varargs.argv[--offset & mask]).indices();
+    return ((Range<?>) varargs.argv[--offset & mask]).indices;
   }
 
   private <T> Spliterator.OfLong ofLong(
