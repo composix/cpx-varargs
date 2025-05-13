@@ -70,17 +70,6 @@ import java.util.stream.LongStream;
  */
 public interface Column<E> extends CharSequence, RangedList<E> {
   /**
-   * Returns the set view consisting of the distinct elements of this column. As a
-   * side-effect this compacts the column and no longer directly maintains its
-   * elements in an array, but instead it references elements in the set view
-   * using an {@code Index}. As a result, the {@code source} method will throw an
-   * UnsupportedOperationException when called after asListSet().
-   *
-   * @return ListSet - set of distinct elements in this column
-   */
-  RangedList<E> asListSet();
-
-  /**
    * Get the ordinal type of the elements in this column. See the methods Ordinal::any
    * and Ordinal::all for details on how the ordinal type system works.
    *

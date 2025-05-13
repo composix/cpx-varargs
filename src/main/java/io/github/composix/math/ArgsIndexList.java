@@ -146,7 +146,7 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
   }
 
   @Override
-  public ArgsSet<E> asListSet() {
+  public ArgsSet<E> range() {
     if (elements.indices() == null) {
       refs = elements.initialize(order);
     }

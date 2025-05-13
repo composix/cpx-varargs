@@ -480,7 +480,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   public Args pk(CharSequence name, Ordinal type) throws NoSuchFieldException {
     final Column<?> column = attribute(name, type);
     column.attachOrder(this);
-    pk = (ArgsLongSet) column.asListSet();
+    pk = (ArgsLongSet) column.range();
     if (column.size() != pk.size()) {
       throw new IllegalArgumentException("column has duplicates");
     }
@@ -491,7 +491,7 @@ public class Matrix extends OrderInt implements Keys, Args {
   public Args fk(CharSequence name, Ordinal type) throws NoSuchFieldException {
     final Column<?> column = attribute(name, type);
     column.attachOrder(this);
-    fk = (ArgsLongSet) column.asListSet();
+    fk = (ArgsLongSet) column.range();
     return this;
   }
 
