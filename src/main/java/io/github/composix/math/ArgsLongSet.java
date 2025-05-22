@@ -39,8 +39,8 @@ public class ArgsLongSet extends Range<Long> {
 
   long[] array;
 
-  ArgsLongSet(byte tpos, long[] array) {
-    super(tpos);
+  ArgsLongSet(long[] array) {
+    super(null);
     this.array = array;
   }
 

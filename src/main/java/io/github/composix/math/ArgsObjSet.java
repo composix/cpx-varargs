@@ -40,8 +40,8 @@ public class ArgsObjSet<E extends Comparable<E>> extends Range<E> {
 
   Object[] array;
 
-  ArgsObjSet(byte tpos, Object[] array) {
-    super(tpos);
+  ArgsObjSet(Object[] array) {
+    super(null);
     this.array = array;
   }
 

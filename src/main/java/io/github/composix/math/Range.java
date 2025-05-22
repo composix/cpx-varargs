@@ -37,8 +37,8 @@ abstract class Range<E extends Comparable<E>> extends OrdinalList<E> {
 
   Index indices;
 
-  Range(byte tpos) {
-    this.indices = null;
+  Range(Index indices) {
+    this.indices = indices;
   }
 
   abstract Index initialize(int count, int amount, Index result, Order order);
@@ -60,5 +60,10 @@ abstract class Range<E extends Comparable<E>> extends OrdinalList<E> {
     for (int i = 0; i < size; ++i) {
       result.setInt(i, i);
     }
+  }
+
+  @Override
+  boolean isRange() {
+    return indices != null;
   }
 }

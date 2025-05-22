@@ -54,7 +54,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   ArgsIndexList(byte tpos, long[] array) {
     this.tpos = tpos;
-    elements = (Range<E>) new ArgsLongSet(tpos, array);
+    elements = (Range<E>) new ArgsLongSet(array);
     header = ":";
     order = null;
     refs = CONSTANTS.index();
@@ -63,7 +63,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   ArgsIndexList(byte tpos, Object[] array) {
     this.tpos = tpos;
-    elements = new ArgsObjSet<>(tpos, array);
+    elements = new ArgsObjSet<>(array);
     header = ":";
     order = null;
     refs = CONSTANTS.index();
@@ -126,7 +126,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public void sort(Comparator<? super E> comparator) {
-    if (elements.indices == null) {
+    if (!isRange()) {
       switch (elements) {
         case ArgsLongSet longSet:
           if (comparator != null) {
@@ -166,7 +166,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public RangedList<E> range() {
-    if (elements.indices == null) {
+    if (!isRange()) {
       initialize();
     }
     return elements;
@@ -174,7 +174,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public Index cumulativeCounts() {
-    if (elements.indices == null) {
+    if (!isRange()) {
       initialize();
     }
     return elements.indices;
@@ -182,7 +182,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public void cumulativeCounts(Index result) {
-    if (elements.indices == null) {
+    if (!isRange()) {
       initialize();
     }
     final Index source = elements.indices;
@@ -194,7 +194,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public Index ranks() {
-    if (elements.indices == null) {
+    if (!isRange()) {
       initialize();
     }
     return refs;
@@ -202,7 +202,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public void ranks(Index result) {
-    if (elements.indices == null) {
+    if (!isRange()) {
       initialize();
     }
     final int size = elements.size();
@@ -219,7 +219,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public Object source() {
-    if (elements.indices == null) {
+    if (!isRange()) {
       return elements.asArray();
     }
     throw new UnsupportedOperationException();
@@ -263,12 +263,14 @@ class ArgsIndexList<E extends Comparable<E>>
   private void initialize() {
     final int amount = order.amount();
     refs = Index.of(amount);
+    int count;
     if (elements.asArray() instanceof Object[]) {
       reorder();
+      count = elements.ranks(order, refs);
     } else {
       reordinal();
+      count = elements.ranks(order, refs);
+      elements.initialize(count, amount, refs, order);
     }
-    int count = elements.ranks(order, refs);
-    elements.initialize(count, amount, refs, order);
   }
 }
