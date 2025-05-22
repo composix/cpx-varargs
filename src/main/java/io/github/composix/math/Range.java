@@ -35,11 +35,9 @@ package io.github.composix.math;
 
 abstract class Range<E extends Comparable<E>> extends OrdinalList<E> {
 
-  byte tpos;
   Index indices;
 
   Range(byte tpos) {
-    this.tpos = tpos;
     this.indices = null;
   }
 

@@ -957,7 +957,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       while ((column = (ArgsIndexList<?>) argv[--index]) != null) {
         switch (column.elements) {
           case ArgsObjSet<?> elements:
-            elements.tpos = pos++;
+            column.tpos = pos++;
             break;        
           default:
             break;

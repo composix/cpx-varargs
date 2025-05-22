@@ -45,6 +45,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   private static final Constants CONSTANTS = Constants.getInstance();
 
+  byte tpos;
   final Range<E> elements;
 
   String header;
@@ -52,6 +53,7 @@ class ArgsIndexList<E extends Comparable<E>>
   Index refs, indices;
 
   ArgsIndexList(byte tpos, long[] array) {
+    this.tpos = tpos;
     elements = (Range<E>) new ArgsLongSet(tpos, array);
     header = ":";
     order = null;
@@ -60,6 +62,7 @@ class ArgsIndexList<E extends Comparable<E>>
   }
 
   ArgsIndexList(byte tpos, Object[] array) {
+    this.tpos = tpos;
     elements = new ArgsObjSet<>(tpos, array);
     header = ":";
     order = null;
@@ -211,7 +214,7 @@ class ArgsIndexList<E extends Comparable<E>>
   // from Column
 
   public Ordinal getType() {
-    return OrdinalNumber.ORDINALS[elements.tpos];
+    return OrdinalNumber.ORDINALS[tpos];
   }
 
   @Override
