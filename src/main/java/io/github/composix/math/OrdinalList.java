@@ -38,6 +38,7 @@ package io.github.composix.math;
 
 import java.util.AbstractList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -82,15 +83,25 @@ abstract class OrdinalList<E extends Comparable<E>>
     return new LongIndex(length);
   }
 
+  // from Comparable
+
+  @Override
   public int compareTo(List<E> other) {
     throw new UnsupportedOperationException();
   }
 
+  // from Index
+
   @Override
-  public void setInt(int index, int element) {
+  public int getInt(final int index) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public long getLong(final int index) {
+    throw new UnsupportedOperationException();
+  }
+  
   @Override
   public long getIndexedLong(int index) {
     final long omega = ArgsOrdinal.OMEGA.longValue();
@@ -113,13 +124,25 @@ abstract class OrdinalList<E extends Comparable<E>>
   }
 
   @Override
+  public void setInt(int index, int element) {
+    throw new UnsupportedOperationException();
+  }
+
+  // from RangedList
+
+  @Override
   public RangedList<E> range() {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public int count(E element) {
-    throw new UnsupportedOperationException();
+    RangedList<E> range = range();
+    final int index = Collections.binarySearch(range, element);
+    if (index < 0) {
+      return 0;
+    }
+    return cumulativeCounts().getInt(index);
   }
 
   @Override
@@ -144,6 +167,27 @@ abstract class OrdinalList<E extends Comparable<E>>
   @Override
   public void ranks(Index result) {
     throw new UnsupportedOperationException();
+  }
+
+  // package-private
+
+  int ranks(final Order order, Index ranks) {
+    final int size = ranks.size();
+    int count = 0, rank = order.rank(0);
+    ranks.setInt(rank, count);
+    E current = get(rank);
+    for (int i = 1; i < size; ++i) {
+      rank = order.rank(i);
+      if (!current.equals(current = get(rank))) {
+        ++count;
+      }
+      ranks.setInt(rank, count);
+    }
+    return ++count;
+  }
+
+  Range<E> range(int count, int amount, Index result, Order order) {
+    return null;
   }
 
   Object asArray() {
@@ -213,6 +257,31 @@ abstract class OrdinalList<E extends Comparable<E>>
    */
   long[] asLongArray() {
     throw new UnsupportedOperationException();
+  }
+
+  static final class ComparableList<E extends Comparable<E>>
+    extends OrdinalList<E> {
+
+    private final E[] array;
+
+    ComparableList(E[] array) {
+      this.array = array;
+    }
+
+    @Override
+    Object asArray() {
+      return array;
+    }
+
+    @Override
+    public int size() {
+      return array.length;
+    }
+
+    @Override
+    public E get(int index) {
+      return array[index];
+    }
   }
 
   /**
@@ -418,6 +487,10 @@ abstract class OrdinalList<E extends Comparable<E>>
 
     private final long[] index;
 
+    LongIndex(final long[] index) {
+      this.index = index;
+    }
+
     LongIndex(final int length) {
       this.index = new long[length];
     }
@@ -456,5 +529,21 @@ abstract class OrdinalList<E extends Comparable<E>>
     public void setInt(int i, int j) {
       index[i] = j;
     }
+
+    @Override
+    int ranks(final Order order, Index ranks) {
+      final int size = ranks.size();
+      int count = 0, rank = order.rank(0);
+      ranks.setInt(rank, count);
+      long current = getLong(rank);
+      for (int i = 1; i < size; ++i) {
+        rank = order.rank(i);
+        if (current != (current = getLong(rank))) {
+          ++count;
+        }
+        ranks.setInt(rank, count);
+      }
+      return ++count;
+    }  
   }
 }

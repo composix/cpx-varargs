@@ -39,7 +39,10 @@ package io.github.composix.math;
 import java.util.Comparator;
 import java.util.List;
 
-class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements Column<E> {
+class ArgsIndexList<E extends Comparable<E>>
+  extends OrdinalList<E>
+  implements Column<E> {
+
   private static final Constants CONSTANTS = Constants.getInstance();
 
   final Range<E> elements;
@@ -64,50 +67,7 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
     indices = null;
   }
 
-  public Ordinal getType() {
-    return OrdinalNumber.ORDINALS[elements.tpos];
-  }
-
-  @Override
-  public Object source() {
-    if (elements.indices == null) {
-      return elements.asArray();
-    }
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Args attach() {
-    return order.ordinal().extend(this);
-  }
-  
-  @Override
-  public void attachOrder(MutableOrder order) {
-    if (refs == CONSTANTS.index()) {
-      if (elements.size() < order.amount()) {
-        throw new IllegalArgumentException(
-          "The order is larger than the number of elements"
-        );
-      }
-    } else {
-      if (refs.size() < order.amount()) {
-        throw new IllegalArgumentException(
-          "The order is larger than the number of elements"
-        );
-      }
-    }
-    this.order = order;
-  }
-
-  @Override
-  public int getInt(int index) {
-    return elements.getInt(order.rank(refs.getInt(index)));
-  }
-
-  @Override
-  public long getLong(int index) {
-    return elements.getLong(order.rank(refs.getInt(index)));
-  }
+  // from Object
 
   @Override
   public boolean equals(Object o) {
@@ -119,7 +79,9 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
     }
     return false;
   }
-  
+
+  // from CharSequence
+
   @Override
   public char charAt(int index) {
     return header.charAt(index);
@@ -129,11 +91,25 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
   public CharSequence subSequence(int start, int end) {
     return header.subSequence(start, end);
   }
-  
+
   @Override
   public int length() {
     return header.length();
   }
+
+  // from Index
+
+  @Override
+  public int getInt(int index) {
+    return elements.getInt(order.rank(refs.getInt(index)));
+  }
+
+  @Override
+  public long getLong(int index) {
+    return elements.getLong(order.rank(refs.getInt(index)));
+  }
+
+  // from List
 
   @Override
   public int size() {
@@ -143,14 +119,6 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
   @Override
   public E get(int index) {
     return (E) elements.get(order.rank(refs.getInt(index)));
-  }
-
-  @Override
-  public RangedList<E> range() {
-    if (elements.indices == null) {
-      refs = elements.initialize(order);
-    }
-    return elements;
   }
 
   @Override
@@ -189,5 +157,115 @@ class ArgsIndexList<E extends Comparable<E>> extends OrdinalList<E> implements C
       }
     }
     // TODO: override the sort method to sort the elements based on the ordinals
+  }
+
+  // from RangedList
+
+  @Override
+  public RangedList<E> range() {
+    if (elements.indices == null) {
+      initialize();
+    }
+    return elements;
+  }
+
+  @Override
+  public Index cumulativeCounts() {
+    if (elements.indices == null) {
+      initialize();
+    }
+    return elements.indices;
+  }
+
+  @Override
+  public void cumulativeCounts(Index result) {
+    if (elements.indices == null) {
+      initialize();
+    }
+    final Index source = elements.indices;
+    final int size = elements.size();
+    for (int i = 0; i < size; ++i) {
+      indices.setInt(i, source.getInt(i));
+    }
+  }
+
+  @Override
+  public Index ranks() {
+    if (elements.indices == null) {
+      initialize();
+    }
+    return refs;
+  }
+
+  @Override
+  public void ranks(Index result) {
+    if (elements.indices == null) {
+      initialize();
+    }
+    final int size = elements.size();
+    for (int i = 0; i < size; ++i) {
+      indices.setInt(i, refs.getInt(i));
+    }
+  }
+
+  // from Column
+
+  public Ordinal getType() {
+    return OrdinalNumber.ORDINALS[elements.tpos];
+  }
+
+  @Override
+  public Object source() {
+    if (elements.indices == null) {
+      return elements.asArray();
+    }
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Args attach() {
+    return order.ordinal().extend(this);
+  }
+
+  @Override
+  public void attachOrder(MutableOrder order) {
+    if (refs == CONSTANTS.index()) {
+      if (elements.size() < order.amount()) {
+        throw new IllegalArgumentException(
+          "The order is larger than the number of elements"
+        );
+      }
+    } else {
+      if (refs.size() < order.amount()) {
+        throw new IllegalArgumentException(
+          "The order is larger than the number of elements"
+        );
+      }
+    }
+    this.order = order;
+  }
+
+  private void reordinal() {
+    order.reorder((lhs, rhs) ->
+      Long.compare(elements.getLong(lhs.intValue()), elements.getLong(rhs.intValue()))
+    );    
+  }
+
+  private void reorder() {
+    order.reorder((lhs, rhs) ->
+      get(lhs.intValue()).compareTo(get(rhs.intValue()))
+    );
+  }
+
+  private void initialize() {
+    final int amount = order.amount();
+    refs = Index.of(amount);
+    if (elements.asArray() instanceof Object[]) {
+      reorder();
+    } else {
+      reordinal();
+    }
+    int count = elements.ranks(order, refs);
+    elements.initialize(count, amount, refs, order);
   }
 }

@@ -52,35 +52,21 @@ public class ArgsObjSet<E extends Comparable<E>> extends Range<E> {
   }
 
   @Override
-  Index initialize(final MutableOrder order) {
-    order.reorder((lhs, rhs) ->
-      get(lhs.intValue()).compareTo(get(rhs.intValue()))
-    );
-    final E[] array = (E[]) this.array;
-    final int amount = order.amount();
-    int count = 1, rank = order.rank(0);
-    E current = array[rank];
-    for (int i = 1; i < amount; ++i) {
-      if (!current.equals(current = array[order.rank(i)])) {
-        ++count;
-      }
-    }
-    indices = Index.of(count, amount);
-    this.array = (E[]) Array.newInstance(
-      array.getClass().getComponentType(),
+  Index initialize(int count, int amount, Index result, final Order order) {
+    final Index indices = Index.of(count, amount);
+    final E[] array = (E[]) Array.newInstance(
+      asArray().getClass().getComponentType(),
       count
     );
-    final Index result = Index.of(amount, --count);
     count = 0;
-    result.setInt(rank, count);
-    current = array[rank];
-    this.array[0] = current;
+    int rank = order.rank(0);
+    int current = result.getInt(rank);
+    array[0] = get(rank);
     for (int i = 1; i < amount; ++i) {
       rank = order.rank(i);
-      result.setInt(rank, count);
-      if (current != (current = array[rank])) {
+      if (current != (current = result.getInt(rank))) {
         indices.setInt(count++, i);
-        this.array[count] = current;
+        array[count] = get(rank);
       }
     }
     indices.setInt(count, amount);

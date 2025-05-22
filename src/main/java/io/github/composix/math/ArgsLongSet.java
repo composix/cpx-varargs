@@ -51,35 +51,38 @@ public class ArgsLongSet extends Range<Long> {
   }
 
   @Override
-  Index initialize(final MutableOrder order) {
-    order.reorder((lhs, rhs) ->
-      Long.compare(getLong(lhs.intValue()), getLong(rhs.intValue()))
-    );
-    final long[] array = this.array;
-    final int amount = order.amount();
-    int count = 1, rank = order.rank(0);
-    long current = array[rank];
-    for (int i = 1; i < amount; ++i) {
-      if (current != (current = array[order.rank(i)])) {
+  int ranks(final Order order, Index ranks) {
+    final int size = ranks.size();
+    int count = 0, rank = order.rank(0);
+    ranks.setInt(rank, count);
+    long current = getLong(rank);
+    for (int i = 1; i < size; ++i) {
+      rank = order.rank(i);
+      if (current != (current = getLong(rank))) {
         ++count;
       }
+      ranks.setInt(rank, count);
     }
+    return ++count;
+  }
+
+  @Override
+  Index initialize(int count, int amount, Index result, final Order order) {
     indices = Index.of(count, amount);
-    this.array = new long[count];
-    final Index result = Index.of(amount, --count);
+    final long[] array = new long[count];
     count = 0;
-    result.setInt(rank, count);
-    current = array[rank];
-    this.array[0] = current;
+    int rank = order.rank(0);
+    int current = result.getInt(rank);
+    array[0] = getLong(rank);
     for (int i = 1; i < amount; ++i) {
       rank = order.rank(i);
-      result.setInt(rank, count);
-      if (current != (current = array[rank])) {
+      if (current != (current = result.getInt(rank))) {
         indices.setInt(count++, i);
-        this.array[count] = current;
+        array[count] = getLong(rank);
       }
     }
     indices.setInt(count, amount);
+    this.array = array;
     return result;
   }
 

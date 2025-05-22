@@ -43,7 +43,7 @@ abstract class Range<E extends Comparable<E>> extends OrdinalList<E> {
     this.indices = null;
   }
 
-  abstract Index initialize(MutableOrder order);
+  abstract Index initialize(int count, int amount, Index result, Order order);
 
   @Override
   public Index cumulativeCounts() {
