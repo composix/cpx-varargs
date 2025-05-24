@@ -126,7 +126,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public void sort(Comparator<? super E> comparator) {
-    if (!isRange()) {
+    if (!elements.isRange()) {
       switch (elements) {
         case ArgsLongSet longSet:
           if (comparator != null) {
