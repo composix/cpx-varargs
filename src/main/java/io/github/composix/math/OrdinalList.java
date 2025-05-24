@@ -60,27 +60,43 @@ abstract class OrdinalList<E extends Comparable<E>>
    * Factory method for creating an {@code OrdinalList} of the specified length,
    * choosing the most compact internal representation based on the maximum ordinal value.
    *
-   * Currently supports {@code BitSet}, {@code byte[]}, {@code short[]}, {@code int[]},
+   * Ordinals are used to support {@code BitSet}, {@code byte[]} and {@code short[]} under
+   * the same boxed representation as an {@code Ordinal} for convienience. Use specialized
+   * factory methods for creating large numerical values: e.g., for {@code int[]},
    * and {@code long[]} representations.
    *
    * @param length - the length of the list to create
    * @param lastIndex - the maximum ordinal value to be stored
    * @return an {@code OrdinalList} instance with appropriate backing
+   * or null if no suitable representation is found
    */
-  static OrdinalList<Ordinal> of(int length, int lastIndex) {
+  static OrdinalList<Ordinal> of(int length, short lastIndex) {
     if (lastIndex < 2) {
       return new BitIndex(length);
     }
     if (lastIndex <= Byte.MAX_VALUE) {
       return new ByteIndex(length);
     }
-    if (lastIndex <= Short.MAX_VALUE) {
-      return new ShortIndex(length);
-    }
+    return new ShortIndex(length);
+  }
+
+  /**
+   * Factory method for creating an {@code OrdinalList} of the specified length,
+   * choosing the most compact internal representation based on the maximum ordinal value.
+   *
+   * Longs are used to support {@code int[]}, and {@code long[]} under the same boxed
+   * representation as an {@code Ordinal} for convienience.
+   *
+   * @param length - the length of the list to create
+   * @param lastIndex - the maximum ordinal value to be stored
+   * @return an {@code OrdinalList} instance with appropriate backing
+   * or null if no suitable representation is found
+   */
+  static OrdinalList<Long> ofLong(int length, long lastIndex) {
     if (lastIndex <= Integer.MAX_VALUE) {
       return new IntIndex(length);
     }
-    throw new UnsupportedOperationException();
+    return new LongIndex(length);
   }
 
   // from Comparable
@@ -440,7 +456,7 @@ abstract class OrdinalList<E extends Comparable<E>>
   /**
    * OrdinalList backed by a compact {@code int[]} index.
    */
-  static final class IntIndex extends OrdinalList<Ordinal> {
+  static final class IntIndex extends OrdinalList<Long> {
 
     private final int[] index;
 
@@ -462,10 +478,10 @@ abstract class OrdinalList<E extends Comparable<E>>
     public int size() {
       return index.length;
     }
-
+ 
     @Override
-    public Ordinal get(int i) {
-      return Ordinal.of(getInt(i));
+    public Long get(int i) {
+      return getLong(i);
     }
 
     @Override
@@ -487,7 +503,7 @@ abstract class OrdinalList<E extends Comparable<E>>
   /**
    * OrdinalList backed by a {@code long[]} index.
    */
-  static final class LongIndex extends OrdinalList<Ordinal> {
+  static final class LongIndex extends OrdinalList<Long> {
 
     private final long[] index;
 
@@ -515,8 +531,8 @@ abstract class OrdinalList<E extends Comparable<E>>
     }
 
     @Override
-    public Ordinal get(int i) {
-      return Ordinal.of(getInt(i));
+    public Long get(int i) {
+      return getLong(i);
     }
 
     @Override

@@ -44,15 +44,21 @@ import org.junit.jupiter.api.Test;
  */
 public class OrdinalListTest {
 
+    // Test creation of correct backing array type based on ordinal value
+
     /**
      * Tests that the OrdinalList factory method creates an instance of ByteIndex when
      * the ordinal value is within the byte range.
      */
     @Test
     public void testByteIndexCreation() {
-        OrdinalList list = OrdinalList.of(10, 100);
-        assertNotNull(list); // Ensure the list is created
-        assertTrue(list instanceof OrdinalList.ByteIndex); // Verify the instance type
+        OrdinalList<Ordinal> list = OrdinalList.of(1, (short) 100);
+        assertSame(list.asByteArray(), list.asArray()); // ensure the list is backed by a byte array
+        // and that it is not backed by anything else
+        assertThrows(UnsupportedOperationException.class, list::asBitSet);
+        assertThrows(UnsupportedOperationException.class, list::asShortArray);
+        assertThrows(UnsupportedOperationException.class, list::asIntArray);
+        assertThrows(UnsupportedOperationException.class, list::asLongArray);
     }
 
     /**
@@ -61,20 +67,16 @@ public class OrdinalListTest {
      */
     @Test
     public void testShortIndexCreation() {
-        OrdinalList list = OrdinalList.of(10, 200);
-        assertNotNull(list);
-        assertTrue(list instanceof OrdinalList.ShortIndex);
+        OrdinalList<Ordinal> list = OrdinalList.of(1, (short) 200);
+        assertSame(list.asShortArray(), list.asArray()); // ensure the list is backed by a byte array
+        // and that it is not backed by anything else
+        assertThrows(UnsupportedOperationException.class, list::asBitSet);
+        assertThrows(UnsupportedOperationException.class, list::asByteArray);
+        assertThrows(UnsupportedOperationException.class, list::asIntArray);
+        assertThrows(UnsupportedOperationException.class, list::asLongArray);
     }
 
-    /**
-     * Tests that calling asBitSet on an OrdinalList throws an UnsupportedOperationException
-     * since this operation is not supported for all list types.
-     */
-    @Test
-    public void testUnsupportedOperationExceptionOnAsBitSet() {
-        OrdinalList list = OrdinalList.of(10, 100);
-        assertThrows(UnsupportedOperationException.class, list::asBitSet);
-    }
+    // Test correct list behavior for size and get/set operations
 
     /**
      * Tests the size and basic retrieval functionality for a ByteIndex-backed OrdinalList.
@@ -82,8 +84,8 @@ public class OrdinalListTest {
      */
     @Test
     public void testSizeAndGetByteIndex() {
-        OrdinalList list = OrdinalList.of(5, 100);
-        assertEquals(5, list.size()); // Verify size of the list
+        OrdinalList<Ordinal> list = OrdinalList.of(1, (short) 100);
+        assertEquals(1, list.size()); // Verify size of the list
         list.setInt(0, 10); // Set a value in the list
         assertEquals(10, list.getInt(0)); // Verify that the value was set correctly
         assertSame(ArgsOrdinal.K, list.get(0)); // Verify retrieval via Ordinal
@@ -95,30 +97,10 @@ public class OrdinalListTest {
      */
     @Test
     public void testSizeAndGetShortIndex() {
-        OrdinalList list = OrdinalList.of(5, 300);
+        OrdinalList<Ordinal> list = OrdinalList.of(5, (short) 300);
         assertEquals(5, list.size());
         list.setInt(0, 20);
         assertEquals(20, list.getInt(0));
         assertSame(ArgsOrdinal.U, list.get(0));
-    }
-
-    /**
-     * Verifies that calling asByteArray on an OrdinalList throws an UnsupportedOperationException
-     * since not all list types support this operation.
-     */
-    @Test
-    public void testUnsupportedOperationExceptionOnAsByteArray() {
-        OrdinalList list = OrdinalList.of(10, 128);
-        assertThrows(UnsupportedOperationException.class, list::asByteArray);
-    }
-
-    /**
-     * Verifies that calling asShortArray on an OrdinalList throws an UnsupportedOperationException
-     * since not all list types support this operation.
-     */
-    @Test
-    public void testUnsupportedOperationExceptionOnAsShortArray() {
-        OrdinalList list = OrdinalList.of(10, 100);
-        assertThrows(UnsupportedOperationException.class, list::asShortArray);
     }
 }

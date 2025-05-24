@@ -60,7 +60,7 @@ interface Index {
    * @return an index of the specified length
    */
   static Index of(int length) {
-    final Index result = OrdinalList.of(length, --length);
+    final Index result = of(length, --length);
     for (int i = 0; i <= length; ++i) {
       result.setInt(i, i);
     }
@@ -78,7 +78,10 @@ interface Index {
    * @return an index of the specified length and target range (0 to lastIndex)
    */
   static Index of(int length, int lastIndex) {
-    return OrdinalList.of(length, lastIndex);
+    if (lastIndex <= Short.MAX_VALUE) {
+      return OrdinalList.of(length, (short) lastIndex);
+    }
+    return OrdinalList.ofLong(length, lastIndex);
   }
 
   int size();
