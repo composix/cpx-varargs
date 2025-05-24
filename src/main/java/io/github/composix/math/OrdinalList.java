@@ -80,7 +80,7 @@ abstract class OrdinalList<E extends Comparable<E>>
     if (lastIndex <= Integer.MAX_VALUE) {
       return new IntIndex(length);
     }
-    return new LongIndex(length);
+    throw new UnsupportedOperationException();
   }
 
   // from Comparable
@@ -191,7 +191,7 @@ abstract class OrdinalList<E extends Comparable<E>>
   }
 
   Range<E> range(int count, int amount, Index result, Order order) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   Object asArray() {
