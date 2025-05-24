@@ -166,7 +166,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public RangedList<E> range() {
-    if (!isRange()) {
+    if (!elements.isRange()) {
       initialize();
     }
     return elements;
@@ -174,7 +174,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public Index cumulativeCounts() {
-    if (!isRange()) {
+    if (!elements.isRange()) {
       initialize();
     }
     return elements.indices;
@@ -182,7 +182,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public void cumulativeCounts(Index result) {
-    if (!isRange()) {
+    if (!elements.isRange()) {
       initialize();
     }
     final Index source = elements.indices;
@@ -194,7 +194,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public Index ranks() {
-    if (!isRange()) {
+    if (!elements.isRange()) {
       initialize();
     }
     return refs;
@@ -202,7 +202,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public void ranks(Index result) {
-    if (!isRange()) {
+    if (!elements.isRange()) {
       initialize();
     }
     final int size = elements.size();
@@ -219,7 +219,7 @@ class ArgsIndexList<E extends Comparable<E>>
 
   @Override
   public Object source() {
-    if (!isRange()) {
+    if (!elements.isRange()) {
       return elements.asArray();
     }
     throw new UnsupportedOperationException();
