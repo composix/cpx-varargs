@@ -171,6 +171,10 @@ abstract class OrdinalList<E extends Comparable<E>>
 
   // package-private
 
+  boolean isRange() {
+    return false;
+  }
+  
   int ranks(final Order order, Index ranks) {
     final int size = ranks.size();
     int count = 0, rank = order.rank(0);
