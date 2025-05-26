@@ -81,14 +81,14 @@ class KeysTest extends PetstoreTestCase {
     assertEquals(8, indices.getInt(2));
 
     // ...and contains the extracted keys
-    Column<Category> column = (Column<Category>) argv[--offset & mask];
+    Range<Category> column = (Range<Category>) argv[--offset & mask];
     assertAllEquals(
       all(
         new Category(0, "cats"),
         new Category(1, "dogs"),
         new Category(2, "other")
       ),
-      column.source()
+      column.asArray()
     );
 
     // And nothing else

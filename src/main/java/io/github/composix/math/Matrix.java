@@ -435,7 +435,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     if (argv(-1) != null) {
       throw new ConcurrentModificationException("grouping already in progress");
     }
-    final ArgsIndexList<T> result = _groupBy(tpos, accessor);
+    final Range<T> result = _groupBy(tpos, accessor);
     argv(-2, result);
     return this;
   }
@@ -543,20 +543,16 @@ public class Matrix extends OrderInt implements Keys, Args {
     throw new NoSuchFieldException(name.toString());
   }
 
-  protected <T extends Comparable<T>, K extends Comparable<K>> ArgsIndexList<T> _groupBy(
-    Ordinal tpos,
-    Function<T, K> accessor
-  ) {
+  protected <T extends Comparable<T>, K extends Comparable<K>> Range<
+    T
+  > _groupBy(Ordinal tpos, Function<T, K> accessor) {
     final Accessor.OfObject accessObject = Accessor.OfObject.INSTANCE;
     reorder(comparator(tpos, accessor));
     accessObject.accessor(accessor);
     final Object[] source = argv(tpos.intValue());
     final Index indices = groupBy(accessObject, source);
     final T[] target = (T[]) keys(accessObject, source, indices);
-    final ArgsIndexList<T> result = new ArgsIndexList<>(
-      tposOfType(target.getClass().getComponentType()),
-      target
-    );
+    final Range<T> result = Range.of(indices, target);
     accessObject.destroy();
     return result;
   }
@@ -583,8 +579,10 @@ public class Matrix extends OrderInt implements Keys, Args {
     );
     accessLong.accessor(accessor);
     final Index indices = groupBy(accessLong, source);
-    final Range<Long> result = new ArgsLongSet((long[]) keys(accessLong, source, indices));
-    result.indices = indices;
+    final Range<Long> result = Range.ofLongs(
+      indices,
+      (long[]) keys(accessLong, source, indices)
+    );
     accessLong.destroy();
     return result;
   }

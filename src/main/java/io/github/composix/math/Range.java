@@ -34,6 +34,17 @@
 package io.github.composix.math;
 
 abstract class Range<E extends Comparable<E>> extends OrdinalList<E> {
+  static <E extends Comparable<E>> Range<E> of(Index cumulativeCounts, E[] array) {
+    final ArgsObjSet<E> result = new ArgsObjSet<>(array);
+    result.indices = cumulativeCounts;
+    return result;
+  }
+
+  static Range<Long> ofLongs(Index cumulativeCounts, long[] array) {
+    final ArgsLongSet result = new ArgsLongSet(array);
+    result.indices = cumulativeCounts;
+    return result;
+  }
 
   Index indices;
 
