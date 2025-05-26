@@ -448,7 +448,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     if (argv(-1) != null) {
       throw new ConcurrentModificationException("grouping already in progress");
     }
-    final ArgsIndexList<Long> result = _groupBy(tpos, accessor);
+    final Range<Long> result = _groupBy(tpos, accessor);
     argv(-2, result);
     return this;
   }
@@ -458,8 +458,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal tpos,
     ToLongFunction<T> accessor
   ) {
-    pk = (ArgsLongSet) _groupBy(tpos, accessor).elements;
-    pk.indices = argv(-1);
+    pk = (ArgsLongSet) _groupBy(tpos, accessor);
     if (pk.array.length != pk.indices.size()) {
       throw new IllegalArgumentException("column has duplicates");
     }
@@ -471,8 +470,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal tpos,
     ToLongFunction<T> accessor
   ) {
-    fk = (ArgsLongSet) _groupBy(tpos, accessor).elements;
-    fk.indices = argv(-1);
+    fk = (ArgsLongSet) _groupBy(tpos, accessor);
     return this;
   }
 
@@ -573,7 +571,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     throw new UnsupportedOperationException();
   }
 
-  protected <T> ArgsIndexList<Long> _groupBy(Ordinal tpos, ToLongFunction<T> accessor) {
+  protected <T> Range<Long> _groupBy(Ordinal tpos, ToLongFunction<T> accessor) {
     final Column<T> column = column(tpos);
     final Object[] source = (Object[]) column.source();
     final Accessor.OfLong accessLong = Accessor.OfLong.INSTANCE;
@@ -585,10 +583,8 @@ public class Matrix extends OrderInt implements Keys, Args {
     );
     accessLong.accessor(accessor);
     final Index indices = groupBy(accessLong, source);
-    final ArgsIndexList<Long> result = new ArgsIndexList<>(
-      AL.byteValue(),
-      (long[]) keys(accessLong, source, indices)
-    );
+    final Range<Long> result = new ArgsLongSet((long[]) keys(accessLong, source, indices));
+    result.indices = indices;
     accessLong.destroy();
     return result;
   }
