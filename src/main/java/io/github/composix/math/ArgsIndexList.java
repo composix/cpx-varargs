@@ -52,6 +52,15 @@ class ArgsIndexList<E extends Comparable<E>>
   MutableOrder order;
   Index refs, indices;
 
+  ArgsIndexList(byte tpos, Range<E> range) {
+    this.tpos = tpos;
+    elements = range;
+    header = ":";
+    order = null;
+    refs = CONSTANTS.index();
+    indices = null;
+  }
+
   ArgsIndexList(byte tpos, long[] array) {
     this.tpos = tpos;
     elements = (Range<E>) new ArgsLongSet(array);
@@ -177,7 +186,7 @@ class ArgsIndexList<E extends Comparable<E>>
     if (!elements.isRange()) {
       initialize();
     }
-    return elements.indices;
+    return ((Range<?>) elements).indices;
   }
 
   @Override
@@ -185,7 +194,7 @@ class ArgsIndexList<E extends Comparable<E>>
     if (!elements.isRange()) {
       initialize();
     }
-    final Index source = elements.indices;
+    final Index source = ((Range<?>) elements).indices;
     final int size = elements.size();
     for (int i = 0; i < size; ++i) {
       indices.setInt(i, source.getInt(i));
@@ -222,7 +231,7 @@ class ArgsIndexList<E extends Comparable<E>>
     if (!elements.isRange()) {
       return elements.asArray();
     }
-    throw new UnsupportedOperationException();
+    return null;
   }
 
   @Override
@@ -270,7 +279,8 @@ class ArgsIndexList<E extends Comparable<E>>
     } else {
       reordinal();
       count = elements.ranks(order, refs);
-      elements.initialize(count, amount, refs, order);
+      //elements = elements.range(count, amount, refs, order);
+      ((Range<?>) elements).initialize(count, amount, refs, order);
     }
   }
 }

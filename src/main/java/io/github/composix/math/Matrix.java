@@ -436,7 +436,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       throw new ConcurrentModificationException("grouping already in progress");
     }
     final Range<T> result = _groupBy(tpos, accessor);
-    argv(-2, result);
+    argv(-2, new ArgsIndexList<>((byte) 0, result));
     return this;
   }
 
@@ -449,7 +449,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       throw new ConcurrentModificationException("grouping already in progress");
     }
     final Range<Long> result = _groupBy(tpos, accessor);
-    argv(-2, result);
+    argv(-2, new ArgsIndexList<>((byte) 37, result));
     return this;
   }
 
@@ -947,15 +947,8 @@ public class Matrix extends OrderInt implements Keys, Args {
       final Matrix result = (Matrix) clone();
       result.ordinal = indices.size();
       ArgsIndexList<?> column;
-      byte pos = 0;
       while ((column = (ArgsIndexList<?>) argv[--index]) != null) {
-        switch (column.elements) {
-          case ArgsObjSet<?> elements:
-            column.tpos = pos++;
-            break;        
-          default:
-            break;
-        }
+        column.elements.indices = null;
         result.extend(column);
       }
       return result;
