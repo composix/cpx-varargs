@@ -118,8 +118,8 @@ class KeysTest extends PetstoreTestCase {
     assertEquals(6,indices.getInt(1));
 
     // ...and contains the extracted quantities
-    Column<Long> column = (Column<Long>) argv[--offset & mask];
-    assertAllEquals(any(1L, 2L), column.source());
+    Range<Long> column = (Range<Long>) argv[--offset & mask];
+    assertAllEquals(any(1L, 2L), column.asArray());
   }
 
   @Test
