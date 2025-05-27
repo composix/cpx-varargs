@@ -81,14 +81,15 @@ class KeysTest extends PetstoreTestCase {
     assertEquals(8, indices.getInt(2));
 
     // ...and contains the extracted keys
-    Range<Category> column = (Range<Category>) argv[--offset & mask];
+    ArgsIndexList<Category> column = (ArgsIndexList<Category>) argv[--offset & mask];
+    column.elements.indices = null;
     assertAllEquals(
       all(
         new Category(0, "cats"),
         new Category(1, "dogs"),
         new Category(2, "other")
       ),
-      column.asArray()
+      column.source()
     );
 
     // And nothing else
@@ -104,12 +105,19 @@ class KeysTest extends PetstoreTestCase {
     // Then also the underlying VarArgs...
     int mask = orderVarArgs.mask(), offset = orders.hashCode() & mask;
     Object[] argv = orderVarArgs.argv;
+    Column[] columns = orderVarArgs.columns;
 
     // ...still contains the orders
+    ArgsIndexList<?> column = (ArgsIndexList<?>) columns[offset];
+    assertSame(orders, column.order); 
+    assertSame(Constants.INSTANCE.index(), column.refs);
+    assertNull(column.elements.indices);
+    Object[] array = (Object[]) column.elements.asArray();
     assertAllEquals(
       all(O, P, Q, R, S, T),
-      orderVarArgs.argv[orders.hashCode() & orderVarArgs.mask()]
+      array
     );
+    assertSame(array, orderVarArgs.argv[orders.hashCode() & orderVarArgs.mask()]);
 
     // ...and contains the indices of the groups
     Index indices = (Index) argv[--offset & mask];
@@ -117,9 +125,12 @@ class KeysTest extends PetstoreTestCase {
     assertEquals(3, indices.getInt(0));
     assertEquals(6,indices.getInt(1));
 
-    // ...and contains the extracted quantities
-    Range<Long> column = (Range<Long>) argv[--offset & mask];
-    assertAllEquals(any(1L, 2L), column.asArray());
+    // ...and also contains the extracted quantities
+    column = (ArgsIndexList<?>) argv[--offset & mask];
+    assertNull(column.order); 
+    assertSame(Constants.INSTANCE.index(), column.refs);
+    assertSame(indices, column.elements.indices);
+    assertAllEquals(any(1L, 2L), column.elements.asArray());
   }
 
   @Test
