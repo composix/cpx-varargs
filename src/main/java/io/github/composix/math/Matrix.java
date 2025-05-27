@@ -432,11 +432,14 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal tpos,
     Function<T, K> accessor
   ) {
-    if (argv(-1) != null) {
+    final VarArgs varargs = varArgs();
+    final Object[] columns = varargs.columns;
+    int offset = offset(); --offset; offset &= varargs.mask();
+    if (columns[offset] != null) {
       throw new ConcurrentModificationException("grouping already in progress");
     }
     final Range<T> result = _groupBy(tpos, accessor);
-    argv(-2, new ArgsIndexList<>((byte) 0, result));
+    columns[offset] = new ArgsIndexList<>((byte) 0, result);
     return this;
   }
 
@@ -445,11 +448,14 @@ public class Matrix extends OrderInt implements Keys, Args {
     Ordinal tpos,
     ToLongFunction<T> accessor
   ) {
-    if (argv(-1) != null) {
+    final VarArgs varargs = varArgs();
+    final Object[] columns = varargs.columns;
+    int offset = offset(); --offset; offset &= varargs.mask();
+    if (columns[offset] != null) {
       throw new ConcurrentModificationException("grouping already in progress");
     }
     final Range<Long> result = _groupBy(tpos, accessor);
-    argv(-2, new ArgsIndexList<>((byte) 37, result));
+    columns[offset] = new ArgsIndexList<>((byte) 37, result);
     return this;
   }
 
@@ -797,12 +803,13 @@ public class Matrix extends OrderInt implements Keys, Args {
     ToLongFunction<T> accessor,
     LongBinaryOperator reducer
   ) {
-    int index = -1;
-    final Index indices = argv(index--);
-    while (argv(index) != null) {
-      --index;
-    }
-    argv(index, new ArgsIndexList<>(AL.byteValue(), (long[]) target(ofLong(col, accessor), reducer, indices)));
+    final Index indices = argv(-1);
+    final VarArgs varargs = varArgs();
+    final int mask = varargs.mask();
+    final Object[] columns = varargs.columns;
+    int offset = offset();
+    while (columns[--offset & mask] != null);
+    columns[offset & mask] = new ArgsIndexList<>(AL.byteValue(), (long[]) target(ofLong(col, accessor), reducer, indices));
     return this;
   }
 
@@ -939,22 +946,23 @@ public class Matrix extends OrderInt implements Keys, Args {
       return this;
     }
     final VarArgs varargs = varArgs();
-    final Object[] argv = varargs.argv;
-    int index = offset(); --index;
-    index &= varargs.mask();
-    final Index indices = (Index) argv[index];
+    final int mask = varargs.mask();
+    final Object[] columns = varargs.columns;
+    int offset = offset();
+    ArgsIndexList<?> column = (ArgsIndexList<?>) columns[--offset & mask];
+    Matrix result;
     try {
-      final Matrix result = (Matrix) clone();
-      result.ordinal = indices.size();
-      ArgsIndexList<?> column;
-      while ((column = (ArgsIndexList<?>) argv[--index]) != null) {
-        column.elements.indices = null;
-        result.extend(column);
-      }
-      return result;
-    } catch (CloneNotSupportedException e) {
+      result = (Matrix) clone();
+    } catch(CloneNotSupportedException e) {
       throw new AssertionError();
     }
+    result.ordinal = column.elements.size();
+    column.elements.indices = null;
+    result.extend(column);
+    while ((column = (ArgsIndexList<?>) columns[--offset & mask]) != null) {
+      result.extend(column);
+    }
+    return result;
   }
 
   protected int offset() {

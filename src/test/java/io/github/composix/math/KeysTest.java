@@ -66,12 +66,19 @@ class KeysTest extends PetstoreTestCase {
     // Then also the underlying VarArgs...
     int mask = petVarArgs.mask(), offset = pets.hashCode() & mask;
     Object[] argv = petVarArgs.argv;
+    Column<?>[] columns = petVarArgs.columns;
 
     // ...still contains the pets
+    ArgsIndexList<?> column = (ArgsIndexList<?>) columns[offset];
+    assertSame(pets, column.order); 
+    assertSame(Constants.INSTANCE.index(), column.refs);
+    assertNull(column.elements.indices);
+    Object[] array = (Object[]) column.elements.asArray();
     assertAllEquals(
       all(THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY),
-      petVarArgs.argv[offset & mask]
+      array
     );
+    assertSame(array, petVarArgs.argv[offset & mask]);
 
     // ...and contains the indices of the groups
     Index indices = (Index) argv[--offset & mask];
@@ -81,7 +88,7 @@ class KeysTest extends PetstoreTestCase {
     assertEquals(8, indices.getInt(2));
 
     // ...and contains the extracted keys
-    ArgsIndexList<Category> column = (ArgsIndexList<Category>) argv[--offset & mask];
+    column = (ArgsIndexList<Category>) columns[offset & mask];
     column.elements.indices = null;
     assertAllEquals(
       all(
@@ -126,7 +133,7 @@ class KeysTest extends PetstoreTestCase {
     assertEquals(6,indices.getInt(1));
 
     // ...and also contains the extracted quantities
-    column = (ArgsIndexList<?>) argv[--offset & mask];
+    column = (ArgsIndexList<?>) columns[offset & mask];
     assertNull(column.order); 
     assertSame(Constants.INSTANCE.index(), column.refs);
     assertSame(indices, column.elements.indices);
