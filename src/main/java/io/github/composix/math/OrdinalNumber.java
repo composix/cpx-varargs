@@ -177,21 +177,21 @@ abstract class OrdinalNumber extends Number implements Ordinal {
     }
 
     @Override
-    public ArgsIndexList<Integer> any(int... values) {
+    public ArgsColumn<Integer> any(int... values) {
         byte tpos = CONSTANTS.check(this, values);
         if (tpos < 0) {
             return null;
         }
-        return new ArgsIndexList<>(tpos, IntStream.of(values).mapToLong(i -> i).toArray());
+        return new ArgsColumn<>(tpos, IntStream.of(values).mapToLong(i -> i).toArray());
     }
 
     @Override
-    public ArgsIndexList<Long> any(long... values) {
+    public ArgsColumn<Long> any(long... values) {
         byte tpos = CONSTANTS.check(this, values);
         if (tpos < 0) {
             return null;
         }
-        return new ArgsIndexList<>(tpos, values);
+        return new ArgsColumn<>(tpos, values);
     }
 
     @Override
@@ -220,7 +220,7 @@ abstract class OrdinalNumber extends Number implements Ordinal {
         if (tpos < 0) {
             return null;
         }
-        return new ArgsIndexList<>(tpos, values);
+        return new ArgsColumn<>(tpos, values);
     }
 
     @Override

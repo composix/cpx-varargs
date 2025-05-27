@@ -98,7 +98,7 @@ class ArgsOrdinalTest extends TestCase {
   void testExtend() {
     assertInstanceOf(CloneNotSupportedException.class,
       assertThrows(UnsupportedOperationException.class, () ->
-        extend(new ArgsIndexList<>(AL.byteValue(), any(0L, 1L, 2L)))
+        extend(new ArgsColumn<>(AL.byteValue(), any(0L, 1L, 2L)))
       ).getCause()
     );
   }

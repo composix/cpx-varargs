@@ -439,7 +439,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       throw new ConcurrentModificationException("grouping already in progress");
     }
     final Range<T> result = _groupBy(tpos, accessor);
-    columns[offset] = new ArgsIndexList<>((byte) 0, result);
+    columns[offset] = new ArgsColumn<>((byte) 0, result);
     return this;
   }
 
@@ -455,7 +455,7 @@ public class Matrix extends OrderInt implements Keys, Args {
       throw new ConcurrentModificationException("grouping already in progress");
     }
     final Range<Long> result = _groupBy(tpos, accessor);
-    columns[offset] = new ArgsIndexList<>((byte) 37, result);
+    columns[offset] = new ArgsColumn<>((byte) 37, result);
     return this;
   }
 
@@ -505,7 +505,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     return extend(attribute(name, type));
   }
 
-  private ArgsIndexList<?> attribute(CharSequence name, Ordinal type)
+  private ArgsColumn<?> attribute(CharSequence name, Ordinal type)
     throws NoSuchFieldException {
     name = name.toString().intern();
     final int tpos = type.intValue();
@@ -524,13 +524,13 @@ public class Matrix extends OrderInt implements Keys, Args {
             for (int i = 0; i < length; ++i) {
               longs[i] = Long.parseLong(column[offset++].toString());
             }
-            return (ArgsIndexList<?>) AL.any(longs);
+            return (ArgsColumn<?>) AL.any(longs);
           case 18:
             String[] strings = new String[length];
             for (int i = 0; i < length; ++i) {
               strings[i] = (String) column[offset++];
             }
-            return (ArgsIndexList<?>) S.all(strings);
+            return (ArgsColumn<?>) S.all(strings);
           case 20:
             URI[] uris = new URI[length];
             for (int i = 0; i < length; ++i) {
@@ -540,7 +540,7 @@ public class Matrix extends OrderInt implements Keys, Args {
                 throw new IllegalArgumentException(e);
               }
             }
-            return (ArgsIndexList<?>) U.all(uris);
+            return (ArgsColumn<?>) U.all(uris);
           default:
             throw new UnsupportedOperationException();
         }
@@ -766,7 +766,7 @@ public class Matrix extends OrderInt implements Keys, Args {
 
   @Override
   public <T extends Comparable<T>> Column<OrdinalList<T>> collect(Ordinal col) {
-    final ArgsIndexList<T> source = (ArgsIndexList<T>) dto(col);
+    final ArgsColumn<T> source = (ArgsColumn<T>) dto(col);
     final Index indices = source.indices;
     final int amount = amount();
     final OrdinalList[] target = new OrdinalList[amount];
@@ -774,11 +774,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     for (int i = 0; i < amount; ++i) {
       target[i] = (OrdinalList) source.subList(index, (index = indices.getInt(i)));
     }
-    final Column<?> result = new ArgsIndexList<>(TPOS_DTO, target);
+    final Column<?> result = new ArgsColumn<>(TPOS_DTO, target);
     return (Column<OrdinalList<T>>) result; 
   }
 
-  private ArgsIndexList<?> dto(Ordinal col) {
+  private ArgsColumn<?> dto(Ordinal col) {
     final VarArgs varargs = varArgs();
     final Index positions = varargs.positions;
     int pos, offset = offset() & varargs.mask();
@@ -788,7 +788,7 @@ public class Matrix extends OrderInt implements Keys, Args {
         int index = limit >> SHIFT2;
         limit &= MASK2;
         if (col.intValue() < limit) {
-          return (ArgsIndexList<?>) varargs.columns[offset + index];
+          return (ArgsColumn<?>) varargs.columns[offset + index];
         }
         break;
       }
@@ -806,9 +806,9 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int mask = varargs.mask();
     final Object[] columns = varargs.columns;
     int offset = offset();
-    final Index indices = ((ArgsIndexList<?>) columns[--offset & mask]).range().indices;
+    final Index indices = ((ArgsColumn<?>) columns[--offset & mask]).range().indices;
     while (columns[--offset & mask] != null);
-    columns[offset & mask] = new ArgsIndexList<>(AL.byteValue(), (long[]) target(ofLong(col, accessor), reducer, indices));
+    columns[offset & mask] = new ArgsColumn<>(AL.byteValue(), (long[]) target(ofLong(col, accessor), reducer, indices));
     return this;
   }
 
@@ -948,7 +948,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int mask = varargs.mask();
     final Object[] columns = varargs.columns;
     int offset = offset();
-    ArgsIndexList<?> column = (ArgsIndexList<?>) columns[--offset & mask];
+    ArgsColumn<?> column = (ArgsColumn<?>) columns[--offset & mask];
     Matrix result;
     try {
       result = (Matrix) clone();
@@ -958,7 +958,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     result.ordinal = column.elements.size();
     column.elements.indices = null;
     result.extend(column);
-    while ((column = (ArgsIndexList<?>) columns[--offset & mask]) != null) {
+    while ((column = (ArgsColumn<?>) columns[--offset & mask]) != null) {
       result.extend(column);
     }
     return result;

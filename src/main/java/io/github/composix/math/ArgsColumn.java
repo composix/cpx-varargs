@@ -1,7 +1,7 @@
 /**
- * class ArgsIndexList
+ * class ArgsColumn
  *
- * This class provides the base list implementation of the ArgsList interface.
+ * This class provides the base list implementation of the Column interface.
  * The implemented list is immutable in terms of its contents, but the order of
  * the elements can be changed by modifying the sort order based on the ordinals
  * associated with the tabular data.
@@ -39,7 +39,7 @@ package io.github.composix.math;
 import java.util.Comparator;
 import java.util.List;
 
-class ArgsIndexList<E extends Comparable<E>>
+class ArgsColumn<E extends Comparable<E>>
   extends OrdinalList<E>
   implements Column<E> {
 
@@ -52,7 +52,7 @@ class ArgsIndexList<E extends Comparable<E>>
   MutableOrder order;
   Index refs, indices;
 
-  ArgsIndexList(byte tpos, Range<E> range) {
+  ArgsColumn(byte tpos, Range<E> range) {
     this.tpos = tpos;
     elements = range;
     header = ":";
@@ -61,7 +61,7 @@ class ArgsIndexList<E extends Comparable<E>>
     indices = null;
   }
 
-  ArgsIndexList(byte tpos, long[] array) {
+  ArgsColumn(byte tpos, long[] array) {
     this.tpos = tpos;
     elements = (Range<E>) new ArgsLongSet(array);
     header = ":";
@@ -70,7 +70,7 @@ class ArgsIndexList<E extends Comparable<E>>
     indices = null;
   }
 
-  ArgsIndexList(byte tpos, Object[] array) {
+  ArgsColumn(byte tpos, Object[] array) {
     this.tpos = tpos;
     elements = new ArgsObjSet<>(array);
     header = ":";
