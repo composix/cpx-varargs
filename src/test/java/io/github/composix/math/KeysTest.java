@@ -80,15 +80,9 @@ class KeysTest extends PetstoreTestCase {
     );
     assertSame(array, petVarArgs.argv[offset & mask]);
 
-    // ...and contains the indices of the groups
-    Index indices = (Index) argv[--offset & mask];
-    assertEquals(3, indices.size());
-    assertEquals(2, indices.getInt(0));
-    assertEquals(5,indices.getInt(1));
-    assertEquals(8, indices.getInt(2));
-
     // ...and contains the extracted keys
-    column = (ArgsIndexList<Category>) columns[offset & mask];
+    column = (ArgsIndexList<Category>) columns[--offset & mask];
+    Index indices = column.elements.indices;
     column.elements.indices = null;
     assertAllEquals(
       all(
@@ -98,6 +92,12 @@ class KeysTest extends PetstoreTestCase {
       ),
       column.source()
     );
+
+    // ...and contains the indices of the groups
+    assertEquals(3, indices.size());
+    assertEquals(2, indices.getInt(0));
+    assertEquals(5,indices.getInt(1));
+    assertEquals(8, indices.getInt(2));
 
     // And nothing else
     assertNull(argv[--offset & mask]);
@@ -126,18 +126,18 @@ class KeysTest extends PetstoreTestCase {
     );
     assertSame(array, orderVarArgs.argv[orders.hashCode() & orderVarArgs.mask()]);
 
-    // ...and contains the indices of the groups
-    Index indices = (Index) argv[--offset & mask];
-    assertEquals(2, indices.size());
-    assertEquals(3, indices.getInt(0));
-    assertEquals(6,indices.getInt(1));
-
     // ...and also contains the extracted quantities
-    column = (ArgsIndexList<?>) columns[offset & mask];
+    column = (ArgsIndexList<?>) columns[--offset & mask];
+    Index indices = column.elements.indices;
     assertNull(column.order); 
     assertSame(Constants.INSTANCE.index(), column.refs);
     assertSame(indices, column.elements.indices);
     assertAllEquals(any(1L, 2L), column.elements.asArray());
+
+    // ...and contains the indices of the groups
+    assertEquals(2, indices.size());
+    assertEquals(3, indices.getInt(0));
+    assertEquals(6,indices.getInt(1));
   }
 
   @Test

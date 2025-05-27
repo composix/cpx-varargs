@@ -597,7 +597,6 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int amount = amount();
     final int count = count(amount, source, accessor);
     final Index indices = Index.of(count, amount);
-    argv(-1, indices);
     int k = 0;
     accessor.setValueAt(rank(0), source);
     for (int i = 1; i < amount; ++i) {
@@ -803,11 +802,11 @@ public class Matrix extends OrderInt implements Keys, Args {
     ToLongFunction<T> accessor,
     LongBinaryOperator reducer
   ) {
-    final Index indices = argv(-1);
     final VarArgs varargs = varArgs();
     final int mask = varargs.mask();
     final Object[] columns = varargs.columns;
     int offset = offset();
+    final Index indices = ((ArgsIndexList<?>) columns[--offset & mask]).elements.indices;
     while (columns[--offset & mask] != null);
     columns[offset & mask] = new ArgsIndexList<>(AL.byteValue(), (long[]) target(ofLong(col, accessor), reducer, indices));
     return this;
