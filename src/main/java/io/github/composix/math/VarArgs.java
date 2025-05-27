@@ -36,7 +36,7 @@ package io.github.composix.math;
 
 import java.util.AbstractList;
 
-public final class VarArgs extends AbstractList<Column<?>> implements Cloneable {
+public final class VarArgs extends AbstractList<ArgsColumn<?>> implements Cloneable {
 
   public static final VarArgs VARARGS = new VarArgs(Short.SIZE);
 
@@ -44,12 +44,12 @@ public final class VarArgs extends AbstractList<Column<?>> implements Cloneable 
 
   public final Index positions;
   public final Object[] argv;
-  public final Column[] columns;
+  public final ArgsColumn<?>[] columns;
 
   VarArgs(final int bits) {
     positions = Index.of(1 << bits, Short.MAX_VALUE);
     argv = new Object[1 << bits];
-    columns = new Column[1 << bits];
+    columns = new ArgsColumn[1 << bits];
   }
 
   @Override
@@ -58,13 +58,13 @@ public final class VarArgs extends AbstractList<Column<?>> implements Cloneable 
   }
 
   @Override
-  public Column<?> get(int index) {
+  public ArgsColumn<?> get(int index) {
     return columns[index];
   }
 
   @Override
-  public Column<?> set(int index, Column<?> value) {
-    Column<?> result = columns[index];
+  public ArgsColumn<?> set(int index, ArgsColumn<?> value) {
+    ArgsColumn<?> result = columns[index];
     columns[index] = value;
     return result;
   }

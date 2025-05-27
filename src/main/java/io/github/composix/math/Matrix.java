@@ -185,7 +185,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     tpos |= type;
     positions.setInt(offset + i, tpos);
     argv[pos] = column.source();
-    varargs.columns[pos] = column;
+    varargs.columns[pos] = (ArgsColumn<?>) column;
     ordinal += OMEGA.intValue();
     column.attachOrder(this);
     return this;
