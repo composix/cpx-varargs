@@ -174,11 +174,11 @@ class ArgsIndexList<E extends Comparable<E>>
   // from RangedList
 
   @Override
-  public RangedList<E> range() {
+  public Range<E> range() {
     if (!elements.isRange()) {
       initialize();
     }
-    return elements;
+    return (Range<E>) elements;
   }
 
   @Override

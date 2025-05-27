@@ -806,7 +806,7 @@ public class Matrix extends OrderInt implements Keys, Args {
     final int mask = varargs.mask();
     final Object[] columns = varargs.columns;
     int offset = offset();
-    final Index indices = ((ArgsIndexList<?>) columns[--offset & mask]).elements.indices;
+    final Index indices = ((ArgsIndexList<?>) columns[--offset & mask]).range().indices;
     while (columns[--offset & mask] != null);
     columns[offset & mask] = new ArgsIndexList<>(AL.byteValue(), (long[]) target(ofLong(col, accessor), reducer, indices));
     return this;
