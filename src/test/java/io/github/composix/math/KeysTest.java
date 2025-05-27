@@ -48,6 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.composix.models.examples.Category;
 import io.github.composix.models.examples.Order;
@@ -72,7 +73,7 @@ class KeysTest extends PetstoreTestCase {
     ArgsColumn<?> column = (ArgsColumn<?>) columns[offset];
     assertSame(pets, column.order); 
     assertSame(Constants.INSTANCE.index(), column.refs);
-    assertNull(column.elements.indices);
+    assertNull(((Range<?>) column.elements).indices);
     Object[] array = (Object[]) column.elements.asArray();
     assertAllEquals(
       all(THOMAS, DUCHESS, PLUTO, FRANK, FREY, MICKEY, DONALD, GOOFY),
@@ -82,8 +83,10 @@ class KeysTest extends PetstoreTestCase {
 
     // ...and contains the extracted keys
     column = (ArgsColumn<Category>) columns[--offset & mask];
-    Index indices = column.elements.indices;
-    column.elements.indices = null;
+    assertTrue(column.elements.isRange());
+    Range<?> range = column.range();
+    Index indices = range.indices;
+    range.indices = null;
     assertAllEquals(
       all(
         new Category(0, "cats"),
@@ -118,7 +121,7 @@ class KeysTest extends PetstoreTestCase {
     ArgsColumn<?> column = (ArgsColumn<?>) columns[offset];
     assertSame(orders, column.order); 
     assertSame(Constants.INSTANCE.index(), column.refs);
-    assertNull(column.elements.indices);
+    assertNull(((Range<?>) column.elements).indices);
     Object[] array = (Object[]) column.elements.asArray();
     assertAllEquals(
       all(O, P, Q, R, S, T),
@@ -128,10 +131,11 @@ class KeysTest extends PetstoreTestCase {
 
     // ...and also contains the extracted quantities
     column = (ArgsColumn<?>) columns[--offset & mask];
-    Index indices = column.elements.indices;
+    assertTrue(column.elements.isRange());
+    Range<?> range = column.range();
+    Index indices = range.indices;
     assertNull(column.order); 
     assertSame(Constants.INSTANCE.index(), column.refs);
-    assertSame(indices, column.elements.indices);
     assertAllEquals(any(1L, 2L), column.elements.asArray());
 
     // ...and contains the indices of the groups

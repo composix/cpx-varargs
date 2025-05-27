@@ -46,7 +46,7 @@ class ArgsColumn<E extends Comparable<E>>
   private static final Constants CONSTANTS = Constants.getInstance();
 
   byte tpos;
-  final Range<E> elements;
+  final OrdinalList<E> elements;
 
   String header;
   MutableOrder order;

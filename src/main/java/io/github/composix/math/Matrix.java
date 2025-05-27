@@ -949,14 +949,15 @@ public class Matrix extends OrderInt implements Keys, Args {
     final Object[] columns = varargs.columns;
     int offset = offset();
     ArgsColumn<?> column = (ArgsColumn<?>) columns[--offset & mask];
+    final Range<?> range = column.range();
+    range.indices = null;
     Matrix result;
     try {
       result = (Matrix) clone();
     } catch(CloneNotSupportedException e) {
       throw new AssertionError();
     }
-    result.ordinal = column.elements.size();
-    column.elements.indices = null;
+    result.ordinal = range.size();
     result.extend(column);
     while ((column = (ArgsColumn<?>) columns[--offset & mask]) != null) {
       result.extend(column);
