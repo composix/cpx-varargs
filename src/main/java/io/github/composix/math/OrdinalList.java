@@ -564,6 +564,28 @@ abstract class OrdinalList<E extends Comparable<E>>
         ranks.setInt(rank, count);
       }
       return ++count;
-    }  
+    }
+    
+    @Override
+    Range<Long> range(int count, int amount, Index result, Order order) {
+      final Index indices = Index.of(count, amount);
+      final long[] array = new long[count];
+      count = 0;
+      int rank = order.rank(0);
+      int current = result.getInt(rank);
+      array[0] = getLong(rank);
+      for (int i = 1; i < amount; ++i) {
+        rank = order.rank(i);
+        if (current != (current = result.getInt(rank))) {
+          indices.setInt(count++, i);
+          array[count] = getLong(rank);
+        }
+      }
+      indices.setInt(count, amount);
+      Range<Long> range = new ArgsLongSet(array);
+      range.indices = indices;
+      return range;
+      }
+  
   }
 }

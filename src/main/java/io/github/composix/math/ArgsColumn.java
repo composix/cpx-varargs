@@ -46,7 +46,7 @@ class ArgsColumn<E extends Comparable<E>>
   private static final Constants CONSTANTS = Constants.getInstance();
 
   byte tpos;
-  final OrdinalList<E> elements;
+  OrdinalList<E> elements;
 
   String header;
   MutableOrder order;
@@ -63,7 +63,7 @@ class ArgsColumn<E extends Comparable<E>>
 
   ArgsColumn(byte tpos, long[] array) {
     this.tpos = tpos;
-    elements = (Range<E>) new ArgsLongSet(array);
+    elements = (OrdinalList<E>) new OrdinalList.LongIndex(array);
     header = ":";
     order = null;
     refs = CONSTANTS.index();
@@ -279,8 +279,7 @@ class ArgsColumn<E extends Comparable<E>>
     } else {
       reordinal();
       count = elements.ranks(order, refs);
-      //elements = elements.range(count, amount, refs, order);
-      ((Range<?>) elements).initialize(count, amount, refs, order);
+      elements = elements.range(count, amount, refs, order);
     }
   }
 }
