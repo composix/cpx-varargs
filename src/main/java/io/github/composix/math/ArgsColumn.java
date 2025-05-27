@@ -136,39 +136,18 @@ class ArgsColumn<E extends Comparable<E>>
   @Override
   public void sort(Comparator<? super E> comparator) {
     if (!elements.isRange()) {
-      switch (elements) {
-        case ArgsLongSet longSet:
-          if (comparator != null) {
-            throw new UnsupportedOperationException();
-          }
-          order.reorder((lhs, rhs) ->
-            Long.compare(
-              longSet.array[lhs.intValue()],
-              longSet.array[rhs.intValue()]
-            )
-          );
-          break;
-        case ArgsObjSet<?> objSet:
-          if (comparator == null) {
-            order.reorder((lhs, rhs) ->
-              ((String) objSet.array[lhs.intValue()]).compareTo(
-                  (String) objSet.array[rhs.intValue()]
-                )
-            );
-          } else {
-            order.reorder((lhs, rhs) ->
-              comparator.compare(
-                (E) objSet.array[lhs.intValue()],
-                (E) objSet.array[rhs.intValue()]
-              )
-            );
-          }
-          break;
-        default:
-          throw new UnsupportedOperationException();
+      if (comparator == null) {
+        elements.reorder(order);
+      } else {
+        elements.reorder(order, comparator);
+      }
+    } else {
+      if (comparator == null) {
+        refs.reorder(order);
+      } else {
+        reorder(order, comparator);
       }
     }
-    // TODO: override the sort method to sort the elements based on the ordinals
   }
 
   // from RangedList
@@ -257,27 +236,14 @@ class ArgsColumn<E extends Comparable<E>>
     this.order = order;
   }
 
-  private void reordinal() {
-    order.reorder((lhs, rhs) ->
-      Long.compare(elements.getLong(lhs.intValue()), elements.getLong(rhs.intValue()))
-    );    
-  }
-
-  private void reorder() {
-    order.reorder((lhs, rhs) ->
-      get(lhs.intValue()).compareTo(get(rhs.intValue()))
-    );
-  }
-
   private void initialize() {
     final int amount = order.amount();
+    elements.reorder(order);
     refs = Index.of(amount);
     int count;
     if (elements.asArray() instanceof Object[]) {
-      reorder();
       count = elements.ranks(order, refs);
     } else {
-      reordinal();
       count = elements.ranks(order, refs);
       elements = elements.range(count, amount, refs, order);
     }

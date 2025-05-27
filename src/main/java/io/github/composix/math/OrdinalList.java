@@ -39,6 +39,7 @@ package io.github.composix.math;
 import java.util.AbstractList;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -144,6 +145,13 @@ abstract class OrdinalList<E extends Comparable<E>>
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public void reorder(final MutableOrder order) {
+    order.reorder((lhs, rhs) ->
+      get(lhs.intValue()).compareTo(get(rhs.intValue()))
+    );
+  }
+
   // from RangedList
 
   @Override
@@ -191,6 +199,10 @@ abstract class OrdinalList<E extends Comparable<E>>
     return false;
   }
   
+  void reorder(final MutableOrder order, Comparator<? super E> comparator) {
+    order.reorder((lhs, rhs) -> comparator.compare(get(lhs.intValue()), get(rhs.intValue())));
+  }
+
   int ranks(final Order order, Index ranks) {
     final int size = ranks.size();
     int count = 0, rank = order.rank(0);
@@ -371,6 +383,13 @@ abstract class OrdinalList<E extends Comparable<E>>
     }
 
     @Override
+    public void reorder(final MutableOrder order) {
+      order.reorder((lhs, rhs) ->
+        Byte.compare(index[lhs.intValue()], index[rhs.intValue()])
+      );
+    }
+    
+    @Override
     Object asArray() {
       return index;
     }
@@ -418,6 +437,13 @@ abstract class OrdinalList<E extends Comparable<E>>
     }
 
     @Override
+    public void reorder(final MutableOrder order) {
+      order.reorder((lhs, rhs) ->
+        Short.compare(index[lhs.intValue()], index[rhs.intValue()])
+      );
+    }
+    
+    @Override
     Object asArray() {
       return index;
     }
@@ -464,6 +490,13 @@ abstract class OrdinalList<E extends Comparable<E>>
       this.index = new int[length];
     }
 
+    @Override
+    public void reorder(final MutableOrder order) {
+      order.reorder((lhs, rhs) ->
+        Integer.compare(index[lhs.intValue()], index[rhs.intValue()])
+      );
+    }
+    
     @Override
     Object asArray() {
       return index;
@@ -515,6 +548,13 @@ abstract class OrdinalList<E extends Comparable<E>>
       this.index = new long[length];
     }
 
+    @Override
+    public void reorder(final MutableOrder order) {
+      order.reorder((lhs, rhs) ->
+        Long.compare(index[lhs.intValue()], index[rhs.intValue()])
+      );
+    }
+    
     @Override
     Object asArray() {
       return index;

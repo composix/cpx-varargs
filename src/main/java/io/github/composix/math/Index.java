@@ -189,4 +189,6 @@ interface Index {
    * primitive int or primitive long.
    */
   LongStream indexedStream();
+
+  void reorder(MutableOrder order);
 }
