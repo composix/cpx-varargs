@@ -52,8 +52,6 @@ abstract class Range<E extends Comparable<E>> extends OrdinalList<E> {
     this.indices = indices;
   }
 
-  abstract Index initialize(int count, int amount, Index result, Order order);
-
   @Override
   public Index cumulativeCounts() {
     final int size = size();
